@@ -4,6 +4,7 @@ import css from '../../../../src/style-cssModules.less';
 import Button from '../../../components/Button';
 import curCss from './index.less';
 import { SQL_PANEL_VISIBLE } from '../../../constant';
+import Collapse from '../../../components/Collapse';
 import { chose } from '../../../icon';
 
 export default function GlobalPanel({
@@ -45,24 +46,26 @@ export default function GlobalPanel({
           </div>
         </div>
         <div className={curCss.ct}>
-          {sidebarContext.sqlList.map((sql) =>
-            sql.serviceList.map((item) => (
-              <div
-                key={item.serviceId}
-                className={
-                  sqlList.some(
-                    ({ serviceId }) => item.serviceId === serviceId
-                  ) || data.connectors.some(({ id }) => item.serviceId === id)
-                    ? curCss.chosed
-                    : ''
-                }
-                onClick={() => onItemClick({ ...item, fileId: sql.fileId })}
-              >
-                <div className={curCss.left}>{item.title}</div>
-                <div className={curCss.right}>{chose}</div>
-              </div>
-            ))
-          )}
+          {sidebarContext.sqlList.map((sql) => (
+            <Collapse header={sql.fileName} defaultFold={false}>
+              {sql.serviceList.map((item) => (
+                <div
+                  key={item.serviceId}
+                  className={
+                    sqlList.some(
+                      ({ serviceId }) => item.serviceId === serviceId
+                    ) || data.connectors.some(({ id }) => item.serviceId === id)
+                      ? curCss.chosed
+                      : curCss.item
+                  }
+                  onClick={() => onItemClick({ ...item, fileId: sql.fileId })}
+                >
+                  <div className={curCss.left}>{item.title}</div>
+                  <div className={curCss.right}>{chose}</div>
+                </div>
+              ))}
+            </Collapse>
+          ))}
         </div>
       </div>
     ) : null,
