@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "esModuleInterop": true,
+    "module": "es2015",
+    "target": "es6",
+    "jsx": "react",
+    "declaration": true, 
+    "emitDeclarationOnly": true,
+    "lib": [
+      "dom",
+      "es6",
+      "dom.iterable",
+      "esnext"
+    ],
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "allowJs": true,
+    "baseUrl": ".",
+    "rootDir": "src",
+    "outDir": "runtime",
+    "skipLibCheck": true
+  },
+  "include": [
+    "src"
+  ]
+}
