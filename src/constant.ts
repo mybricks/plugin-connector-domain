@@ -4,6 +4,16 @@ export const exampleParamsFunc = `export default function ({ params, data, heade
  }
 `;
 
+export const exampleSQLParamsFunc = `export default function ({ params, data, headers, url, method }) {
+  // 设置请求query、请求体、请求头
+  return { params, data: {
+    params: data,
+    serviceId: '__serviceId__',
+    fileId: '__fileId__',
+  }, headers, url, method };
+ }
+`;
+
 export const exampleResultFunc = `export default function (result, { method, url, params, data, headers }) {
   // return {
   //  total: result.all,
@@ -64,3 +74,4 @@ export const NO_PANEL_VISIBLE = 0;
 export const DEFAULT_PANEL_VISIBLE = 0b01;
 export const TG_PANEL_VISIBLE = 0b10;
 export const KDEV_PANEL_VISIBLE = 0b100;
+export const SQL_PANEL_VISIBLE = 0b1000;

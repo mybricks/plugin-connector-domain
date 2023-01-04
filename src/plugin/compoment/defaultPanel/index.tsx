@@ -15,10 +15,10 @@ import Input, { TextArea } from '../../../components/Input';
 import { safeDecode } from '../../../utils';
 
 const methodOpts = [
-  { title: 'GET', value: 'GET' },
+  // { title: 'GET', value: 'GET' },
   { title: 'POST', value: 'POST' },
-  { title: 'PUT', value: 'PUT' },
-  { title: 'DELETE', value: 'DELETE' },
+  // { title: 'PUT', value: 'PUT' },
+  // { title: 'DELETE', value: 'DELETE' },
 ];
 
 export default function DefaultPanel({
@@ -146,6 +146,7 @@ export default function DefaultPanel({
                     data-err='请填写完整的地址'
                   >
                     <textarea
+                      readOnly
                       defaultValue={sidebarContext.formModel.path}
                       key={sidebarContext.formModel.path}
                       placeholder={'接口的请求路径'}

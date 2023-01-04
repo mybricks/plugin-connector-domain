@@ -1,5 +1,10 @@
-import React, { useCallback, useMemo, useRef, useState } from 'react';
-import ReactDOM from 'react-dom';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { uuid } from '../utils';
 import {
   exampleParamsFunc,
@@ -7,19 +12,21 @@ import {
   SERVICE_TYPE,
   TG_PANEL_VISIBLE,
   DEFAULT_PANEL_VISIBLE,
-  KDEV_PANEL_VISIBLE,
   NO_PANEL_VISIBLE,
   templateResultFunc,
+  exampleSQLParamsFunc,
 } from '../constant';
 import css from '../style-cssModules.less';
 import { get } from '../utils/lodash';
 import { formatDate } from '../utils/moment';
 import DefaultPanel from './compoment/defaultPanel';
+import SQLPanel from './compoment/sqlPanel';
+
 import { getScript } from '../script';
 import Toolbar from './compoment/toolbar';
 import * as Icons from '../icon';
-import GlobalPanel from './compoment/globalPanel';
 import { cloneDeep } from '../utils/lodash/cloneDeep';
+import axios from 'axios';
 
 interface Iprops {
   connector: Iconnector;
@@ -48,7 +55,6 @@ const interfaceParams = [
 ];
 
 export default function Sidebar({
-  addActions,
   connector,
   data,
   ininitialValue = {},
@@ -75,11 +81,7 @@ export default function Sidebar({
     templateForm: {},
     leftWidth: 271,
     enableRenderPortal: true,
-    addActions: addActions
-      ? addActions.some(({ type }: any) => type === 'defalut')
-        ? addActions
-        : [{ type: 'http', title: '默认' }].concat(addActions)
-      : [{ type: 'http', title: '默认' }],
+    addActions: [{ type: 'sql', title: 'sql' }],
     connector: {
       add: (args: any) => connector.add({ ...args }),
       remove: (id: string) => connector.remove(id),
@@ -92,14 +94,19 @@ export default function Sidebar({
       setSearchValue(v);
     },
   });
+
   const updateService = useCallback(
-    async (action?: string) => {
+    async (action: string, item?: any) => {
       return new Promise((resolve) => {
-        const { id = uuid(), ...others }: any = sidebarContext.formModel;
+        const {
+          id = uuid(),
+          type,
+          ...others
+        }: any = item || sidebarContext.formModel;
         if (action === 'create') {
           const serviceItem = {
             id,
-            type: sidebarContext.type || 'http',
+            type: type || 'http',
             content: {
               input: encodeURIComponent(exampleParamsFunc),
               output: encodeURIComponent(exampleResultFunc),
@@ -112,8 +119,7 @@ export default function Sidebar({
           data.connectors.push(serviceItem);
           sidebarContext.connector.add({
             id,
-            type:
-              sidebarContext.formModel.type || sidebarContext.type || 'http',
+            type: type || 'http',
             title: others.title,
             inputSchema: others.inputSchema,
             outputSchema: others.outputSchema,
@@ -140,10 +146,7 @@ export default function Sidebar({
                 sidebarContext.connector.update({
                   id: updateAll ? serviceItem.id : id,
                   title: others.title,
-                  type:
-                    sidebarContext.formModel.type ||
-                    sidebarContext.type ||
-                    'http',
+                  type: type || 'http',
                   inputSchema: serviceItem.content.inputSchema,
                   outputSchema: serviceItem.content.outputSchema,
                   script: getScript({
@@ -254,12 +257,6 @@ export default function Sidebar({
     setRender(sidebarContext);
   }, []);
 
-  const closeTemplateForm = useCallback(() => {
-    sidebarContext.templateVisible = false;
-    sidebarContext.isEdit = false;
-    setRender(sidebarContext);
-  }, []);
-
   const onCancel = useCallback(() => {
     sidebarContext.panelVisible = NO_PANEL_VISIBLE;
     sidebarContext.isDebug = false;
@@ -341,70 +338,53 @@ export default function Sidebar({
     []
   );
 
+  const onSaveSQl = useCallback((sqlList: any[]) => {
+    setRender({
+      panelVisible: NO_PANEL_VISIBLE,
+    });
+    sqlList.forEach((item) => {
+      updateService('create', {
+        id: item.serviceId,
+        title: item.title,
+        method: 'POST',
+        type: 'http',
+        input: encodeURIComponent(
+          exampleSQLParamsFunc
+            .replace('__serviceId__', item.serviceId)
+            .replace('__fileId__', item.fileId)
+        ),
+        path: `/api/system/domain/run`,
+      });
+    });
+  }, []);
+
   const renderAddActions = useCallback(() => {
-    return sidebarContext.addActions.map(({ type, render: Compnent }: any) => {
-      let visible = 0;
-      switch (type) {
-        case 'http':
-          visible = DEFAULT_PANEL_VISIBLE;
-          break;
-        case 'http-tg':
-          visible = TG_PANEL_VISIBLE;
-          break;
-        case 'http-kdev':
-          visible = KDEV_PANEL_VISIBLE;
-      }
-      return type === 'http' ? (
+    return (
+      <>
+        <SQLPanel
+          sidebarContext={sidebarContext}
+          setRender={setRender}
+          onSubmit={onFinish}
+          onSaveSQl={onSaveSQl}
+          key='sql'
+          data={data}
+          style={{ top: ref.current?.getBoundingClientRect().top }}
+        />
         <DefaultPanel
           sidebarContext={sidebarContext}
           setRender={setRender}
           onSubmit={onFinish}
-          key={type}
+          key='default'
           globalConfig={data.config}
           style={{ top: ref.current?.getBoundingClientRect().top }}
         />
-      ) : (
-        ReactDOM.createPortal(
-          sidebarContext.panelVisible & visible ? (
-            <div
-              style={{
-                left: 361,
-                top: ref.current?.getBoundingClientRect().top,
-              }}
-              key={type}
-              className={`${css['sidebar-panel-edit']}`}
-            >
-              <Compnent
-                panelCtx={sidebarContext}
-                constant={{
-                  exampleParamsFunc,
-                  exampleResultFunc,
-                  NO_PANEL_VISIBLE,
-                }}
-              />
-            </div>
-          ) : null,
-          document.body
-        )
-      );
-    });
+      </>
+    );
   }, [sidebarContext]);
 
   const onGlobalConfigChange = useCallback(() => {
     updateService('updateAll');
   }, []);
-
-  const renderGlobalPanel = useCallback(() => {
-    return (
-      <GlobalPanel
-        sidebarContext={sidebarContext}
-        style={{ top: ref.current?.getBoundingClientRect().top }}
-        closeTemplateForm={closeTemplateForm}
-        data={data}
-        onChange={onGlobalConfigChange}
-      />
-    );
-  }, [sidebarContext]);
 
   const getInterfaceParams = useCallback((item) => {
     if (item.type === SERVICE_TYPE.TG) {
@@ -471,6 +451,25 @@ export default function Sidebar({
     initData();
   }, []);
 
+  useEffect(() => {
+    function fetchServiceList() {
+      axios({
+        url: '/api/system/domain/list',
+        method: 'POST',
+      })
+        .then((res) => res.data)
+        .then((res) => {
+          if (res.code === 1) {
+            setRender({
+              sqlList: res.data,
+            });
+          }
+        });
+    }
+
+    fetchServiceList();
+  }, []);
+
   return (
     <>
       <div
@@ -480,7 +479,7 @@ export default function Sidebar({
         <div className={`${css['sidebar-panel-view']}`}>
           <div className={css['sidebar-panel-header']}>
             <div className={css['sidebar-panel-header__title']}>
-              <span>服务连接</span>
+              <span>接口列表</span>
               <div className={css.icon} onClick={onGlobalConfigClick}>
                 {Icons.set}
               </div>
@@ -504,7 +503,7 @@ export default function Sidebar({
               return (
                 <div key={item.id}>
                   <div
-                    key={item.id}
+                    // key={item.id}
                     className={`${css['sidebar-panel-list-item']} ${
                       sidebarContext.activeId === item.id ? css.active : ''
                     } ${
@@ -592,7 +591,6 @@ export default function Sidebar({
           </div>
         </div>
         {renderAddActions()}
-        {renderGlobalPanel()}
       </div>
     </>
   );
