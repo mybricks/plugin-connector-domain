@@ -101,6 +101,7 @@ export default function Sidebar({
         const {
           id = uuid(),
           type,
+          inputSchema,
           ...others
         }: any = item || sidebarContext.formModel;
         if (action === 'create') {
@@ -110,7 +111,7 @@ export default function Sidebar({
             content: {
               input: encodeURIComponent(exampleParamsFunc),
               output: encodeURIComponent(exampleResultFunc),
-              inputSchema: { type: 'object' },
+              inputSchema: inputSchema || { type: 'object' },
               ...others,
             },
             createTime: Date.now(),
@@ -121,7 +122,7 @@ export default function Sidebar({
             id,
             type: type || 'http',
             title: others.title,
-            inputSchema: others.inputSchema,
+            inputSchema: inputSchema,
             outputSchema: others.outputSchema,
             script: getScript({
               ...serviceItem.content,
@@ -343,13 +344,30 @@ export default function Sidebar({
       panelVisible: NO_PANEL_VISIBLE,
     });
     sqlList.forEach((item) => {
+      const params = item.paramAry?.reduce((obj, cur) => {
+        if (cur.defaultValue !== void 0) {
+          obj[cur.name] = cur.defaultValue
+        }
+        return obj;
+      }, {})
+      const inputSchema = item.paramAry?.reduce((obj, cur) => {
+        obj[cur.name] = { type: cur.type }
+        return obj;
+      }, {})
       updateService('create', {
         id: item.serviceId,
         title: item.title,
         method: 'POST',
         type: 'http',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            ...inputSchema
+          }
+        },
         input: encodeURIComponent(
           exampleSQLParamsFunc
+            .replace('__params__', JSON.stringify(params || {}))
             .replace('__serviceId__', item.serviceId)
             .replace('__fileId__', item.fileId)
         ),

@@ -7,7 +7,10 @@ export const exampleParamsFunc = `export default function ({ params, data, heade
 export const exampleSQLParamsFunc = `export default function ({ params, data, headers, url, method }) {
   // 设置请求query、请求体、请求头
   return { params, data: {
-    params: data,
+    params: {
+      ...__params__,
+      ...data
+    },
     serviceId: '__serviceId__',
     fileId: '__fileId__',
   }, headers, url, method };
