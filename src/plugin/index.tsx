@@ -344,16 +344,17 @@ export default function Sidebar({
       panelVisible: NO_PANEL_VISIBLE,
     });
     sqlList.forEach((item) => {
-      const params = item.paramAry?.reduce((obj, cur) => {
-        if (cur.defaultValue !== void 0) {
-          obj[cur.name] = cur.defaultValue
-        }
-        return obj;
-      }, {})
       const inputSchema = item.paramAry?.reduce((obj, cur) => {
-        obj[cur.name] = { type: cur.type }
+        obj[cur.name] = { type: cur.type };
         return obj;
-      }, {})
+      }, {});
+      const debugParams = item.paramAry?.map((item) => ({
+        id: uuid(),
+        name: item.name,
+        type: item.type,
+        defaultValue: item.debugValue,
+      }));
+
       updateService('create', {
         id: item.serviceId,
         title: item.title,
@@ -362,12 +363,18 @@ export default function Sidebar({
         inputSchema: {
           type: 'object',
           properties: {
-            ...inputSchema
-          }
+            ...inputSchema,
+          },
         },
+        params: debugParams
+          ? {
+              type: 'root',
+              name: 'root',
+              children: debugParams,
+            }
+          : void 0,
         input: encodeURIComponent(
           exampleSQLParamsFunc
-            .replace('__params__', JSON.stringify(params || {}))
             .replace('__serviceId__', item.serviceId)
             .replace('__fileId__', item.fileId)
         ),

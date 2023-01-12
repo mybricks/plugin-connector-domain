@@ -8,11 +8,10 @@ export const exampleSQLParamsFunc = `export default function ({ params, data, he
   // 设置请求query、请求体、请求头
   return { params, data: {
     params: {
-      ...__params__,
       ...data
     },
     serviceId: '__serviceId__',
-    fileId: '__fileId__',
+    fileId: __fileId__,
   }, headers, url, method };
  }
 `;

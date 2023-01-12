@@ -26,6 +26,11 @@ export default function GlobalPanel({
     });
   }, []);
 
+  const onSave = () => {
+    onSaveSQl(sqlList);
+    setSQList([]);
+  }
+
   return ReactDOM.createPortal(
     sidebarContext.panelVisible & SQL_PANEL_VISIBLE ? (
       <div
@@ -39,7 +44,7 @@ export default function GlobalPanel({
           <div>接口选择</div>
           <div>
             <div className={css['actions']}>
-              <Button size='small' onClick={() => onSaveSQl(sqlList)}>
+              <Button size='small' type={sqlList.length ? 'primary' : ''}  onClick={onSave}>
                 保 存
               </Button>
             </div>
