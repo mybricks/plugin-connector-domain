@@ -366,6 +366,20 @@ export default function Sidebar({
             ...inputSchema,
           },
         },
+        resultSchema: {
+          type: 'object',
+          properties: {
+            code: {
+              type: 'number'
+            },
+            data: {
+              type: 'object'
+            },
+            msg: {
+              type: 'string'
+            }
+          }
+        },
         params: debugParams
           ? {
               type: 'root',
