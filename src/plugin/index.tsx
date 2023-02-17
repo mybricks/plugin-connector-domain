@@ -36,6 +36,8 @@ interface Iprops {
     config: { paramsFn: string; resultFn?: string };
   };
   ininitialValue: any;
+  serviceListUrl?: string;
+  callServiceUrl?: string;
 }
 
 interface Iconnector {
@@ -58,6 +60,8 @@ export default function Sidebar({
   connector,
   data,
   ininitialValue = {},
+  serviceListUrl,
+  callServiceUrl
 }: Iprops) {
   const ref = useRef();
   const [searchValue, setSearchValue] = useState('');
@@ -392,7 +396,7 @@ export default function Sidebar({
             .replace('__serviceId__', item.serviceId)
             .replace('__fileId__', item.fileId)
         ),
-        path: `/api/system/domain/run`,
+        path: callServiceUrl || `/api/system/domain/run`,
       });
     });
   }, []);
@@ -493,7 +497,7 @@ export default function Sidebar({
   useEffect(() => {
     function fetchServiceList() {
       axios({
-        url: '/api/system/domain/list',
+        url: serviceListUrl || '/api/system/domain/list',
         method: 'POST',
       })
         .then((res) => res.data)
