@@ -394,7 +394,6 @@ export default function Sidebar({
         input: encodeURIComponent(
           exampleSQLParamsFunc
             .replace('__serviceId__', item.serviceId)
-            .replace('__fileId__', item.fileId)
         ),
         path: callServiceUrl || `/api/system/domain/run`,
       });

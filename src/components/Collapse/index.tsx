@@ -14,7 +14,7 @@ export default function Collapse({ children, defaultFold = true, header, ...prop
         <div className={`${css.icon} ${fold ? css.fold : ''}`}>{arror}</div>
         {header}
       </div>
-      <div className={`${css.content}`}>{fold ? null : children}</div>
+      {fold ? null : children}
     </div>
   );
 }
