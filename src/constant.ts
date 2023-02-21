@@ -11,6 +11,7 @@ export const exampleSQLParamsFunc = `export default function ({ params, data, he
       ...data
     },
     serviceId: '__serviceId__',
+    fileId: __fileId__,
   }, headers, url, method };
  }
 `;

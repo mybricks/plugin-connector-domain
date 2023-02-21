@@ -400,7 +400,9 @@ export default function Sidebar({
             }
           : void 0,
         input: encodeURIComponent(
-          exampleSQLParamsFunc.replace('__serviceId__', item.serviceId)
+          exampleSQLParamsFunc
+            .replace('__serviceId__', item.serviceId)
+            .replace('__fileId__', item.fileId)
         ),
         path: callServiceUrl || `/api/system/domain/run`,
       });
