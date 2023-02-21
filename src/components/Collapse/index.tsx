@@ -9,7 +9,7 @@ export default function Collapse({ children, defaultFold = true, header, ...prop
   }, []);
 
   return (
-    <div className={css.collapse} {...props}>
+    <div className={css.ct} {...props}>
       <div className={`${css.header}`} onClick={onHeaderClick}>
         <div className={`${css.icon} ${fold ? css.fold : ''}`}>{arror}</div>
         {header}
