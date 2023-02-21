@@ -15,6 +15,7 @@ import {
   NO_PANEL_VISIBLE,
   templateResultFunc,
   exampleSQLParamsFunc,
+  TYPE
 } from '../constant';
 import css from '../style-cssModules.less';
 import { get } from '../utils/lodash';
@@ -61,7 +62,7 @@ export default function Sidebar({
   data,
   ininitialValue = {},
   serviceListUrl,
-  callServiceUrl
+  callServiceUrl,
 }: Iprops) {
   const ref = useRef();
   const [searchValue, setSearchValue] = useState('');
@@ -79,7 +80,14 @@ export default function Sidebar({
     type: '',
     comlibNavVisible: true,
     isEdit: false,
-    formModel: { path: '', title: '', id: '', type: '', input: '', output: '' },
+    formModel: {
+      path: '',
+      title: '',
+      id: '',
+      type: TYPE,
+      input: '',
+      output: '',
+    },
     isDebug: false,
     templateVisible: false,
     templateForm: {},
@@ -111,7 +119,7 @@ export default function Sidebar({
         if (action === 'create') {
           const serviceItem = {
             id,
-            type: type || 'http',
+            type: TYPE,
             content: {
               input: encodeURIComponent(exampleParamsFunc),
               output: encodeURIComponent(exampleResultFunc),
@@ -124,7 +132,7 @@ export default function Sidebar({
           data.connectors.push(serviceItem);
           sidebarContext.connector.add({
             id,
-            type: type || 'http',
+            type: TYPE,
             title: others.title,
             inputSchema: inputSchema,
             outputSchema: others.outputSchema,
@@ -151,7 +159,7 @@ export default function Sidebar({
                 sidebarContext.connector.update({
                   id: updateAll ? serviceItem.id : id,
                   title: others.title,
-                  type: type || 'http',
+                  type: TYPE,
                   inputSchema: serviceItem.content.inputSchema,
                   outputSchema: serviceItem.content.outputSchema,
                   script: getScript({
@@ -363,7 +371,7 @@ export default function Sidebar({
         id: item.serviceId,
         title: item.title,
         method: 'POST',
-        type: 'http',
+        type: TYPE,
         inputSchema: {
           type: 'object',
           properties: {
@@ -374,15 +382,15 @@ export default function Sidebar({
           type: 'object',
           properties: {
             code: {
-              type: 'number'
+              type: 'number',
             },
             data: {
-              type: 'object'
+              type: 'object',
             },
             msg: {
-              type: 'string'
-            }
-          }
+              type: 'string',
+            },
+          },
         },
         params: debugParams
           ? {
@@ -392,8 +400,7 @@ export default function Sidebar({
             }
           : void 0,
         input: encodeURIComponent(
-          exampleSQLParamsFunc
-            .replace('__serviceId__', item.serviceId)
+          exampleSQLParamsFunc.replace('__serviceId__', item.serviceId)
         ),
         path: callServiceUrl || `/api/system/domain/run`,
       });
@@ -470,7 +477,7 @@ export default function Sidebar({
         const { title, inputSchema, outputSchema } = item.content || {};
         const ctr = {
           id: item.id,
-          type: sidebarContext.formModel.type || sidebarContext.type || 'http',
+          type: TYPE,
           title,
           inputSchema,
           outputSchema,
