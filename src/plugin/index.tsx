@@ -20,6 +20,7 @@ import {
 import css from '../style-cssModules.less';
 import { get } from '../utils/lodash';
 import { formatDate } from '../utils/moment';
+import { parseQuery } from '../utils/index'
 import DefaultPanel from './compoment/defaultPanel';
 import SQLPanel from './compoment/sqlPanel';
 
@@ -505,8 +506,12 @@ export default function Sidebar({
   useEffect(() => {
     function fetchServiceList() {
       axios({
-        url: serviceListUrl || '/api/system/domain/list',
+        url: serviceListUrl || '/paas/api/system/domain/list',
         method: 'POST',
+        data: {
+          // @ts-ignore
+          fileId: parseQuery(location.search)?.id
+        }
       })
         .then((res) => res.data)
         .then((res) => {
