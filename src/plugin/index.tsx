@@ -352,11 +352,13 @@ export default function Sidebar({
     []
   );
 
-  const onSaveSQl = useCallback((sqlList: any[]) => {
+  const onSaveSQl = useCallback(async (sqlList: any[]) => {
     setRender({
       panelVisible: NO_PANEL_VISIBLE,
     });
-    sqlList.forEach((item) => {
+    for(let l = sqlList.length, i=0; i<l; i++) {
+      const item = sqlList[i]
+      const relativePath: string = await fetchRelativePath(item.fileId);
       const inputSchema = item.paramAry?.reduce((obj, cur) => {
         obj[cur.name] = { type: cur.type };
         return obj;
@@ -404,11 +406,32 @@ export default function Sidebar({
           exampleSQLParamsFunc
             .replace('__serviceId__', item.serviceId)
             .replace('__fileId__', item.fileId)
+            .replace('__relativePath__', relativePath)
         ),
         path: callServiceUrl || `/api/system/domain/run`,
       });
-    });
+    }
   }, []);
+
+  const fetchRelativePath = useCallback(async (relativeId): Promise<string> => {
+    return new Promise((resolve) => {
+      axios({
+        url: serviceListUrl || '/paas/api/file/getRelativePathBetweenFileId',
+        method: 'POST',
+        data: {
+          // @ts-ignore
+          baseFileId: parseQuery(location.search)?.id,
+          relativeId
+        }
+      })
+        .then((res) => res.data)
+        .then((res) => {
+          if (res.code === 1) {
+            resolve(res.data)
+          }
+        });
+    })
+  }, [])
 
   const renderAddActions = useCallback(() => {
     return (
