@@ -107,6 +107,8 @@ export default function Sidebar({
       setSearchValue(v);
     },
   });
+  // @ts-ignore
+  const baseFileId = parseQuery(location.search)?.id;
 
   const updateService = useCallback(
     async (action: string, item?: any) => {
@@ -407,6 +409,7 @@ export default function Sidebar({
             .replace('__serviceId__', item.serviceId)
             .replace('__fileId__', item.fileId)
             .replace('__relativePath__', relativePath)
+            .replace('__baseFileId__', baseFileId)
         ),
         path: callServiceUrl || `/api/system/domain/run`,
       });
@@ -419,8 +422,7 @@ export default function Sidebar({
         url: serviceListUrl || '/paas/api/file/getRelativePathBetweenFileId',
         method: 'POST',
         data: {
-          // @ts-ignore
-          baseFileId: parseQuery(location.search)?.id,
+          baseFileId: baseFileId,
           relativeId
         }
       })
@@ -532,8 +534,7 @@ export default function Sidebar({
         url: serviceListUrl || '/paas/api/system/domain/list',
         method: 'POST',
         data: {
-          // @ts-ignore
-          fileId: parseQuery(location.search)?.id
+          fileId: baseFileId
         }
       })
         .then((res) => res.data)

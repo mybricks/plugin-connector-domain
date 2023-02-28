@@ -13,6 +13,7 @@ export const exampleSQLParamsFunc = `export default function ({ params, data, he
     serviceId: '__serviceId__',
     fileId: __fileId__,
     relativePath: '__relativePath__',
+    baseFileId: __baseFileId__,
   }, headers, url, method };
  }
 `;
