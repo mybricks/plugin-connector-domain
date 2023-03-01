@@ -397,6 +397,11 @@ export default function Sidebar({
             },
           },
         },
+        domainServiceMap: {
+          serviceId: item.serviceId,
+          relativePath: relativePath,
+          baseFileId: baseFileId
+        },
         params: debugParams
           ? {
               type: 'root',
