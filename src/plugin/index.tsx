@@ -407,9 +407,9 @@ export default function Sidebar({
         input: encodeURIComponent(
           exampleSQLParamsFunc
             .replace('__serviceId__', item.serviceId)
-            .replace('__fileId__', item.fileId)
             .replace('__relativePath__', relativePath)
-            .replace('__baseFileId__', baseFileId)
+            // .replace('__fileId__', item.fileId)
+            // .replace('__baseFileId__', baseFileId)
         ),
         path: callServiceUrl || `/api/system/domain/run`,
       });
