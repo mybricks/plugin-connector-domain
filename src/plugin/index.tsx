@@ -79,6 +79,8 @@ export default function Sidebar({
     },
     tg: {},
     type: '',
+	  loading: false,
+	  sqlList: [],
     comlibNavVisible: true,
     isEdit: false,
     formModel: {
@@ -535,6 +537,7 @@ export default function Sidebar({
 
   useEffect(() => {
     function fetchServiceList() {
+	    setRender({ loading: true });
       axios({
         url: serviceListUrl || '/paas/api/system/domain/list',
         method: 'POST',
@@ -547,9 +550,11 @@ export default function Sidebar({
           if (res.code === 1) {
             setRender({
               sqlList: res.data,
+	            loading: false,
             });
           }
-        });
+        })
+	      .finally(() => setRender({ loading: false }));
     }
 
     fetchServiceList();

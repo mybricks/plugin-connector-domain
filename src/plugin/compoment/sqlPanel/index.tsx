@@ -6,6 +6,7 @@ import curCss from './index.less';
 import { SQL_PANEL_VISIBLE } from '../../../constant';
 import Collapse from '../../../components/Collapse';
 import { chose } from '../../../icon';
+import Loading from "../loading";
 
 export default function GlobalPanel({
   sidebarContext,
@@ -51,25 +52,25 @@ export default function GlobalPanel({
           </div>
         </div>
         <div className={curCss.ct}>
-          {sidebarContext.sqlList.map((sql) => (
-            <Collapse header={sql.fileName} defaultFold={false}>
-              {sql.serviceList.map((item) => (
-                <div
-                  key={item.serviceId}
-                  className={
-                    sqlList.some(
-                      ({ serviceId }) => item.serviceId === serviceId
-                    ) || data.connectors.some(({ id }) => item.serviceId === id)
-                      ? curCss.chosed
-                      : curCss.item
-                  }
-                  onClick={() => onItemClick({ ...item, fileId: sql.fileId })}
-                >
-                  <div className={curCss.left}>{item.title}</div>
-                  <div className={curCss.right}>{chose}</div>
-                </div>
-              ))}
-            </Collapse>
+          {sidebarContext.loading ? <Loading /> : sidebarContext.sqlList?.map((sql) => (
+	          <Collapse header={sql.fileName} defaultFold={false}>
+		          {sql.serviceList.map((item) => (
+			          <div
+				          key={item.serviceId}
+				          className={
+					          sqlList.some(
+						          ({ serviceId }) => item.serviceId === serviceId
+					          ) || data.connectors.some(({ id }) => item.serviceId === id)
+						          ? curCss.chosed
+						          : curCss.item
+				          }
+				          onClick={() => onItemClick({ ...item, fileId: sql.fileId })}
+			          >
+				          <div className={curCss.left}>{item.title}</div>
+				          <div className={curCss.right}>{chose}</div>
+			          </div>
+		          ))}
+	          </Collapse>
           ))}
         </div>
       </div>

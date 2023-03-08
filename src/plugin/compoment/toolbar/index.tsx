@@ -7,33 +7,33 @@ import {
   SQL_PANEL_VISIBLE
 } from '../../../constant';
 export default function ({ ctx, setRender }: any) {
-  const onAddClick = useCallback(async (type = 'http') => {
-    ctx.type = type;
-    ctx.activeId = void 0;
-    ctx.isEdit = false;
-    ctx.templateVisible = false;
-    ctx.formModel = { type };
-    switch (type) {
-      case 'http-kdev':
-        ctx.panelVisible = KDEV_PANEL_VISIBLE;
-        setRender(ctx);
-        break;
-
-      case 'http-tg':
-        ctx.panelVisible = TG_PANEL_VISIBLE;
-        setRender(ctx);
-        break;
-
-      case 'sql':
-        ctx.panelVisible = SQL_PANEL_VISIBLE;
-        setRender(ctx);
-        break;
-
-      default:
-        setRender(ctx);
-        ctx.addDefaultService();
-    }
-  }, []);
+  const onAddClick = async (type = 'http') => {
+	  ctx.type = type;
+	  ctx.activeId = void 0;
+	  ctx.isEdit = false;
+	  ctx.templateVisible = false;
+	  ctx.formModel = { type };
+	  switch (type) {
+		  case 'http-kdev':
+			  ctx.panelVisible = KDEV_PANEL_VISIBLE;
+			  setRender(ctx);
+			  break;
+		
+		  case 'http-tg':
+			  ctx.panelVisible = TG_PANEL_VISIBLE;
+			  setRender(ctx);
+			  break;
+		
+		  case 'sql':
+			  ctx.panelVisible = SQL_PANEL_VISIBLE;
+			  setRender(ctx);
+			  break;
+		
+		  default:
+			  setRender(ctx);
+			  ctx.addDefaultService();
+	  }
+  };
 
   const renderAddActionList = useCallback(() => {
     return (
@@ -41,7 +41,7 @@ export default function ({ ctx, setRender }: any) {
         {plus}
       </div>
     );
-  }, []);
+  }, [onAddClick]);
 
   return (
     <div className={css.toolbar}>
