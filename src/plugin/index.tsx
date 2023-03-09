@@ -552,9 +552,11 @@ export default function Sidebar({
               sqlList: res.data,
 	            loading: false,
             });
+          } else {
+	          setRender({ loading: false });
           }
         })
-	      .finally(() => setRender({ loading: false }));
+	      .catch(() => setRender({ loading: false }));
     }
 
     fetchServiceList();
