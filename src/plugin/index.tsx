@@ -362,7 +362,9 @@ export default function Sidebar({
     });
     for(let l = sqlList.length, i=0; i<l; i++) {
       const item = sqlList[i]
-      const relativePath: string = await fetchRelativePath(item.fileId);
+      // const relativePath: string = await fetchRelativePath(item.fileId);
+      const fileUuid: string = await fetchRelativePath(item.fileId);
+
       const inputSchema = item.paramAry?.reduce((obj, cur) => {
         obj[cur.name] = { type: cur.type };
         return obj;
@@ -401,7 +403,8 @@ export default function Sidebar({
         },
         domainServiceMap: {
           serviceId: item.serviceId,
-          relativePath: relativePath,
+          // relativePath: relativePath,
+          uuid: fileUuid,
           baseFileId: baseFileId
         },
         params: debugParams
@@ -414,7 +417,8 @@ export default function Sidebar({
         input: encodeURIComponent(
           exampleSQLParamsFunc
             .replace('__serviceId__', item.serviceId)
-            .replace('__relativePath__', relativePath)
+            // .replace('__relativePath__', relativePath)
+            .replace('__uuid__', fileUuid)
             // .replace('__fileId__', item.fileId)
             // .replace('__baseFileId__', baseFileId)
         ),
@@ -423,14 +427,15 @@ export default function Sidebar({
     }
   }, []);
 
-  const fetchRelativePath = useCallback(async (relativeId): Promise<string> => {
+  const fetchRelativePath = useCallback(async (uuid): Promise<string> => {
     return new Promise((resolve) => {
       axios({
         url: serviceListUrl || '/paas/api/file/getRelativePathBetweenFileId',
         method: 'POST',
         data: {
           baseFileId: baseFileId,
-          relativeId
+          // relativeId
+          uuid
         }
       })
         .then((res) => res.data)
