@@ -363,7 +363,8 @@ export default function Sidebar({
     for(let l = sqlList.length, i=0; i<l; i++) {
       const item = sqlList[i]
       // const relativePath: string = await fetchRelativePath(item.fileId);
-      const fileUuid: string = await fetchRelativePath(item.fileId);
+      // const fileUuid: string = await fetchRelativePath(item.fileId);
+      const fileId = item.fileId;
 
       const inputSchema = item.paramAry?.reduce((obj, cur) => {
         obj[cur.name] = { type: cur.type };
@@ -404,8 +405,8 @@ export default function Sidebar({
         domainServiceMap: {
           serviceId: item.serviceId,
           // relativePath: relativePath,
-          uuid: fileUuid,
-          baseFileId: baseFileId
+          fileId,
+          baseFileId
         },
         params: debugParams
           ? {
@@ -418,7 +419,7 @@ export default function Sidebar({
           exampleSQLParamsFunc
             .replace('__serviceId__', item.serviceId)
             // .replace('__relativePath__', relativePath)
-            .replace('__uuid__', fileUuid)
+            .replace('__fileId__', fileId)
             // .replace('__fileId__', item.fileId)
             // .replace('__baseFileId__', baseFileId)
         ),
