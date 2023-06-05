@@ -1,24 +1,25 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, FC } from 'react';
+
 import css from './index.less';
 
-export default function Input({
-  children,
-  overlay
-}: any) {
+const Dropdown: FC<any> = ({ dropDownStyle, children, overlay, onBlur }) => {
   const [visible, setVisible] = useState(false);
-  const onClick = useCallback(() => {
-    setVisible(true);
+  const onClick = useCallback(event => {
+	  event.stopPropagation();
+    setVisible(visible => !visible);
   }, [])
-
-  const hideContent = useCallback(() => {
-    setVisible(false);
-  }, [])
+	
+	useEffect(() => {
+		onBlur?.(() => setVisible(false));
+	}, []);
+	
   return (
     <div className={css.dropdown}>
       <div onClick={onClick}>{children}</div>
-      <div className={css.content} onClick={hideContent}>
+      <div style={dropDownStyle} className={css.content}>
         {visible ? overlay : null}
       </div>
     </div>
   );
-}
+};
+export default Dropdown;

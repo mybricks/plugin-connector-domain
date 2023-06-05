@@ -7,14 +7,16 @@
   z-index: 9;
   display: none;
   height: 100%;
- 
+
   &-view {
     width: 100%;
     display: flex;
     flex-direction: column;
-   
+
   }
   &-edit {
+    display: flex;
+    flex-direction: column;
     box-shadow: 5px 0 10px -5px #ddd;
     overflow: hidden;
     width: 560px;
@@ -25,8 +27,6 @@
     background-color: #f7f7f7;
     border-left: 1px solid #ddd;
     border-right: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
 
     &-open {
       display: block;
@@ -203,9 +203,9 @@
       transition: 0.1s;
     }
     .tag {
-      padding: 0 2px;
+      padding: 0 8px 0 2px;
       color: @color;
-      flex: 0 0 35px;
+      min-width: 35px;
       cursor: pointer;
       &__no-address {
         color: rgba(255, 0, 0, 0.8);
@@ -322,4 +322,15 @@
   &:hover {
     background-color: transparent;
   }
+}
+
+.dashedDivider {
+  border-top: 1px dashed #ccc;
+  margin: 8px 0;
+}
+
+.dividerText {
+  font-style: italic;
+  color: #999999;
+  margin-top: 12px;
 }

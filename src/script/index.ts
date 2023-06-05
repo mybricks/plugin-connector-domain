@@ -13,24 +13,70 @@ function getDecodeString(fn: string) {
 
 function getScript(serviceItem) {
   function fetch(params, { then, onError }, config) {
-    function getLast(str) {
-      return str.split('.').slice(-1)[0];
+    function setData(data, keys, val) {
+      const len = keys.length;
+      function dfs(res, index, val) {
+        if (!res || index === len) {
+          return res;
+        }
+        const key = keys[index];
+        if (Array.isArray(res)) {
+          return res.map((item, i) => {
+            const curVal = val[i];
+            let obj;
+            if (curVal === void 0) {
+              obj = {};
+              val.push(obj);
+            } else {
+              obj = curVal;
+            }
+            return dfs(item, index, obj);
+          });
+        } else {
+          if (index === len - 1) {
+            val[key] = res[key];
+            return res[key];
+          }
+          res = res[key];
+          if (Array.isArray(res)) {
+            val[key] = val[key] || [];
+          } else {
+            val[key] = val[key] || {};
+          }
+        }
+        return dfs(res, index + 1, Array.isArray(val) ? val : val[key]);
+      }
+      return dfs(data, 0, val);
     }
-    function getData(data, keys) {
-      let res = data;
-      keys.forEach((key) => (res = res[key]));
-      return res;
+    function del(data, keys) {
+      const len = keys.length;
+      function dfs(data, index) {
+        if (!data || index === len) return;
+        const key = keys[index];
+        if (index === len - 1) {
+          Reflect.deleteProperty(data, key);
+        }
+        if (Array.isArray(data)) {
+          data.forEach((item) => {
+            dfs(item, index);
+          });
+        } else {
+          dfs(data[key], index + 1);
+        }
+      }
+      dfs(data, 0);
     }
     function serviceAgent(params, config) {
       const method = `__method__`;
       const path = `__path__`;
       const outputKeys = __outputKeys__;
+      const excludeKeys = __excludeKeys__;
       const resultTransformDisabled = __resultTransformDisabled__;
 
       try {
         const url = path;
         const newParams = __globalParamsFn__(
-          method === 'GET'
+          method.startsWith('GET')
             ? { params, url, method }
             : { data: params, url, method }
         );
@@ -72,21 +118,52 @@ function getScript(serviceItem) {
             if (resultTransformDisabled) {
               return then(response);
             }
-            let outputData = {};
-            if (outputKeys === void 0) {
-              then(response);
-              return;
+            if (excludeKeys.length === 0) {
+              return response;
             }
-            if (outputKeys.length === 0) {
+            excludeKeys.forEach((key) => {
+              const keys = key.split('.');
+              del(response, keys);
+            });
+            return response;
+          })
+          .then((response) => {
+	          let outputData: any = Array.isArray(response) ? [] : {};
+            if (outputKeys === void 0 || outputKeys.length === 0) {
               outputData = response;
-            } else if (outputKeys.length === 1) {
-              outputData = getData(response, outputKeys[0].split('.'));
             } else {
               outputKeys.forEach((key) => {
-                outputData[getLast(key)] = getData(response, key.split('.'));
+                setData(response, key.split('.'), outputData)
               });
+							
+	            /** 当标记单项时，自动返回单项对应的值 */
+	            if (Array.isArray(outputKeys) && outputKeys.length && (outputKeys.length > 1 || !(outputKeys.length === 1 && outputKeys[0] === ''))) {
+		            try {
+			            let cascadeOutputKeys = outputKeys.map(key => key.split('.'));
+			            while (Object.prototype.toString.call(outputData) === '[object Object]' && cascadeOutputKeys.every(keys => !!keys.length) && Object.values(outputData).length === 1) {
+				            outputData = Object.values(outputData)[0];
+				            cascadeOutputKeys.forEach(keys => keys.shift());
+			            }
+		            } catch(e) {
+									console.log('connector format data error', e);
+		            }
+	            }
             }
-            then(outputData);
+						
+						/** 领域模型接口按需展示日志，需返回源数据 */
+						if (
+							options.method.toUpperCase() === 'POST'
+							&& options.url.endsWith('/domain/run')
+							&& options.data
+							&& options.data.fileId
+							&& options.data.serviceId
+							&& options.data.params
+							&& options.data.params.showToplLog
+						) {
+							then({ __ORIGIN_RESPONSE__: response, outputData });
+						} else {
+							then(outputData);
+						}
           })
           .catch((error) => {
             onError((error && error.message) || error);
@@ -115,6 +192,7 @@ function getScript(serviceItem) {
       .replace('__method__', serviceItem.method)
       .replace('__path__', serviceItem.path.trim())
       .replace('__outputKeys__', JSON.stringify(serviceItem.outputKeys))
+      .replace('__excludeKeys__', JSON.stringify(serviceItem.excludeKeys || []))
       .replace(
         '__resultTransformDisabled__',
         serviceItem.resultTransformDisabled

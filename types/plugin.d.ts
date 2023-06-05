@@ -15,7 +15,7 @@ export default function pluginEntry(config?: any): {
     title: string;
     description: string;
     data: {
-        connectors: any[];
+        domainModels: any[];
     };
     contributes: {
         sliderView: {

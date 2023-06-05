@@ -1,24 +1,24 @@
 import Plugin from './plugin';
 import { icon } from './icon';
 import data from './data';
-import pkg from "../package.json";
+import pkg from '../package.json';
 
 console.log(`%c ${pkg.name} %c@${pkg.version}`, `color:#FFF;background:#fa6400`, ``, ``);
 
 export { call, mock } from './runtime/callConnectorHttp'
 
 export default function pluginEntry(config?: any) {
-  return {
-    name: '@mybricks/plugins/sql-connector',
-    title: '连接器',
-    description: '连接器',
+	return {
+    name: '@mybricks/plugins/domain-service',
+    title: '领域模型',
+    description: '领域模型连接器',
     data,
     contributes: {
       sliderView: {
         tab: {
           title: '连接器',
           icon: icon,
-          apiSet: ['connector'],
+          apiSet: ['domainModel'],
           render(args: any) {
             // @ts-ignore
             return <Plugin {...config} {...args} />;
