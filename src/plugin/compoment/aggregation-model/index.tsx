@@ -58,8 +58,8 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 		let select = {
 			"input": encodeURIComponent(
 				exampleSQLParamsFunc
-					.replace('__serviceId__', 'E_PDCOJ')
-					.replace('__fileId__', '523')
+					.replace('__serviceId__', 'E__ZPWG')
+					.replace('__fileId__', '436111218683973')
 					.replace('__action__', 'SELECT')
 			),
 			"output": encodeURIComponent(`export default function (result, { method, url, params, data, headers }) { return result; }`),
