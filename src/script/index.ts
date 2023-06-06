@@ -92,9 +92,6 @@ function getScript(serviceItem) {
             });
           })
           .then((response) => {
-            if (resultTransformDisabled) {
-              return then(response);
-            }
             if (excludeKeys.length === 0) {
               return response;
             }

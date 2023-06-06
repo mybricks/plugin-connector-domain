@@ -33,7 +33,7 @@ export function call(
 ) {
   return new Promise((resolve, reject) => {
     try {
-      const fn = eval(`(${decodeURIComponent(domainModel.content[config.action].script)})`);
+      const fn = eval(`(${decodeURIComponent(domainModel.query[config.action].script)})`);
       const { before = defaultFn } = config || {};
       fn(
         params,
