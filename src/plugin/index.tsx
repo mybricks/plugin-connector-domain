@@ -122,7 +122,7 @@ export default function Sidebar({
   }, []);
 
   const onRemoveItem = useCallback(async (item) => {
-    if (confirm(`确认删除 ${item.content.title} 吗`)) {
+    if (confirm(`确认删除 ${item.title} 吗`)) {
       await removeService(item);
 			setPanelVisible(NO_PANEL_VISIBLE);
     }
@@ -217,10 +217,6 @@ export default function Sidebar({
 		          .map((item) => {
 			          const expand = sidebarContext.expandId === item.id;
 			          item.updateTime = formatDate(item.updateTime || item.createTime);
-								let entity: Record<string, unknown> = {};
-								try {
-									entity = JSON.parse(item.script);
-								} catch {}
 								
 			          return (
 				          <div key={item.id}>
@@ -256,11 +252,11 @@ export default function Sidebar({
 													<>
 														<div className={css['sidebar-panel-list-item__param']}>
 															<span className={css['sidebar-panel-list-item__name']}>模型:</span>
-															<span className={css['sidebar-panel-list-item__content']}>{entity.domainFileName}</span>
+															<span className={css['sidebar-panel-list-item__content']}>{item.query.entity.domainFileName}</span>
 														</div>
 														<div className={css['sidebar-panel-list-item__param']}>
 															<span className={css['sidebar-panel-list-item__name']}>实体:</span>
-															<span className={css['sidebar-panel-list-item__content']}>{entity.name}</span>
+															<span className={css['sidebar-panel-list-item__content']}>{item.query.entity.name}</span>
 														</div>
 													</>
 							          ) : null}
