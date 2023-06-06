@@ -1,7 +1,12 @@
 import React, {CSSProperties, FC, useCallback, useState} from 'react';
 import ReactDOM from 'react-dom';
 import Button from '../../../components/Button';
-import {AGGREGATION_MODEL_VISIBLE, exampleParamsFunc, exampleResultFunc, NO_PANEL_VISIBLE} from '../../../constant';
+import {
+	AGGREGATION_MODEL_VISIBLE,
+	exampleParamsFunc,
+	exampleResultFunc,
+	exampleSQLParamsFunc
+} from '../../../constant';
 import Select from './select';
 import {uuid} from '../../../utils';
 import {getScript} from '../../../script';
@@ -51,8 +56,13 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 	
 	const onSave = useCallback(() => {
 		let select = {
-			"input": "export%20default%20function%20(%7B%20params%2C%20data%2C%20headers%2C%20url%2C%20method%20%7D)%20%7B%0A%20%20const%20domainInfo%20%3D%20%7B%0A%20%20%20%20serviceId%3A%20'E_PDCOJ'%2C%0A%20%20%20%20fileId%3A%20'523'%0A%20%20%7D%0A%20%20const%20fields%20%3D%20(Array.isArray(data.fields)%20%26%26%20data.fields.length%20%3F%20data.fields%20%3A%20null)%20%7C%7C%20%5B%7B%22name%22%3A%22id%22%7D%2C%7B%22name%22%3A%22%E7%94%A8%E6%88%B7%E5%90%8D%22%7D%2C%7B%22name%22%3A%22%E5%A4%B4%E5%83%8F%22%7D%2C%7B%22name%22%3A%22%E6%80%A7%E5%88%AB%22%7D%2C%7B%22name%22%3A%22%E7%AD%89%E7%BA%A7%22%7D%2C%7B%22name%22%3A%22%E7%AD%89%E7%BA%A7.id%22%7D%2C%7B%22name%22%3A%22%E7%AD%89%E7%BA%A7.%E5%90%8D%E7%A7%B0%22%7D%2C%7B%22name%22%3A%22%E7%AD%89%E7%BA%A7.%E6%9B%B4%E6%96%B0%E6%97%B6%E9%97%B4%E5%AD%97%E7%AC%A6%E4%B8%B2%22%7D%2C%7B%22name%22%3A%22%E7%AD%89%E7%BA%A7.%E5%88%9B%E5%BB%BA%E6%97%B6%E9%97%B4%22%7D%2C%7B%22name%22%3A%22%E5%88%9B%E5%BB%BA%E8%80%85%22%7D%2C%7B%22name%22%3A%22%E5%88%9B%E5%BB%BA%E8%80%85.id%22%7D%2C%7B%22name%22%3A%22%E5%88%9B%E5%BB%BA%E8%80%85.%E5%90%8D%E7%A7%B0%22%7D%2C%7B%22name%22%3A%22%E6%9B%B4%E6%96%B0%E8%80%85%22%7D%2C%7B%22name%22%3A%22%E6%9B%B4%E6%96%B0%E8%80%85.id%22%7D%2C%7B%22name%22%3A%22%E6%9B%B4%E6%96%B0%E8%80%85.%E5%90%8D%E7%A7%B0%22%7D%2C%7B%22name%22%3A%22%E9%99%84%E4%BB%B6%22%7D%2C%7B%22name%22%3A%22%E5%AD%97%E6%AE%B50%22%7D%5D%3B%0A%20%20const%20query%20%3D%20data.keyword%20%3F%20fields.reduce((pre%2C%20item)%20%3D%3E%20%7B%0A%20%20%20%20return%20%7B%20...pre%2C%20%5Bitem.name%5D%3A%20%7B%20operator%3A%20'LIKE'%2C%20value%3A%20data.keyword%20%7D%20%7D%3B%0A%20%20%7D%2C%20%7B%7D)%20%3A%20undefined%3B%0A%20%20%0A%20%20%2F%2F%20%E8%AE%BE%E7%BD%AE%E8%AF%B7%E6%B1%82query%E3%80%81%E8%AF%B7%E6%B1%82%E4%BD%93%E3%80%81%E8%AF%B7%E6%B1%82%E5%A4%B4%0A%20%20return%20%7B%20params%2C%20data%3A%20%7B%0A%20%20%20%20params%3A%20%7B%0A%09%09%09...data%2C%0A%20%20%20%20%20%20query%2C%0A%09%09%09fields%2C%0A%09%09%09action%3A%20'SELECT'%0A%20%20%20%20%7D%2C%0A%20%20%20%20...domainInfo%2C%0A%20%20%7D%2C%20headers%2C%20url%2C%20method%20%7D%3B%0A%20%7D%0A",
-			"output": "export%20default%20function%20(result%2C%20%7B%20method%2C%20url%2C%20params%2C%20data%2C%20headers%20%7D)%20%7B%0A%20%20%2F%2F%20return%20%7B%0A%20%20%2F%2F%20%20total%3A%20result.all%2C%0A%20%20%2F%2F%20%20dataSource%3A%20result.list.map(%7Bid%2C%20name%7D%20%3D%3E%20(%7B%0A%20%20%2F%2F%20%20%20%20%20value%3Aid%2C%20label%3A%20name%0A%20%20%2F%2F%20%20%7D))%0A%20%20%2F%2F%20%7D%0A%20%20return%20result%3B%0A%7D%0A",
+			"input": decodeURIComponent(
+				exampleSQLParamsFunc
+					.replace('__serviceId__', 'E_PDCOJ')
+					.replace('__fileId__', '523')
+					.replace('__action__', 'SELECT')
+			),
+			"output": encodeURIComponent(`export default function (result, { method, url, params, data, headers }) { return result; }`),
 			"inputSchema": {
 				"type": "object",
 				"properties": {
@@ -281,7 +291,7 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 				}
 			},
 			"domainServiceMap": {
-				"serviceId": "E_PDCOJ_SELECT",
+				"serviceId": "E_PDCOJ",
 				"fileId": 523
 			},
 			"params": {

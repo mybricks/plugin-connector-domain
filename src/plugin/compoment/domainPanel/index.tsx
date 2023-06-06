@@ -1,9 +1,10 @@
 import React, {CSSProperties, FC, useCallback, useEffect, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
-import {DOMAIN_PANEL_VISIBLE, NO_PANEL_VISIBLE} from '../../../constant';
+import {DOMAIN_PANEL_VISIBLE, exampleSQLParamsFunc, NO_PANEL_VISIBLE} from '../../../constant';
 import Button from '../../../components/Button';
 import Loading from '../loading';
+import {getScript} from '../../../script';
 
 import styles from './index.less';
 
@@ -34,13 +35,57 @@ const DomainPanel: FC<DomainPanelProps> = props => {
 	const domainFileRef = useRef(null);
 	
 	const onSave = useCallback(() => {
+		const baseOptions = {
+			output: encodeURIComponent(`export default function (result, { method, url, params, data, headers }) { return result; }`),
+			method: 'POST',
+			type: 'domain',
+			path: '/api/system/domain/run',
+		};
 		setSelectedEntityList((entityList => {
 			entityList.forEach(item => {
+				const input = exampleSQLParamsFunc
+					.replace('__serviceId__', item.id)
+					.replace('__fileId__', String(item.domainFileId));
+				
 				updateService('create', {
 					id: item.id,
 					type: 'domain',
 					title: item.name,
-					script: JSON.stringify(item)
+					content: {
+						SELECT: {
+							script: getScript({
+								...baseOptions,
+								input: decodeURIComponent(input.replace('__action__', 'SELECT'))
+							})
+						},
+						DELETE: {
+							script: getScript({
+								...baseOptions,
+								input: decodeURIComponent(input.replace('__action__', 'DELETE'))
+							})
+						},
+						UPDATE: {
+							script: getScript({
+								...baseOptions,
+								input: decodeURIComponent(input.replace('__action__', 'UPDATE'))
+							})
+						},
+						CREATE: {
+							script: getScript({
+								...baseOptions,
+								input: decodeURIComponent(input.replace('__action__', 'CREATE'))
+							})
+						},
+						SEARCH_BY_FIELD: {
+							script: getScript({
+								...baseOptions,
+								input: decodeURIComponent(input.replace('__action__', 'SEARCH_BY_FIELD'))
+							})
+						},
+						entity: item,
+					},
+					createTime: Date.now(),
+					updateTime: Date.now(),
 				})
 			})
 			domainFileRef.current = null;

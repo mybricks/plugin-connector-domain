@@ -11,6 +11,7 @@ interface IOptions {
 
 interface IConfig {
   before: (options: IOptions) => any;
+	action: 'SELECT' | 'DELETE' | 'UPDATE' | 'CREATE' | 'SEARCH_BY_FIELD';
 }
 
 const defaultFn = (options: IOptions, ...args: any) => ({
@@ -21,9 +22,9 @@ const defaultFn = (options: IOptions, ...args: any) => ({
 const httpRegExp = new RegExp('^(http|https)://');
 
 export function call(
-  connector: {
+  domainModel: {
     id: string;
-    script: string;
+	  content: Record<string, any>;
     useProxy?: boolean;
     [key: string]: any
   },
@@ -32,7 +33,7 @@ export function call(
 ) {
   return new Promise((resolve, reject) => {
     try {
-      const fn = eval(`(${decodeURIComponent(connector.script)})`);
+      const fn = eval(`(${decodeURIComponent(domainModel.content[config.action].script)})`);
       const { before = defaultFn } = config || {};
       fn(
         params,
@@ -42,7 +43,7 @@ export function call(
             const opts = before({ ...options });
             const { url } = opts;
 
-            if (connector.useProxy && httpRegExp.test(url)) {
+            if (domainModel.useProxy && httpRegExp.test(url)) {
               return axios({url: '/paas/api/proxy', method: 'post', data: opts || options}).then((res: any) => res.data).catch(error => {
                 reject(error)
               })

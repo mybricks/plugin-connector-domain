@@ -23,7 +23,8 @@ export const exampleSQLParamsFunc = `export default function ({ params, data, he
   // 设置请求query、请求体、请求头
   return { params, data: {
     params: {
-      ...data
+      ...data,
+      action: '__action__'
     },
     ...domainInfo,
   }, headers, url, method };
