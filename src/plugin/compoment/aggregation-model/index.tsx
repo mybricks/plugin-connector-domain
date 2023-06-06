@@ -56,7 +56,7 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 	
 	const onSave = useCallback(() => {
 		let select = {
-			"input": decodeURIComponent(
+			"input": encodeURIComponent(
 				exampleSQLParamsFunc
 					.replace('__serviceId__', 'E_PDCOJ')
 					.replace('__fileId__', '523')
