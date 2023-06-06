@@ -119,8 +119,12 @@ export const DEFAULT_SCHEMA = {
 };
 export const NO_PANEL_VISIBLE = 0;
 export const DEFAULT_PANEL_VISIBLE = 0b01;
-export const TG_PANEL_VISIBLE = 0b10;
-export const KDEV_PANEL_VISIBLE = 0b100;
-export const SQL_PANEL_VISIBLE = 0b1000;
 export const DOMAIN_PANEL_VISIBLE = 0b10000;
 export const AGGREGATION_MODEL_VISIBLE = 0b100000;
+
+export const MethodOpts = [
+	{ title: 'GET', value: 'GET' },
+	{ title: 'POST', value: 'POST' },
+	{ title: 'PUT', value: 'PUT' },
+	{ title: 'DELETE', value: 'DELETE' },
+];

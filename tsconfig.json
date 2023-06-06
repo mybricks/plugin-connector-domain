@@ -5,8 +5,9 @@
     "module": "es2015",
     "target": "es6",
     "jsx": "react",
-    "declaration": true, 
+    "declaration": true,
     "emitDeclarationOnly": true,
+    "moduleResolution": "node",
     "lib": [
       "dom",
       "es6",

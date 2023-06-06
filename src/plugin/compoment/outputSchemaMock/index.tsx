@@ -7,7 +7,6 @@ import JSONView from '@mybricks/code-editor';
 import * as Icons from '../../../icon';
 import { uuid } from '../../../utils';
 import { schema2params, params2schema } from './utils';
-import { schema2data } from '../../../utils';
 import { isEmpty } from '../../../utils/lodash';
 import FormItem from '../../../components/FormItem';
 
@@ -18,8 +17,9 @@ function DataShow({ data }: any) {
   try {
     valueStr = JSON.stringify(data, null, 2);
   } catch (error) {}
-  return isEmpty(data) ? null : (
+	return isEmpty(data) ? null : (
     <FormItem label='Mock数据'>
+	    {/* @ts-ignore */}
       <JSONView
         width={430}
         value={valueStr}
@@ -312,6 +312,6 @@ function formatValue(item, key, val) {
     ['minimum', 'maximum', false],
     ['maximum', 'minimum', true],
   ].forEach(([start, end, le]) => {
-    validate(item, val, start, end, le);
+    validate(item, val, start, end, le as boolean);
   });
 }

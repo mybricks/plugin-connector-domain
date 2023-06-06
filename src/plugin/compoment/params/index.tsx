@@ -56,7 +56,7 @@ function merge(object: any, source: any, ctx: any) {
 }
 
 export default function ParamsEdit({ onDebugClick, ctx, params }: any) {
-  const valueRef = useRef({});
+  const valueRef = useRef<Record<string, unknown>>({});
   const [render, forceRender] = useState(0);
 
   const updateValue = useCallback(() => {
@@ -130,7 +130,7 @@ export default function ParamsEdit({ onDebugClick, ctx, params }: any) {
   return (
     <div className={css.debug}>
       <div className={css.content}>
-        {valueRef.current?.children?.length
+        {(valueRef.current?.children as Array<{}>)?.length
           ? processItem(
               { type: 'root', ...valueRef.current },
               { type: 'root', ...valueRef.current }

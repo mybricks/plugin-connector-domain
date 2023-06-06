@@ -8,26 +8,23 @@ import {
 	exampleParamsFunc,
 	exampleResultFunc,
 	NO_PANEL_VISIBLE,
-	templateResultFunc,
 } from '../constant';
 import css from '../style-cssModules.less';
 import {formatDate} from '../utils/moment';
 import {getScript} from '../script';
 import Toolbar from './compoment/toolbar';
-import * as Icons from '../icon';
+import { arrowR, remove } from '../icon';
 import DomainPanel from './compoment/domainPanel';
 import AggregationModel from './compoment/aggregation-model';
 
 interface IProps {
   domainModel: IDomainModel;
-	serviceListUrl?: string;
   callServiceUrl?: string;
   addActions?: any[];
   data: {
 	  domainModels: any[];
     config: { paramsFn: string; resultFn?: string };
   };
-  ininitialValue: any;
 	openFileSelector?(): Promise<unknown>;
 }
 
@@ -42,9 +39,7 @@ export default function Sidebar({
   addActions,
   domainModel,
   data,
-	serviceListUrl,
 	openFileSelector = () => Promise.resolve(null),
-  ininitialValue = {},
 }: IProps) {
 	const ref = useRef<HTMLDivElement>(null);
   const blurMap = useRef<Record<string, () => void>>({});
@@ -115,21 +110,12 @@ export default function Sidebar({
             }),
           });
         } else {
-          const updateAll = action === 'updateAll';
           data.domainModels.forEach((service: any, index: number) => {
-            if (service.id === id || updateAll) {
+            if (service.id === id) {
               let serviceItem = data.domainModels[index];
-              if (!updateAll) {
-                serviceItem = {
-                  ...service,
-                  updateTime: Date.now(),
-                  content: { ...others },
-                };
-                data.domainModels[index] = serviceItem;
-              }
               try {
                 sidebarContext.domainModel.update({
-                  id: updateAll ? serviceItem.id : id,
+                  id,
                   title: others.title || serviceItem.content.title,
                   type:
                     sidebarContext.formModel.type ||
@@ -168,13 +154,7 @@ export default function Sidebar({
   }, []);
 
   const setRender = useCallback((value: any) => {
-    setContext((ctx: any) => ({
-      ...ctx,
-      formModel: {
-        ...ctx.formModel,
-      },
-      ...value,
-    }));
+    setContext((ctx: any) => ({ ...ctx, formModel: { ...ctx.formModel }, ...value }));
   }, []);
 
   const onRemoveItem = useCallback(async (item) => {
@@ -224,20 +204,13 @@ export default function Sidebar({
 			let node: ReactNode = ReactDOM.createPortal(
 				sidebarContext.panelVisible & visible ? (
 					<div
-						style={{
-							left: 361,
-							top: ref.current?.getBoundingClientRect().top,
-						}}
+						style={{ left: 361, top: ref.current?.getBoundingClientRect().top }}
 						key={type}
 						className={`${css['sidebar-panel-edit']}`}
 					>
 						<Compnent
 							panelCtx={sidebarContext}
-							constant={{
-								exampleParamsFunc,
-								exampleResultFunc,
-								NO_PANEL_VISIBLE,
-							}}
+							constant={{ exampleParamsFunc, exampleResultFunc, NO_PANEL_VISIBLE }}
 						/>
 					</div>
 				) : null,
@@ -266,7 +239,6 @@ export default function Sidebar({
 			        setRender={setRender}
 			        updateService={updateService}
 			        key='aggregation-model'
-			        data={data}
 			        style={{ top: ref.current?.getBoundingClientRect().top }}
 		        />
 	        );
@@ -275,44 +247,7 @@ export default function Sidebar({
 			
       return node;
     });
-  }, [sidebarContext, serviceListUrl]);
-
-  const initData = useCallback(() => {
-    data.config = data.config || {
-      paramsFn:
-        ininitialValue.paramsFn || encodeURIComponent(exampleParamsFunc),
-      resultFn: ininitialValue.resultFn || templateResultFunc,
-    };
-    data.config.resultFn =
-      data.config.resultFn || ininitialValue.resultFn || templateResultFunc;
-    if (data.domainModels.length === 0 && ininitialValue.serviceList?.length) {
-      data.domainModels = ininitialValue.serviceList;
-      ininitialValue.serviceList.forEach((item: any) => {
-        const { title, inputSchema, outputSchema } = item.content || {};
-        const ctr = {
-          id: item.id,
-          type: sidebarContext.formModel.type || sidebarContext.type || 'http',
-          title,
-          inputSchema,
-          outputSchema,
-          script: getScript({
-            ...item.content,
-            globalParamsFn: data.config.paramsFn,
-            globalResultFn: data.config.resultFn,
-          }),
-        };
-        try {
-          sidebarContext.domainModel.add(ctr);
-        } catch (error) {
-          console.log(error);
-        }
-      });
-    }
-  }, []);
-
-  useMemo(() => {
-    initData();
-  }, []);
+  }, [sidebarContext]);
 
   return (
     <>
@@ -355,7 +290,7 @@ export default function Sidebar({
 								          className={css['sidebar-panel-list-item__left']}
 							          >
 								          <div className={`${css.icon} ${expand ? css.iconExpand : ''}`}>
-									          {Icons.arrowR}
+									          {arrowR}
 								          </div>
 								          <div className={css.tag}>领域模型</div>
 								          <div className={css.name}>
@@ -368,7 +303,7 @@ export default function Sidebar({
 									          className={css.action}
 									          onClick={() => onRemoveItem(item)}
 								          >
-									          {Icons.remove}
+									          {remove}
 								          </div>
 							          </div>
 						          </div>

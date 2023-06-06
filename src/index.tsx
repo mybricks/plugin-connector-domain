@@ -1,6 +1,7 @@
 import Plugin from './plugin';
 import { icon } from './icon';
 import data from './data';
+// @ts-ignore
 import pkg from '../package.json';
 
 console.log(`%c ${pkg.name} %c@${pkg.version}`, `color:#FFF;background:#fa6400`, ``, ``);
@@ -20,7 +21,7 @@ export default function pluginEntry(config?: any) {
           icon: icon,
           apiSet: ['domainModel'],
           render(args: any) {
-            // @ts-ignore
+	          // @ts-ignore
             return <Plugin {...config} {...args} />;
           },
         },

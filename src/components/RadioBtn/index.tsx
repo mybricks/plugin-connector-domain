@@ -1,7 +1,7 @@
 import css from './index.less';
 import React, { useEffect, useState } from 'react';
 
-export default function RadioBtns({ options, binding }) {
+export default function RadioBtns({ options, binding, onChange }) {
   const [from, key] = binding;
   const [select, setSelect] = useState(from[key]);
   
@@ -21,6 +21,7 @@ export default function RadioBtns({ options, binding }) {
             onClick={() => {
               from[key] = opt.value;
               setSelect(opt.value);
+							onChange?.(opt.value);
             }}
           >
             {opt.title}
