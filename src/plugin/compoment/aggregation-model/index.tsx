@@ -311,7 +311,7 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 			id: uuid(),
 			title,
 			type: 'aggregation-model',
-			content: {
+			query: {
 				SELECT: { ...select, script: getScript(select) },
 				entity: {
 					"id": "E__ZPWG",

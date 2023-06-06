@@ -51,7 +51,7 @@ const DomainPanel: FC<DomainPanelProps> = props => {
 					id: item.id,
 					type: 'domain',
 					title: item.name,
-					content: {
+					query: {
 						SELECT: {
 							script: getScript({
 								...baseOptions,
