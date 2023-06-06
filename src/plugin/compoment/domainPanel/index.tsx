@@ -112,7 +112,7 @@ const DomainPanel: FC<DomainPanelProps> = props => {
 		axios.get(`/paas/api/domain/bundle?fileId=${fileId}`)
 		.then((res) => {
 			if (res.data.code === 1) {
-				setEntityList(res.data.data.entityAry.filter(entity => entity.isOpen).map(entity => ({ ...entity, id: 'domain_' + entity.id })));
+				setEntityList(res.data.data.entityAry.filter(entity => entity.isOpen).map(entity => ({ ...entity, id: entity.id })));
 			}
 		})
 		.finally(() => setLoading(false));
