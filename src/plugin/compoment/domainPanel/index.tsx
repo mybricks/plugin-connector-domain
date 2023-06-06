@@ -9,8 +9,9 @@ import styles from './index.less';
 
 interface DomainPanelProps {
 	style: CSSProperties;
-	setRender(value: Record<string, unknown>): void;
+	onClose(): void;
 	sidebarContext: any;
+	panelVisible: number;
 	updateService(action: string, entity: any): void;
 	data: any;
 }
@@ -25,7 +26,7 @@ interface Entity {
 }
 
 const DomainPanel: FC<DomainPanelProps> = props => {
-	const { style, setRender, data, updateService, sidebarContext } = props;
+	const { style, onClose, data, updateService, sidebarContext, panelVisible } = props;
 	const [domainFile, setDomainFile] = useState(null);
 	const [entityList, setEntityList] = useState<Entity[]>([]);
 	const [selectedEntityList, setSelectedEntityList] = useState<Entity[]>([]);
@@ -73,7 +74,7 @@ const DomainPanel: FC<DomainPanelProps> = props => {
 	}, [])
 	
 	useEffect(() => {
-		if (sidebarContext.panelVisible & DOMAIN_PANEL_VISIBLE) {
+		if (panelVisible & DOMAIN_PANEL_VISIBLE) {
 			if (domainFileRef.current) {
 				domainFileRef.current = null;
 				setDomainFile(null);
@@ -87,13 +88,13 @@ const DomainPanel: FC<DomainPanelProps> = props => {
 				file && getBundle(file.id);
 			})
 			.finally(() => {
-				setRender({ panelVisible: NO_PANEL_VISIBLE });
+				onClose();
 			});
-		} else if (sidebarContext.panelVisible !== NO_PANEL_VISIBLE) {
+		} else if (panelVisible !== NO_PANEL_VISIBLE) {
 			domainFileRef.current = null;
 			setDomainFile(null);
 		}
-	}, [sidebarContext.panelVisible, setRender]);
+	}, [panelVisible, onClose]);
 	
   return ReactDOM.createPortal(
 	  !!domainFile ? (

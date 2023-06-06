@@ -71,18 +71,10 @@ function getScript(serviceItem) {
       const path = `__path__`;
       const outputKeys = __outputKeys__;
       const excludeKeys = __excludeKeys__;
-      const resultTransformDisabled = __resultTransformDisabled__;
 
       try {
         const url = path;
-        const newParams = __globalParamsFn__(
-          method.startsWith('GET')
-            ? { params, url, method }
-            : { data: params, url, method }
-        );
-        const hasGlobalResultFn = __hasGlobalResultFn__;
-        newParams.url = newParams.url || url;
-        newParams.method = newParams.method || method;
+        const newParams = method.startsWith('GET') ? { params, url, method } : { data: params, url, method };
         const options = __input__(newParams);
         options.url = (options.url || url).replace(/{(\w+)}/g, (match, key) => {
           const param = params[key] || '';
@@ -93,26 +85,11 @@ function getScript(serviceItem) {
         config
           .ajax(options)
           .then((response) => {
-            if (hasGlobalResultFn) {
-              const res = __globalResultFn__(
-                { response, config: options },
-                {
-                  throwStatusCodeError: (data: any) => {
-                    onError(data);
-                  },
-                }
-              );
-              return res;
-            }
-            return response;
-          })
-          .then((response) => {
-            const res = __output__(response, Object.assign({}, options), {
-              throwStatusCodeError: (data) => {
-                onError(data);
-              },
+            return  __output__(response, Object.assign({}, options), {
+	            throwStatusCodeError: (data) => {
+		            onError(data);
+	            },
             });
-            return res;
           })
           .then((response) => {
             if (resultTransformDisabled) {
@@ -149,21 +126,8 @@ function getScript(serviceItem) {
 		            }
 	            }
             }
-						
-						/** 领域模型接口按需展示日志，需返回源数据 */
-						if (
-							options.method.toUpperCase() === 'POST'
-							&& options.url.endsWith('/domain/run')
-							&& options.data
-							&& options.data.fileId
-							&& options.data.serviceId
-							&& options.data.params
-							&& options.data.params.showToplLog
-						) {
-							then({ __ORIGIN_RESPONSE__: response, outputData });
-						} else {
-							then(outputData);
-						}
+	
+	          then(outputData);
           })
           .catch((error) => {
             onError((error && error.message) || error);
@@ -174,33 +138,16 @@ function getScript(serviceItem) {
     }
     return serviceAgent(params, config);
   }
+	
   return encodeURIComponent(
     fetch
       .toString()
       .replace('__input__', getDecodeString(serviceItem.input))
       .replace('__output__', getDecodeString(serviceItem.output))
-      .replace(
-        '__globalResultFn__',
-        serviceItem.globalResultFn
-          ? getDecodeString(serviceItem.globalResultFn)
-          : void 0
-      )
-      .replace(
-        '__hasGlobalResultFn__',
-        serviceItem.globalResultFn ? true : false
-      )
       .replace('__method__', serviceItem.method)
       .replace('__path__', serviceItem.path.trim())
       .replace('__outputKeys__', JSON.stringify(serviceItem.outputKeys))
       .replace('__excludeKeys__', JSON.stringify(serviceItem.excludeKeys || []))
-      .replace(
-        '__resultTransformDisabled__',
-        serviceItem.resultTransformDisabled
-      )
-      .replace(
-        '__globalParamsFn__',
-        getDecodeString(serviceItem.globalParamsFn || exampleParamsFunc)
-      )
   );
 }
 

@@ -13,14 +13,11 @@ import parentCss from '../../../../style-cssModules.less';
 import styles from '../index.less';
 
 interface SelectProps {
-	setRender(value: Record<string, unknown>): void;
-	sidebarContext: any;
 	formModel: Record<string, any>;
 	onChange(model: Record<string, any>): void;
 }
 
 const Select: FC<SelectProps> = props => {
-	const { sidebarContext } = props;
 	const [formModel, setFormModel] = useState<Record<string, any>>(props.formModel);
 	const paramRef = useRef<HTMLDivElement>();
 	const resultRef = useRef<HTMLDivElement>();
@@ -197,7 +194,6 @@ const Select: FC<SelectProps> = props => {
 		  <div className={styles.ct}>
 			  <Collapse key={Math.random()} header='接口调试' defaultFold={false}>
 				  <DebugForm
-					  sidebarContext={sidebarContext}
 					  formModel={formModel}
 					  validate={() => {
 						  if (!formModel.path) {

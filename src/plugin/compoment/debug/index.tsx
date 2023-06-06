@@ -11,7 +11,6 @@ import ParamsEdit from '../paramsEdit';
 import Params from '../params';
 import OutputSchemaMock from '../outputSchemaMock';
 import FormItem from '../../../components/FormItem';
-import {getScript} from '../../../script';
 import {cloneDeep} from '../../../utils/lodash';
 import Button from '../../../components/Button';
 

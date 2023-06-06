@@ -5,25 +5,24 @@ import Dropdown from '../../../components/Dropdown';
 
 import css from './index.less';
 
-export default function ({ ctx, setRender, blurMap }: any) {
-  const onAddClick = async (type = 'http') => {
+export default function ({ ctx, setRender, setPanelVisible, blurMap }: any) {
+  const onAddClick = async (type = 'domain') => {
 	  ctx.type = type;
 	  ctx.activeId = void 0;
 	  ctx.templateVisible = false;
-	  ctx.formModel = { type };
 	  switch (type) {
 			/** 领域模型实体 */
 		  case 'domain':
-			  ctx.panelVisible = DOMAIN_PANEL_VISIBLE;
+			  setPanelVisible(DOMAIN_PANEL_VISIBLE);
 			  setRender(ctx);
 			  break;
 			/** 聚合接口为模型，支持在 CRUD 组件中使用 */
 		  case 'aggregation-model':
-			  ctx.panelVisible = AGGREGATION_MODEL_VISIBLE;
+			  setPanelVisible(AGGREGATION_MODEL_VISIBLE);
 			  setRender(ctx);
 			  break;
 		  default:
-			  ctx.panelVisible = DOMAIN_PANEL_VISIBLE;
+			  setPanelVisible(DOMAIN_PANEL_VISIBLE);
 			  setRender(ctx);
 	  }
   };
@@ -57,8 +56,8 @@ export default function ({ ctx, setRender, blurMap }: any) {
     <div className={css.toolbar}>
       <div className={css.search}>
         <input
-          type={'text'}
-          placeholder={'请输入名称搜索模型'}
+          type="text"
+          placeholder="请输入名称搜索模型"
           onChange={(e) => ctx.search(e.target.value)}
         />
       </div>
