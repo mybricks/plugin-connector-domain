@@ -51,7 +51,7 @@ const Select: FC<SelectProps> = props => {
 		let curEntity = entity || { id: uuid(), fieldAry: [] };
 		if (model.markedKeymap) {
 			// TODO 转换为实体
-			curEntity = model.markedKeymap.dataSource ? { id: entity.id, fieldAry: [] } : { id: entity.id, fieldAry: [] };
+			curEntity = model.markedKeymap.dataSource ? { id: curEntity.id, fieldAry: [] } : { id: curEntity.id, fieldAry: [] };
 		}
 		onChangeEntity(curEntity);
 		setFormModel(pre => ({ ...pre, ...model }));

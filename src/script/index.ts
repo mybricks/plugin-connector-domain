@@ -86,47 +86,16 @@ function getScript(serviceItem) {
 	      config
           .ajax(options)
           .then((response) => {
-            return  __output__(response, Object.assign({}, options), {
+            return __output__(response, Object.assign({}, options), {
 	            throwStatusCodeError: (data) => {
 		            onError(data);
 	            },
             });
           })
-          .then((response) => {
-            if (excludeKeys.length === 0) {
-              return response;
-            }
-            excludeKeys.forEach((key) => {
-              const keys = key.split('.');
-              del(response, keys);
-            });
-            return response;
-          })
-          .then((response) => {
-	          let outputData: any = Array.isArray(response) ? [] : {};
-            if (outputKeys === void 0 || outputKeys.length === 0) {
-              outputData = response;
-            } else {
-              outputKeys.forEach((key) => {
-                setData(response, key.split('.'), outputData)
-              });
-							
-	            /** 当标记单项时，自动返回单项对应的值 */
-	            if (Array.isArray(outputKeys) && outputKeys.length && (outputKeys.length > 1 || !(outputKeys.length === 1 && outputKeys[0] === ''))) {
-		            try {
-			            let cascadeOutputKeys = outputKeys.map(key => key.split('.'));
-			            while (Object.prototype.toString.call(outputData) === '[object Object]' && cascadeOutputKeys.every(keys => !!keys.length) && Object.values(outputData).length === 1) {
-				            outputData = Object.values(outputData)[0];
-				            cascadeOutputKeys.forEach(keys => keys.shift());
-			            }
-		            } catch(e) {
-									console.log('connector format data error', e);
-		            }
-	            }
-            }
-	
-	          then(outputData);
-          })
+		      .then((response) => {
+			      return __convert_response__(response);
+		      })
+		      .then(then)
           .catch((error) => {
             onError((error && error.message) || error);
           });
@@ -150,9 +119,32 @@ function getScript(serviceItem) {
         const pageNum = options.params.page ? options.params.page.pageNum : undefined;
         const pageSize = options.params.page ? options.params.page.pageSize : undefined;
         delete options.params.page;
-        options[method.startsWith('GET') ? 'params' : 'data'].${serviceItem.pageInfo.pageNumKey} = pageNum;
-        options[method.startsWith('GET') ? 'params' : 'data'].${serviceItem.pageInfo.pageSizeKey} = pageSize;
-      })` : `((options) => {})`)
+        ${serviceItem.pageInfo.pageNumKey ? `options[method.startsWith('GET') ? 'params' : 'data'].${serviceItem.pageInfo.pageNumKey} = pageNum;` : ''}
+        ${serviceItem.pageInfo.pageSizeKey ? `options[method.startsWith('GET') ? 'params' : 'data'].${serviceItem.pageInfo.pageSizeKey} = pageSize;` : ''}
+      })` : `((options) => { delete options.params.page; })`)
+      .replace('__convert_response__', serviceItem.markedKeymap ? `((response) => {
+        const markedKeyMap = ${JSON.stringify(serviceItem.markedKeymap)};
+        const newResponse = { code: 1, data: {} };
+        
+        for(let markedKey in markedKeyMap) {
+          if (Array.isArray(markedKeyMap[markedKey]) && markedKeyMap[markedKey].length) {
+            let keys = [...markedKeyMap[markedKey]];
+			      let originResponse = response;
+			      
+			      while (keys.length && originResponse) {
+			        const key = keys.shift();
+			        originResponse = originResponse[key];
+			      }
+			      
+			      if (keys.length || !originResponse) {
+			        return { code: -1, msg: \`标记的数据（\${markedKeyMap[markedKey].join('.')}）返回不全\` };
+			      }
+						newResponse.data[markedKey] = originResponse;
+					}
+        }
+        
+        return newResponse;
+      })` : `((response) => { return response })`)
   );
 }
 
