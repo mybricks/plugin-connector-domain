@@ -7,21 +7,27 @@ import css from './index.less';
 const emptyAry: any[] = [];
 
 interface ReturnSchemaProps {
-	markedKeymap: string[];
+	markedKeymap: Record<string, string[]>;
 	schema: any;
 	error: string;
+	setMarkedKeymap(keymap: Record<string, string[]>): void;
 }
 
+const MarkTypeLabel = {
+	dataSource: '列表数据源',
+	total: '数据源总数',
+	pageNum: '分页索引',
+	pageSize: '分页大小'
+};
 const ReturnSchema: FC<ReturnSchemaProps> = props => {
-	const { markedKeymap, schema, error } = props;
+	const { markedKeymap, schema, error, setMarkedKeymap } = props;
   const parentEleRef = useRef<HTMLDivElement>(null);
   const curKeyRef = useRef('');
-  const [keys, setOutputKeys] = useState(emptyAry);
-  const [excludeKeys, setExcludeKeys] = useState<string[]>([]);
   const [popMenuStyle, setStyle] = useState<any>();
 
-  const markAsReturn = useCallback(() => {
-  }, []);
+  const markAsReturn = useCallback((type: string) => {
+	  setMarkedKeymap({ ...(markedKeymap || {}), [type]: curKeyRef.current?.split('.') || [] })
+  }, [markedKeymap, setMarkedKeymap]);
 
   function proAry(items, xpath) {
     if (!items) return null;
@@ -50,37 +56,25 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
         jsx = proObj(val.properties, xpath);
       }
     }
-
-    const hasReturnSchema = !isEmpty(keys);
-    const markedAsReturn =
-      (!hasReturnSchema && root) ||
-      (key && hasReturnSchema && keys?.includes(xpath));
-
-    const showMark =
-      xpath !== void 0 &&
-      !excludeKeys.some((key) => xpath.startsWith(key) && key !== xpath);
-
-    const showCancel =
-	    key !== void 0 &&
-      ((markedAsReturn && !root) ||
-      ((keys.some((key: string) => xpath?.startsWith(key)) || !hasReturnSchema) &&
-        !excludeKeys.some((key) => xpath.startsWith(key))));
+	
+		const markType = Object.keys(markedKeymap || {}).find(key => markedKeymap[key]?.join('.') === xpath);
+		/** key !== void 0 代表中间层，如列表里的对象，对象这个层级没有名称，但需要展示 */
+	  const markedAsReturn = !!markType && key !== void 0;
+    const showMark = xpath !== void 0 && key !== void 0 && !markedAsReturn;
+    const showCancel = key !== void 0 && xpath !== void 0 && markedAsReturn && !root;
 
     return (
       <div
         key={key}
         className={`${css.item} ${root ? css.rootItem : ''} ${
-          markedAsReturn ? css.markAsReturn : ''
+	        markedAsReturn ? css.markAsReturn : ''
         }`}
       >
-        {markedAsReturn ? <div className={css.marked}></div> : null}
-        {excludeKeys.includes(xpath) && key ? (
-          <div className={css.exclude}></div>
-        ) : null}
         <div className={css.keyName}>
           {key}
           <span className={css.typeName}>({getTypeName(val.type)})</span>
-          {showMark && key ? (
+	        {markedAsReturn ? <div className={css.markedText}>{MarkTypeLabel[markType]}</div> : null}
+          {showMark ? (
             <button
               onClick={(e) => {
                 popMark(e, xpath);
@@ -93,7 +87,7 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
           {showCancel ? (
             <button
               onClick={(e) => {
-                cancelMark(e, xpath);
+                cancelMark(e, markType);
                 e.stopPropagation();
               }}
             >
@@ -118,25 +112,9 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
     });
   }, []);
 
-  const cancelMark = useCallback((e, xpath) => {
-    setOutputKeys((keys: any[]) => {
-      const outputKeys = [
-        ...keys.filter((key: string) => key !== xpath),
-      ].filter((key) => key !== '');
-      if (!keys.some((key) => key === xpath)) {
-        setExcludeKeys((keys: string[]) => {
-          const excludeKeys = [
-            ...keys.filter(
-              (key) => !(key.includes(xpath) || xpath.includes(key))
-            ),
-            xpath,
-          ];
-          return excludeKeys;
-        });
-      }
-      return outputKeys;
-    });
-  }, []);
+  const cancelMark = useCallback((e, markType: string) => {
+    setMarkedKeymap({ ...(markedKeymap || {}), [markType]: [] });
+  }, [markedKeymap]);
 
   const resetPopMenuStyle = useCallback(() => {
     setStyle(void 0);
@@ -150,6 +128,7 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
       </div>
     );
   }
+	
   return schema ? (
     <div
       className={css.returnParams}
@@ -158,11 +137,18 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
     >
       <div>{proItem({ val: schema, xpath: '', root: true })}</div>
       <div className={css.popMenu} style={popMenuStyle}>
-        <div className={css.menuItem} onClick={() => markAsReturn()}>
-          返回内容
+        <div className={css.menuItem} onClick={() => markAsReturn('dataSource')}>
+          列表数据源
         </div>
-        {/*<div className={css.menuItem}>错误判断</div>*/}
-        {/*<div className={css.menuItem}>错误信息</div>*/}
+	      <div className={css.menuItem} onClick={() => markAsReturn('pageNum')}>
+		      分页索引
+	      </div>
+	      <div className={css.menuItem} onClick={() => markAsReturn('pageSize')}>
+		      分页大小
+	      </div>
+	      <div className={css.menuItem} onClick={() => markAsReturn('total')}>
+		      数据源总数
+	      </div>
       </div>
     </div>
   ) : (

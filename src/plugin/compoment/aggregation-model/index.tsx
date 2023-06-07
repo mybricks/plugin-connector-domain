@@ -4,8 +4,7 @@ import Button from '../../../components/Button';
 import {
 	AGGREGATION_MODEL_VISIBLE,
 	exampleParamsFunc,
-	exampleResultFunc,
-	exampleSQLParamsFunc
+	exampleResultFunc
 } from '../../../constant';
 import Select from './select';
 import {uuid} from '../../../utils';
@@ -23,7 +22,7 @@ interface AggregationModelProps {
 }
 const tabList = [
 	{ name: '查询', key: 'SELECT' },
-	{ name: '新增', key: 'CREATE' },
+	{ name: '新增', key: 'INSERT' },
 	{ name: '更新', key: 'UPDATE' },
 	{ name: '删除', key: 'DELETE' }
 ];

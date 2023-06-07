@@ -70,7 +70,7 @@ const DomainPanel: FC<DomainPanelProps> = props => {
 								input: decodeURIComponent(input.replace('__action__', 'UPDATE'))
 							})
 						},
-						CREATE: {
+						INSERT: {
 							script: getScript({
 								...baseOptions,
 								input: decodeURIComponent(input.replace('__action__', 'CREATE'))

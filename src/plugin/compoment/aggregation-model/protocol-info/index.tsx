@@ -515,6 +515,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 							</Button>
 						) : null}
 						<ReturnSchema
+							setMarkedKeymap={markedKeymap => onChange({ markedKeymap })}
 							markedKeymap={formModel.markedKeymap}
 							schema={formModel.outputSchema}
 							error={errorInfo}

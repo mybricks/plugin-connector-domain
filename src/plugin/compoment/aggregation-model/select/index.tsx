@@ -208,7 +208,7 @@ const Select: FC<SelectProps> = props => {
 			  </Collapse>
 		  </div>
 		  <div className={styles.ct}>
-			  <Collapse header='接口信息'>
+			  <Collapse header='接口信息' defaultFold={false}>
 				  <ProtocolInfo
 					  sidebarContext={sidebarContext}
 					  formModel={formModel}
