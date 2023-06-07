@@ -33,7 +33,7 @@ export function call(
 ) {
   return new Promise((resolve, reject) => {
     try {
-      const fn = eval(`(${decodeURIComponent(domainModel.query[config.action.toLocaleUpperCase()].script)})`);
+      const fn = eval(`(${decodeURIComponent(domainModel.mode === 'test' ? domainModel.script : domainModel.query[config.action.toLocaleUpperCase()].script)})`);
       const { before = defaultFn } = config || {};
       fn(
         params,

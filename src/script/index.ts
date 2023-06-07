@@ -11,7 +11,7 @@ function getDecodeString(fn: string) {
     : fn;
 }
 
-function getScript(serviceItem) {
+function getScript(serviceItem, isTest = false) {
   function fetch(params, { then, onError }, config) {
     function setData(data, keys, val) {
       const len = keys.length;
@@ -106,23 +106,28 @@ function getScript(serviceItem) {
     return serviceAgent(params, config);
   }
 	
-  return encodeURIComponent(
-    fetch
-      .toString()
-      .replace('__input__', getDecodeString(serviceItem.input))
-      .replace('__output__', getDecodeString(serviceItem.output))
-      .replace('__method__', serviceItem.method)
-      .replace('__path__', serviceItem.path?.trim())
-      .replace('__outputKeys__', JSON.stringify(serviceItem.outputKeys))
-      .replace('__excludeKeys__', JSON.stringify(serviceItem.excludeKeys || []))
-      .replace('__convert_page_info__', serviceItem.pageInfo ? `((options) => {
-        const pageNum = options.params.page ? options.params.page.pageNum : undefined;
-        const pageSize = options.params.page ? options.params.page.pageSize : undefined;
-        delete options.params.page;
-        ${serviceItem.pageInfo.pageNumKey ? `options[method.startsWith('GET') ? 'params' : 'data'].${serviceItem.pageInfo.pageNumKey} = pageNum;` : ''}
-        ${serviceItem.pageInfo.pageSizeKey ? `options[method.startsWith('GET') ? 'params' : 'data'].${serviceItem.pageInfo.pageSizeKey} = pageSize;` : ''}
-      })` : `((options) => { delete options.params.page; })`)
-      .replace('__convert_response__', serviceItem.markedKeymap ? `((response) => {
+	let fetchString = fetch
+		.toString()
+		.replace('__input__', getDecodeString(serviceItem.input))
+		.replace('__output__', getDecodeString(serviceItem.output))
+		.replace('__method__', serviceItem.method)
+		.replace('__path__', serviceItem.path?.trim())
+		.replace('__outputKeys__', JSON.stringify(serviceItem.outputKeys))
+		.replace('__excludeKeys__', JSON.stringify(serviceItem.excludeKeys || []));
+	
+	return encodeURIComponent(
+    isTest
+	    ? fetchString.replace('__convert_page_info__', '(() => {})')
+	      .replace('__convert_response__', '(response => response)')
+	    : fetchString
+	      .replace('__convert_page_info__', serviceItem.pageInfo ? `((options) => {
+	        const pageNum = options.params.page ? options.params.page.pageNum : undefined;
+	        const pageSize = options.params.page ? options.params.page.pageSize : undefined;
+	        delete options.params.page;
+	        ${serviceItem.pageInfo.pageNumKey ? `options[method.startsWith('GET') ? 'params' : 'data'].${serviceItem.pageInfo.pageNumKey} = pageNum;` : ''}
+	        ${serviceItem.pageInfo.pageSizeKey ? `options[method.startsWith('GET') ? 'params' : 'data'].${serviceItem.pageInfo.pageSizeKey} = pageSize;` : ''}
+	      })` : `((options) => { delete options.params.page; })`)
+	      .replace('__convert_response__', serviceItem.markedKeymap ? `((response) => {
         const markedKeyMap = ${JSON.stringify(serviceItem.markedKeymap)};
         const newResponse = { code: 1, data: {} };
         
@@ -144,7 +149,7 @@ function getScript(serviceItem) {
         }
         
         return newResponse;
-      })` : `((response) => { return response })`)
+      })` : `(response => response)`)
   );
 }
 

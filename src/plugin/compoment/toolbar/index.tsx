@@ -5,7 +5,7 @@ import Dropdown from '../../../components/Dropdown';
 
 import css from './index.less';
 
-export default function ({ ctx, setRender, setPanelVisible, blurMap }: any) {
+export default function ({ ctx, setRender, setPanelVisible, blurMap, panelVisible }: any) {
   const onAddClick = async (type = 'domain') => {
 	  ctx.type = type;
 	  ctx.activeId = void 0;
@@ -44,7 +44,7 @@ export default function ({ ctx, setRender, setPanelVisible, blurMap }: any) {
 	  );
 	
 	  return (
-		  <Dropdown dropDownStyle={(ctx.panelVisible || !!document.querySelector('div[data-id=plugin-panel]')) ? { right: 0 } : undefined} onBlur={fn => blurMap['toolbar'] = fn} overlay={menu}>
+		  <Dropdown dropDownStyle={(panelVisible || !!document.querySelector('div[data-id=plugin-panel]')) ? { right: 0 } : undefined} onBlur={fn => blurMap['toolbar'] = fn} overlay={menu}>
 			  <div className={css.icon}>
 				  {plus}
 			  </div>

@@ -183,6 +183,7 @@ export default function Sidebar({
               ctx={sidebarContext}
               setRender={setRender}
 	            setPanelVisible={setPanelVisible}
+	            panelVisible={panelVisible}
             />
           </div>
           <div className={css['sidebar-panel-list']}>
