@@ -1,3 +1,5 @@
+import React from 'react';
+
 export const icon = (
 	<svg viewBox="0 0 1024 1024" width="32" height="32">
 		<path

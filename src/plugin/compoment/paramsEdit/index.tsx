@@ -1,14 +1,18 @@
 /**
  * 使用树形选择器完成字段映射
  */
-
-import React, { useCallback, useRef } from 'react';
-import css from './index.less';
-import * as Icons from '../../../icon';
+import React, {useCallback, useEffect, useRef} from 'react';
+import { remove } from '../../../icon';
 import { uuid } from '../../../utils';
-export default function ParamsEdit({ value, onChange, ctx }: any) {
+
+import css from './index.less';
+
+export default function ParamsEdit({ value, onChange }: any) {
   const valueRef = useRef(value);
-  valueRef.current = value;
+	
+	useEffect(() => {
+		valueRef.current = value;
+	}, [value]);
   const updateValue = useCallback(() => {
     onChange({ ...valueRef.current });
   }, []);
@@ -20,7 +24,6 @@ export default function ParamsEdit({ value, onChange, ctx }: any) {
       item['defaultValue'] = '';
       item.children = [];
     }
-    ctx.editNowId = item.id;
     updateValue();
   }, []);
 
@@ -32,7 +35,6 @@ export default function ParamsEdit({ value, onChange, ctx }: any) {
         child.defaultValue = parent.children[index].defaultValue;
       });
     }
-    ctx.editNowId = void 0;
     updateValue();
   };
 
@@ -50,7 +52,6 @@ export default function ParamsEdit({ value, onChange, ctx }: any) {
       const name = `name${parent.children.length + 1}`;
       parent.children.push({ id, type: 'string', name });
     }
-    ctx.editNowId = void 0;
     updateValue();
   };
 
@@ -118,7 +119,7 @@ export default function ParamsEdit({ value, onChange, ctx }: any) {
               className={`${css.iconRemove}`}
               onClick={(e) => removeItem(item, parent)}
             >
-              {Icons.remove}
+              {remove}
             </span>
             {addAble ? (
               <span
@@ -147,19 +148,19 @@ export default function ParamsEdit({ value, onChange, ctx }: any) {
   return (
     <>
       <div>
-        {value?.children?.length === 0 ? (
-          null
-        ) : (
-          <>
-            <div className={css.header}>
-              <p className={css.column1}>字段名</p>
-              <p className={css.column2}>类型</p>
-              <p className={css.column3}>调试值</p>
-              <p className={css.column4}>操作</p>
-            </div>
-            <div className={css.content}>{processItem(value, value)}</div>
-          </>
-        )}
+        {
+					value?.children?.length === 0 ? null: (
+	          <>
+	            <div className={css.header}>
+	              <p className={css.column1}>字段名</p>
+	              <p className={css.column2}>类型</p>
+	              <p className={css.column3}>调试值</p>
+	              <p className={css.column4}>操作</p>
+	            </div>
+	            <div className={css.content}>{processItem(value, value)}</div>
+	          </>
+	        )
+				}
         {value?.children?.every(({ type }: any) => type ==='object' || type === 'array')? (
           <span className={css.iconRootAdder} onClick={() => pushItemToRoot()}>
             +

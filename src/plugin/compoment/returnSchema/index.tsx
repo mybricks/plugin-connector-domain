@@ -146,7 +146,7 @@ export default function ReturnShema({
 
   const cancelMark = useCallback((e, xpath) => {
     setOutputKeys((keys: any[]) => {
-      const outputkeys = [
+      const outputKeys = [
         ...keys.filter((key: string) => key !== xpath),
       ].filter((key) => key !== '');
       if (!keys.some((key) => key === xpath)) {
@@ -161,8 +161,8 @@ export default function ReturnShema({
           return excludeKeys;
         });
       }
-      onOutputKeysChange(outputkeys);
-      return outputkeys;
+      onOutputKeysChange(outputKeys);
+      return outputKeys;
     });
   }, []);
 

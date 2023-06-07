@@ -6,9 +6,9 @@ import {fullScreen, fullScreenExit} from '../../../../icon';
 import {safeDecode} from '../../../../utils';
 import FormItem from '../../../../components/FormItem';
 import Input, {TextArea} from '../../../../components/Input';
-import DebugForm from '../../debug';
 import {MethodOpts} from '../../../../constant';
 import RequestInfo from '../request-info';
+import ProtocolInfo from '../protocol-info';
 
 import parentCss from '../../../../style-cssModules.less';
 import styles from '../index.less';
@@ -207,8 +207,8 @@ const Select: FC<SelectProps> = props => {
 			  </Collapse>
 		  </div>
 		  <div className={styles.ct}>
-			  <Collapse header='接口调试'>
-				  <DebugForm
+			  <Collapse header='接口信息'>
+				  <ProtocolInfo
 					  formModel={formModel}
 					  validate={() => {
 						  if (!formModel.path) {
@@ -218,6 +218,7 @@ const Select: FC<SelectProps> = props => {
 						
 						  return true;
 					  }}
+				   onChange={model => setFormModel(pre => ({ ...pre, ...model }))}
 				  />
 			  </Collapse>
 		  </div>
