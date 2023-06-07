@@ -105,11 +105,13 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
     const parentPos = parentEleRef.current.getBoundingClientRect();
     const currentPos = btnEle.getBoundingClientRect();
     curKeyRef.current = xpath;
-    setStyle({
-      display: 'block',
-      left: currentPos.x - parentPos.x,
-      top: currentPos.y - parentPos.y + btnEle.offsetHeight,
-    });
+		let top = currentPos.y - parentPos.y + btnEle.offsetHeight;
+		const popMenuHeight = 122;
+		
+		if (top + popMenuHeight > parentPos.height || currentPos.top + popMenuHeight > document.body.clientHeight) {
+			top -= popMenuHeight + btnEle.offsetHeight;
+		}
+    setStyle({ display: 'block', left: currentPos.x - parentPos.x, top });
   }, []);
 
   const cancelMark = useCallback((e, markType: string) => {
