@@ -112,7 +112,7 @@ function getScript(serviceItem) {
       .replace('__input__', getDecodeString(serviceItem.input))
       .replace('__output__', getDecodeString(serviceItem.output))
       .replace('__method__', serviceItem.method)
-      .replace('__path__', serviceItem.path.trim())
+      .replace('__path__', serviceItem.path?.trim())
       .replace('__outputKeys__', JSON.stringify(serviceItem.outputKeys))
       .replace('__excludeKeys__', JSON.stringify(serviceItem.excludeKeys || []))
       .replace('__convert_page_info__', serviceItem.pageInfo ? `((options) => {
