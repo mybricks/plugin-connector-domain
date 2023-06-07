@@ -26,8 +26,20 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
   const [popMenuStyle, setStyle] = useState<any>();
 
   const markAsReturn = useCallback((type: string) => {
+		if (type === 'dataSource') {
+			let keys = curKeyRef.current?.split('.') || [];
+			let originSchema = schema;
+			while (keys.length && originSchema) {
+				const key = keys.shift();
+				originSchema = originSchema.properties?.[key] || originSchema.items?.properties?.[key];
+			}
+			
+			if (originSchema.type !== 'array' || keys.length) {
+				return;
+			}
+		}
 	  setMarkedKeymap({ ...(markedKeymap || {}), [type]: curKeyRef.current?.split('.') || [] })
-  }, [markedKeymap, setMarkedKeymap]);
+  }, [markedKeymap, setMarkedKeymap, schema]);
 
   function proAry(items, xpath) {
     if (!items) return null;

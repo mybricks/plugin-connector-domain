@@ -1,9 +1,9 @@
-import React, {FC, useEffect, useRef, useState} from 'react';
+import React, {FC, useCallback, useEffect, useRef, useState} from 'react';
 import Editor from '@mybricks/code-editor';
 import Collapse from "../../../../components/Collapse";
 import RadioButton from '../../../../components/RadioBtn';
 import {fullScreen, fullScreenExit} from '../../../../icon';
-import {safeDecode} from '../../../../utils';
+import {safeDecode, uuid} from '../../../../utils';
 import FormItem from '../../../../components/FormItem';
 import Input, {TextArea} from '../../../../components/Input';
 import {MethodOpts} from '../../../../constant';
@@ -15,12 +15,14 @@ import styles from '../index.less';
 
 interface SelectProps {
 	sidebarContext: any;
+	entity: any;
 	formModel: Record<string, any>;
 	onChange(model: Record<string, any>): void;
+	onChangeEntity(entity: Record<string, any>): void;
 }
 
 const Select: FC<SelectProps> = props => {
-	const { formModel: defaultFormModel, onChange, sidebarContext } = props;
+	const { formModel: defaultFormModel, onChange, sidebarContext, onChangeEntity, entity } = props;
 	const [formModel, setFormModel] = useState<Record<string, any>>(defaultFormModel);
 	const paramRef = useRef<HTMLDivElement>();
 	const resultRef = useRef<HTMLDivElement>();
@@ -44,6 +46,16 @@ const Select: FC<SelectProps> = props => {
 		setFullScreenResultEditor(false);
 		resultRef.current?.classList.remove(parentCss['sidebar-panel-code-full']);
 	};
+	
+	const onChangeForProtocol = useCallback(model => {
+		let curEntity = entity || { id: uuid(), fieldAry: [] };
+		if (model.markedKeymap) {
+			// TODO 转换为实体
+			curEntity = model.markedKeymap.dataSource ? { id: entity.id, fieldAry: [] } : { id: entity.id, fieldAry: [] };
+		}
+		onChangeEntity(curEntity);
+		setFormModel(pre => ({ ...pre, ...model }));
+	}, [onChangeEntity, entity])
 	
 	useEffect(() => {
 		onChange(formModel);
@@ -200,9 +212,9 @@ const Select: FC<SelectProps> = props => {
 		  <div className={styles.ct}>
 			  <Collapse header='请求入参' defaultFold={false}>
 				  <RequestInfo
-					  pageInfo={formModel.query?.pageInfo}
+					  pageInfo={formModel?.pageInfo}
 					  onChange={(pageInfo) => {
-						  setFormModel(model => ({ ...model, query: { ...model.query, pageInfo } }));
+						  setFormModel(model => ({ ...model, pageInfo }));
 					  }}
 				  />
 			  </Collapse>
@@ -220,7 +232,7 @@ const Select: FC<SelectProps> = props => {
 						
 						  return true;
 					  }}
-				   onChange={model => setFormModel(pre => ({ ...pre, ...model }))}
+				   onChange={onChangeForProtocol}
 				  />
 			  </Collapse>
 		  </div>

@@ -82,7 +82,8 @@ function getScript(serviceItem) {
           return param;
         });
         options.method = options.method || method;
-        config
+	      __convert_page_info__(options);
+	      config
           .ajax(options)
           .then((response) => {
             return  __output__(response, Object.assign({}, options), {
@@ -145,6 +146,13 @@ function getScript(serviceItem) {
       .replace('__path__', serviceItem.path.trim())
       .replace('__outputKeys__', JSON.stringify(serviceItem.outputKeys))
       .replace('__excludeKeys__', JSON.stringify(serviceItem.excludeKeys || []))
+      .replace('__convert_page_info__', serviceItem.pageInfo ? `((options) => {
+        const pageNum = options.params.page ? options.params.page.pageNum : undefined;
+        const pageSize = options.params.page ? options.params.page.pageSize : undefined;
+        delete options.params.page;
+        options[method.startsWith('GET') ? 'params' : 'data'].${serviceItem.pageInfo.pageNumKey} = pageNum;
+        options[method.startsWith('GET') ? 'params' : 'data'].${serviceItem.pageInfo.pageSizeKey} = pageSize;
+      })` : `((options) => {})`)
   );
 }
 

@@ -114,7 +114,9 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 				  {activeTab === 'SELECT' ? (
 					  <Select
 						  sidebarContext={sidebarContext}
+						  entity={model.query.entity}
 						  formModel={model.query.SELECT}
+						  onChangeEntity={entity => setModel(model => ({ ...model, query: { ...model.query, entity } }))}
 						  onChange={(select: any) => {
 								setModel(model => {
 									const abilitySet = model.query.abilitySet || [];
