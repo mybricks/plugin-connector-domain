@@ -71,9 +71,9 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
         }`}
       >
         <div className={css.keyName}>
+	        {markedAsReturn ? <div className={css.marked} data-text={MarkTypeLabel[markType]}></div> : null}
           {key}
           <span className={css.typeName}>({getTypeName(val.type)})</span>
-	        {markedAsReturn ? <div className={css.markedText}>{MarkTypeLabel[markType]}</div> : null}
           {showMark ? (
             <button
               onClick={(e) => {
