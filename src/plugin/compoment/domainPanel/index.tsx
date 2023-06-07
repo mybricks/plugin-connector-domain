@@ -82,6 +82,7 @@ const DomainPanel: FC<DomainPanelProps> = props => {
 								input: decodeURIComponent(input.replace('__action__', 'SEARCH_BY_FIELD'))
 							})
 						},
+						abilitySet: ['SELECT', 'DELETE', 'UPDATE', 'CREATE', 'SEARCH_BY_FIELD'],
 						entity: item,
 					},
 					createTime: Date.now(),

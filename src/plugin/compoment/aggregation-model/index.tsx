@@ -1,4 +1,4 @@
-import React, {CSSProperties, FC, useCallback, useEffect, useState} from 'react';
+import React, {CSSProperties, FC, useCallback, useState} from 'react';
 import ReactDOM from 'react-dom';
 import Button from '../../../components/Button';
 import {
@@ -14,6 +14,7 @@ import {getScript} from '../../../script';
 import styles from './index.less';
 
 interface AggregationModelProps {
+	sidebarContext: any;
 	style: CSSProperties;
 	panelVisible: number;
 	initialModel?: any;
@@ -49,9 +50,10 @@ const INIT_QUERY = {
 		output: encodeURIComponent(exampleResultFunc),
 	},
 	entity: { id: uuid(), fieldAry: [] },
+	abilitySet: []
 };
 const AggregationModel: FC<AggregationModelProps> = props => {
-	const { panelVisible, style, onClose, updateService, initialModel } = props;
+	const { panelVisible, style, onClose, updateService, initialModel, sidebarContext } = props;
 	const [activeTab, setActiveTab] = useState('SELECT');
 	const [model, setModel] = useState(initialModel || {
 		id: uuid(),
@@ -63,6 +65,10 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 	});
 	
 	const onSave = useCallback(() => {
+		model.query.abilitySet?.forEach(key => {
+			model.query[key].script = getScript(model.query[key]);
+		});
+		
 		updateService(initialModel ? 'update' : 'create', model);
 		onClose();
 	}, [model, initialModel]);
@@ -73,8 +79,11 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 			  <div className={styles.sidebarPanelTitle}>
 				  <div>聚合模型</div>
 				  <div>
-					  <Button size='small' type="primary"  onClick={onSave}>
+					  <Button size="small" type="primary" onClick={onSave}>
 						  保 存
+					  </Button>
+					  <Button size="small" style={{ marginLeft: '12px' }} onClick={onClose}>
+						  关 闭
 					  </Button>
 				  </div>
 			  </div>
@@ -105,9 +114,18 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 			  <div className={styles.tabContent}>
 				  {activeTab === 'SELECT' ? (
 					  <Select
+						  sidebarContext={sidebarContext}
 						  formModel={model.query.SELECT}
 						  onChange={(select: any) => {
-								setModel(model => ({ ...model, query: { ...model.query, SELECT: select } }));
+								setModel(model => {
+									const abilitySet = model.query.abilitySet || [];
+									
+									if (!abilitySet.includes('SELECT')) {
+										abilitySet.push('SELECT');
+									}
+									
+									return { ...model, query: { ...model.query, SELECT: select, abilitySet } };
+								});
 						  }}
 					  />
 				  ) : null}

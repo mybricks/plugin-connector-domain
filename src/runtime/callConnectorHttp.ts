@@ -33,7 +33,7 @@ export function call(
 ) {
   return new Promise((resolve, reject) => {
     try {
-      const fn = eval(`(${decodeURIComponent(domainModel.query[config.action].script)})`);
+      const fn = eval(`(${decodeURIComponent(domainModel.query[config.action.toLocaleUpperCase()].script)})`);
       const { before = defaultFn } = config || {};
       fn(
         params,
@@ -56,7 +56,8 @@ export function call(
         }
       );
     } catch (ex) {
-      reject(`连接器script错误.`);
+			console.error(ex);
+      reject('连接器script错误.');
     }
   });
 }

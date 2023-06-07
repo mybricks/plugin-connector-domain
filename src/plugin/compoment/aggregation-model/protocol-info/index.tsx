@@ -1,23 +1,22 @@
-import React, {FC, useCallback, useEffect, useRef, useState} from 'react';
-import {formatSchema, getDataByExcludeKeys, getDataByOutputKeys, jsonToSchema, params2data} from '../../../../utils';
-import {cloneDeep} from '../../../../utils/lodash';
+import React, {FC, useCallback, useState} from 'react';
+import {formatSchema, getDecodeString, jsonToSchema, params2data} from '../../../../utils';
 import FormItem from '../../../../components/FormItem';
 import ParamsEdit from '../../paramsEdit';
 import Button from '../../../../components/Button';
 import OutputSchemaMock from '../../outputSchemaMock';
 import ReturnSchema from '../../returnSchema';
 import ParamsType from '../../params';
+import {getScript} from "../../../../script";
 
 interface ProtocolInfoProps {
+	sidebarContext: any;
 	formModel: any;
 	validate(): boolean;
 	onChange(model: any): void;
 }
 
 const ProtocolInfo: FC<ProtocolInfoProps> = props => {
-	const { formModel, validate, onChange } = props;
-	const [schema, setSchema] = useState(formModel.resultSchema);
-	const allDataRef = useRef<any>();
+	const { formModel, validate, onChange, sidebarContext } = props;
 	const [errorInfo, setError] = useState('');
 	const [edit, setEdit] = useState(false);
 	const [context] = useState({formModel, editNowId: void 0});
@@ -25,8 +24,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 	const onDebugClick = async () => {
 		try {
 			if (!validate()) return;
-			const originParams = formModel.paramsList?.[0].data || [];
-			const params = params2data(originParams);
+			const params = params2data(formModel.params);
 			setError('');
 			// const data = await sidebarContext.domainModel.test(
 			//   {
@@ -462,78 +460,13 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 					}], "total": 23
 				}
 			};
-			allDataRef.current = data;
-			let {outputKeys = [], excludeKeys = []} = formModel;
-			const resultSchema = jsonToSchema(data);
-			formModel.resultSchema = resultSchema;
 			
-			outputKeys = outputKeys
-			.filter(Boolean)
-			.map(key => key.split('.'))
-			.filter(keys => {
-				let schema = resultSchema.properties || resultSchema.items?.properties;
-				
-				for (let idx = 0; idx < keys.length; idx++) {
-					const key = keys[idx];
-					
-					if (schema && schema[key]) {
-						schema = schema[key].properties || schema[key].items?.properties;
-					} else {
-						return false;
-					}
-				}
-				
-				return true;
-			})
-			.map(keys => keys.join('.'));
-			excludeKeys = excludeKeys
-			.filter(Boolean)
-			.map(key => key.split('.'))
-			.filter(keys => {
-				let schema = resultSchema.properties || resultSchema.items?.properties;
-				
-				for (let idx = 0; idx < keys.length; idx++) {
-					const key = keys[idx];
-					
-					if (schema && schema[key]) {
-						schema = schema[key].properties || schema[key].items?.properties;
-					} else {
-						return false;
-					}
-				}
-				
-				return true;
-			})
-			.map(keys => keys.join('.'));
-			
-			let outputData = getDataByExcludeKeys(getDataByOutputKeys(data, outputKeys), excludeKeys);
-			let outputSchema = jsonToSchema(outputData);
-			/** 当标记单项时，自动返回单项对应的值 */
-			if (Array.isArray(outputKeys) && outputKeys.length && (outputKeys.length > 1 || !(outputKeys.length === 1 && outputKeys[0] === ''))) {
-				try {
-					let cascadeOutputKeys = [...outputKeys].map(key => key.split('.'));
-					while (Object.prototype.toString.call(outputData) === '[object Object]' && cascadeOutputKeys.every(keys => !!keys.length) && Object.values(outputData).length === 1) {
-						outputData = Object.values(outputData)[0];
-						outputSchema = Object.values(outputSchema.properties)[0];
-						cascadeOutputKeys.forEach(keys => keys.shift());
-					}
-				} catch {
-				}
-			}
-			
-			formatSchema(formModel.resultSchema);
+			const outputSchema = jsonToSchema(data);
 			formatSchema(outputSchema);
-			const inputSchema = jsonToSchema(params || {});
-			formatSchema(inputSchema);
-			formModel.outputKeys = outputKeys;
-			formModel.excludeKeys = excludeKeys;
-			formModel.outputSchema = outputSchema;
-			formModel.inputSchema = inputSchema;
-			setSchema({...formModel.resultSchema});
+			onChange({ outputSchema });
 		} catch (error: any) {
 			console.log(error);
-			formModel.outputSchema = void 0;
-			formModel.resultSchema = void 0;
+			onChange({ outputSchema: undefined });
 			setError(error?.message || error);
 		}
 	};
@@ -547,157 +480,13 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 		}
 	}, [onChange]);
 	
-	const onKeysChange = useCallback((outputKeys = [], excludeKeys = []) => {
-		const {resultSchema} = formModel;
-		
-		try {
-			/** 当标记单项时，自动返回单项对应的值 */
-			let autoExtra = false;
-			
-			let outputSchema: any = {};
-			if (outputKeys.length === 0) {
-				outputSchema = formModel.resultSchema;
-			} else if (outputKeys.length === 1 && outputKeys[0] === '') {
-				outputSchema = {type: 'any'};
-			} else {
-				outputSchema = resultSchema.type === 'array'
-					? {
-						type: 'array',
-						items: (resultSchema.items?.type === 'object' ? {
-							type: 'object',
-							properties: {}
-						} : (resultSchema.items?.type === 'array' ? {type: 'array', items: {}} : {type: resultSchema.items?.type}))
-					}
-					: {type: 'object', properties: {}};
-				
-				outputKeys.forEach((key: string) => {
-					let subSchema = outputSchema.properties || outputSchema.items?.properties || outputSchema.items?.items;
-					let subResultSchema = resultSchema.properties || resultSchema.items?.properties || resultSchema.items?.items;
-					const keys = key.split('.');
-					
-					keys.forEach((field, index) => {
-						if (!subSchema || !subResultSchema || !subResultSchema[field]) {
-							return;
-						}
-						
-						if (index === keys.length - 1) {
-							subSchema[field] = {...subResultSchema[field]};
-						} else {
-							const {type} = subResultSchema[field];
-							
-							if (type === 'array') {
-								subSchema[field] = subSchema[field] || {
-									...subResultSchema[field],
-									items: (subResultSchema[field].items.type === 'object' ? {
-										type: 'object',
-										properties: {}
-									} : (subResultSchema[field].items.type === 'array' ? {
-										type: 'array',
-										items: {}
-									} : {type: subResultSchema[field].items.type}))
-								};
-								subSchema = subSchema[field].items.properties;
-								subResultSchema = subResultSchema[field].items.properties;
-							} else if (type === 'object') {
-								subSchema[field] = subSchema[field] || {...subResultSchema[field], properties: {}};
-								subSchema = subSchema[field].properties;
-								subResultSchema = subResultSchema[field].properties;
-							} else {
-								subSchema[field] = {...subResultSchema[field]};
-								subSchema = subSchema[field].properties;
-								subResultSchema = subResultSchema[field].properties;
-							}
-						}
-					});
-				});
-				if (Object.keys(outputSchema.properties).length === 1) {
-					autoExtra = true;
-				}
-			}
-			
-			excludeKeys = excludeKeys
-			.map(key => key.split('.'))
-			.filter(keys => {
-				let schema = outputSchema.properties || outputSchema.items?.properties;
-				
-				for (let idx = 0; idx < keys.length; idx++) {
-					const key = keys[idx];
-					
-					if (schema && schema[key]) {
-						schema = schema[key].properties || schema[key].items?.properties;
-					} else {
-						return false;
-					}
-				}
-				
-				return true;
-			})
-			.map(keys => keys.join('.'));
-			
-			let newOutputSchema = cloneDeep(outputSchema);
-			excludeKeys?.forEach((key: string) => {
-				const keys = key.split('.');
-				const len = keys.length;
-				let schema = newOutputSchema;
-				for (let i = 0; i < len - 1; i++) {
-					schema = (schema.properties || schema.items.properties)[keys[i]];
-				}
-				try {
-					Reflect.deleteProperty(
-						schema.properties || schema.items.properties,
-						keys[len - 1]
-					);
-				} catch (error) {
-				}
-			});
-			
-			try {
-				const cloneData = cloneDeep(allDataRef.current);
-				let outputData = getDataByOutputKeys(getDataByExcludeKeys(cloneData, excludeKeys), outputKeys);
-				
-				if (autoExtra) {
-					try {
-						let cascadeOutputKeys = outputKeys.map(key => key.split('.'));
-						while (newOutputSchema.type === 'object' && cascadeOutputKeys.every(keys => !!keys.length) && Object.values(newOutputSchema.properties || {}).length === 1) {
-							outputData = allDataRef.current ? Object.values(outputData)[0] : outputData;
-							newOutputSchema = Object.values(newOutputSchema.properties)[0];
-							cascadeOutputKeys.forEach(keys => keys.shift());
-						}
-					} catch (e) {
-						console.log(e);
-					}
-				}
-			} catch (error) {
-			}
-			
-			formModel.outputKeys = outputKeys;
-			formModel.excludeKeys = excludeKeys;
-			formModel.outputSchema = newOutputSchema;
-		} catch (error) {
-			console.log(error);
-		}
-	}, []);
-	
-	const onOutputKeysChange = useCallback(
-		(outputKeys) => {
-			onKeysChange(outputKeys, formModel.excludeKeys);
-		},
-		[formModel]
-	);
-	
-	const onExcludeKeysChange = useCallback(
-		(excludeKeys) => {
-			onKeysChange(formModel.outputKeys, excludeKeys);
-		},
-		[formModel]
-	);
-	
 	const onMockSchemaChange = useCallback((schema) => {
 		onChange({ resultSchema: schema });
 	}, []);
 	
-	const editSchema = () => setEdit(true);
-	const saveSchema = () => setEdit(false);
+	const editSchema = useCallback(() => setEdit(false), []);
+	const saveSchema = useCallback(() => setEdit(false), []);
+	
 	return (
 		<>
 			<FormItem label='请求参数'>
@@ -726,11 +515,8 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 							</Button>
 						) : null}
 						<ReturnSchema
-							outputKeys={formModel.outputKeys}
-							excludeKeys={formModel.excludeKeys}
-							onOutputKeysChange={onOutputKeysChange}
-							onExcludeKeysChange={onExcludeKeysChange}
-							schema={schema}
+							markedKeymap={formModel.markedKeymap}
+							schema={formModel.outputSchema}
 							error={errorInfo}
 						/>
 					</FormItem>

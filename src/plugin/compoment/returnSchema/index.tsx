@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {FC, useEffect, useRef, useState} from 'react';
 import { useCallback } from 'react';
 import { isEmpty } from '../../../utils/lodash';
 
@@ -6,47 +6,21 @@ import css from './index.less';
 
 const emptyAry: any[] = [];
 
-export default function ReturnShema({
-  outputKeys,
-  excludeKeys: excKeys,
-  onOutputKeysChange,
-  onExcludeKeysChange,
-  schema,
-  error,
-}: any) {
-  const parentEleRef = useRef();
+interface ReturnSchemaProps {
+	markedKeymap: string[];
+	schema: any;
+	error: string;
+}
+
+const ReturnSchema: FC<ReturnSchemaProps> = props => {
+	const { markedKeymap, schema, error } = props;
+  const parentEleRef = useRef<HTMLDivElement>(null);
   const curKeyRef = useRef('');
-  const excludeKeysRef = useRef([]);
-  const [keys, setOutputKeys] = useState(outputKeys || emptyAry);
-  const [excludeKeys, setExcludekeys] = useState<string[]>(excKeys || []);
+  const [keys, setOutputKeys] = useState(emptyAry);
+  const [excludeKeys, setExcludeKeys] = useState<string[]>([]);
   const [popMenuStyle, setStyle] = useState<any>();
-  excludeKeysRef.current = excludeKeys;
-  useEffect(() => {
-    setOutputKeys(outputKeys || emptyAry);
-  }, [outputKeys]);
 
   const markAsReturn = useCallback(() => {
-    setOutputKeys((keys: any[]) => {
-      if (excludeKeysRef.current.some((key) => key === curKeyRef.current)) {
-        return keys;
-      }
-      const outputkeys = [
-        ...keys.filter(
-          (key: string) =>
-            !(
-              key.includes(curKeyRef.current) || curKeyRef.current.includes(key)
-            )
-        ),
-        curKeyRef.current,
-      ].filter((key) => key !== '');
-      onOutputKeysChange([...outputkeys]);
-      return outputkeys;
-    });
-    setExcludekeys((keys: string[]) => {
-      const newKeys = keys.filter((key) => key !== curKeyRef.current);
-      onExcludeKeysChange(newKeys);
-      return newKeys;
-    });
   }, []);
 
   function proAry(items, xpath) {
@@ -59,9 +33,9 @@ export default function ReturnShema({
     return (
       <>
         {Object.keys(properties).map((key) => {
-          const nxpath =
+          const nXpath =
             xpath !== void 0 ? (xpath ? `${xpath}.${key}` : key) : void 0;
-          return proItem({ val: properties[key], xpath: nxpath, key });
+          return proItem({ val: properties[key], xpath: nXpath, key });
         })}
       </>
     );
@@ -150,18 +124,16 @@ export default function ReturnShema({
         ...keys.filter((key: string) => key !== xpath),
       ].filter((key) => key !== '');
       if (!keys.some((key) => key === xpath)) {
-        setExcludekeys((keys: string[]) => {
+        setExcludeKeys((keys: string[]) => {
           const excludeKeys = [
             ...keys.filter(
               (key) => !(key.includes(xpath) || xpath.includes(key))
             ),
             xpath,
           ];
-          onExcludeKeysChange(excludeKeys);
           return excludeKeys;
         });
       }
-      onOutputKeysChange(outputKeys);
       return outputKeys;
     });
   }, []);
@@ -222,3 +194,5 @@ function getErrorTips(message: string) {
   }
   return '';
 }
+
+export default ReturnSchema;

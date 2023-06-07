@@ -250,6 +250,7 @@ export default function Sidebar({
 	      {panelVisible & AGGREGATION_MODEL_VISIBLE ? (
 		      <AggregationModel
 			      panelVisible={panelVisible}
+			      sidebarContext={sidebarContext}
 			      onClose={onClose}
 			      initialModel={cueEditModel}
 			      updateService={updateService}
