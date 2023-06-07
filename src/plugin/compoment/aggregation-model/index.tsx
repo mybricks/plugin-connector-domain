@@ -588,7 +588,12 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 			  </div>
 			  <div className={styles.tabContent}>
 				  {activeTab === 'SELECT' ? (
-					  <Select formModel={formModelMap.SELECT} onChange={() => {}} />
+					  <Select
+						  formModel={formModelMap.SELECT}
+						  onChange={(model) => {
+								setFormModelMap(map => ({ ...map, SELECT: model }));
+						  }}
+					  />
 				  ) : null}
 			  </div>
 		  </div>

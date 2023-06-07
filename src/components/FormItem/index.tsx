@@ -3,13 +3,14 @@ import css from './index.less';
 
 export default function Input({
   label: title,
+	labelStyle,
   require,
 	contentStyle,
   children
 }: any) {
   return (
     <div className={css.item}>
-      <label>
+      <label style={labelStyle}>
         {require ? <i>*</i> : null}
         {title}
       </label>

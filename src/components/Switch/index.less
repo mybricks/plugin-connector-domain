@@ -18,12 +18,10 @@
     display: inline-block;
     box-sizing: border-box;
     position: relative;
-    padding-left: 6px;
     background-color: rgba(0, 0, 0, 0.25);
     border: 0;
     border-radius: 100px;
     cursor: pointer;
-    transition: all 0.2s;
     min-width: 28px;
     height: 16px;
     line-height: 16px;
@@ -31,7 +29,7 @@
     padding: 0;
     color: rgba(0, 0, 0, 0.85);
     transition: all .2s;
-  
+
     &.checked {
       background-color: @color-primary;
       .handle {
@@ -46,7 +44,7 @@
       transition: all 0.2s ease-in-out;
       top: 2px;
       left: 2px;
-  
+
       &::before {
         position: absolute;
         top: 0;

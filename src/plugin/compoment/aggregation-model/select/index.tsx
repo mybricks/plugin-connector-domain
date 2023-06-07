@@ -1,4 +1,4 @@
-import React, {FC, useRef, useState} from 'react';
+import React, {FC, useEffect, useRef, useState} from 'react';
 import Editor from '@mybricks/code-editor';
 import Collapse from "../../../../components/Collapse";
 import RadioButton from '../../../../components/RadioBtn';
@@ -8,6 +8,7 @@ import FormItem from '../../../../components/FormItem';
 import Input, {TextArea} from '../../../../components/Input';
 import DebugForm from '../../debug';
 import {MethodOpts} from '../../../../constant';
+import RequestInfo from '../request-info';
 
 import parentCss from '../../../../style-cssModules.less';
 import styles from '../index.less';
@@ -18,7 +19,8 @@ interface SelectProps {
 }
 
 const Select: FC<SelectProps> = props => {
-	const [formModel, setFormModel] = useState<Record<string, any>>(props.formModel);
+	const { formModel: defaultFormModel, onChange } = props;
+	const [formModel, setFormModel] = useState<Record<string, any>>(defaultFormModel);
 	const paramRef = useRef<HTMLDivElement>();
 	const resultRef = useRef<HTMLDivElement>();
 	const [errorMap, setErrorMap] = useState<Record<string, string>>({});
@@ -29,7 +31,6 @@ const Select: FC<SelectProps> = props => {
 		paramRef.current?.classList.add(parentCss['sidebar-panel-code-full']);
 		setFullScreenParamsEditor(true);
 	};
-	
 	const onParamsEditorFullscreenExit = () => {
 		paramRef.current?.classList.remove(parentCss['sidebar-panel-code-full']);
 		setFullScreenParamsEditor(false);
@@ -42,6 +43,10 @@ const Select: FC<SelectProps> = props => {
 		setFullScreenResultEditor(false);
 		resultRef.current?.classList.remove(parentCss['sidebar-panel-code-full']);
 	};
+	
+	useEffect(() => {
+		onChange(formModel);
+	}, [formModel]);
 	
   return (
 	  <>
@@ -192,7 +197,17 @@ const Select: FC<SelectProps> = props => {
 			  </Collapse>
 		  </div>
 		  <div className={styles.ct}>
-			  <Collapse key={Math.random()} header='接口调试' defaultFold={false}>
+			  <Collapse header='请求入参' defaultFold={false}>
+				  <RequestInfo
+					  pageInfo={formModel.query?.pageInfo}
+					  onChange={(pageInfo) => {
+						  setFormModel(model => ({ ...model, query: { ...model.query, pageInfo } }));
+					  }}
+				  />
+			  </Collapse>
+		  </div>
+		  <div className={styles.ct}>
+			  <Collapse header='接口调试'>
 				  <DebugForm
 					  formModel={formModel}
 					  validate={() => {
