@@ -211,9 +211,11 @@ export default function Sidebar({
 								          </div>
 								          <div className={css['sidebar-panel-list-item__right']}>
 									          <div></div>
-									          <div data-mybricks-tip="编辑" className={css.action} onClick={() => onEditItem(item)}>
-										          {edit}
-									          </div>
+									          {item.type === 'domain' ? null : (
+										          <div data-mybricks-tip="编辑" className={css.action} onClick={() => onEditItem(item)}>
+											          {edit}
+										          </div>
+									          )}
 									          <div className={css.action} data-mybricks-tip="删除" onClick={() => onRemoveItem(item)}>
 										          {remove}
 									          </div>
