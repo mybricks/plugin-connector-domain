@@ -135,10 +135,18 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 						  onChangeEntity={entity => setModel(model => ({ ...model, query: { ...model.query, entity } }))}
 						  onChange={(select: any) => {
 								setModel(model => {
-									const abilitySet = model.query.abilitySet || [];
+									let abilitySet = model.query.abilitySet || [];
 									
 									if (!abilitySet.includes('SELECT')) {
 										abilitySet.push('SELECT');
+									}
+									
+									if (select.pageInfo) {
+										if (!abilitySet.includes('PAGE')) {
+											abilitySet.push('PAGE');
+										}
+									} else {
+										abilitySet = abilitySet.filter(key => key !== 'PAGE');
 									}
 									
 									return { ...model, query: { ...model.query, SELECT: select, abilitySet } };
