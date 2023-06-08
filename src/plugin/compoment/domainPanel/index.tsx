@@ -55,30 +55,35 @@ const DomainPanel: FC<DomainPanelProps> = props => {
 						SELECT: {
 							script: getScript({
 								...baseOptions,
+								modelType: 'domain',
 								input: decodeURIComponent(input.replace('__action__', 'SELECT'))
 							})
 						},
 						DELETE: {
 							script: getScript({
 								...baseOptions,
+								modelType: 'domain',
 								input: decodeURIComponent(input.replace('__action__', 'DELETE'))
 							})
 						},
 						UPDATE: {
 							script: getScript({
 								...baseOptions,
+								modelType: 'domain',
 								input: decodeURIComponent(input.replace('__action__', 'UPDATE'))
 							})
 						},
 						INSERT: {
 							script: getScript({
 								...baseOptions,
+								modelType: 'domain',
 								input: decodeURIComponent(input.replace('__action__', 'INSERT'))
 							})
 						},
 						SEARCH_BY_FIELD: {
 							script: getScript({
 								...baseOptions,
+								modelType: 'domain',
 								input: decodeURIComponent(input.replace('__action__', 'SEARCH_BY_FIELD'))
 							})
 						},

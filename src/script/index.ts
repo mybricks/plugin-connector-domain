@@ -116,7 +116,7 @@ function getScript(serviceItem, isTest = false) {
 		.replace('__excludeKeys__', JSON.stringify(serviceItem.excludeKeys || []));
 	
 	return encodeURIComponent(
-    isTest
+    isTest || modelType === 'domain'
 	    ? fetchString.replace('__convert_page_info__', '(() => {})')
 	      .replace('__convert_response__', '(response => response)')
 	    : fetchString
