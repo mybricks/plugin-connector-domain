@@ -77,9 +77,8 @@ export default function Sidebar({
 		  const index = data.domainModels.findIndex(model => model.id === serviceItem.id);
 		
 		  if (index !== -1) {
-				console.log(serviceItem, index);
 			  data.domainModels[index] = serviceItem;
-			  // sidebarContext.domainModel.update(serviceItem);
+			  sidebarContext.domainModel.update(serviceItem);
 		  }
 	  }
 	}, [sidebarContext]);

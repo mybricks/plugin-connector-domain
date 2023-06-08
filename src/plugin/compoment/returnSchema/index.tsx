@@ -1,10 +1,8 @@
-import React, {FC, useEffect, useRef, useState} from 'react';
+import React, {FC, useRef, useState} from 'react';
 import { useCallback } from 'react';
-import { isEmpty } from '../../../utils/lodash';
 
 import css from './index.less';
-
-const emptyAry: any[] = [];
+import {notice} from "../../../components/Message";
 
 interface ReturnSchemaProps {
 	markedKeymap: Record<string, string[]>;
@@ -26,18 +24,18 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
   const [popMenuStyle, setStyle] = useState<any>();
 
   const markAsReturn = useCallback((type: string) => {
-		if (type === 'dataSource') {
-			let keys = curKeyRef.current?.split('.') || [];
-			let originSchema = schema;
-			while (keys.length && originSchema) {
-				const key = keys.shift();
-				originSchema = originSchema.properties?.[key] || originSchema.items?.properties?.[key];
-			}
-			
-			if (originSchema.type !== 'array' || keys.length) {
-				return;
-			}
-		}
+		const targetSchemaType = type === 'dataSource' ? 'array' : 'number';
+	  let keys = curKeyRef.current?.split('.') || [];
+	  let originSchema = schema;
+	  while (keys.length && originSchema) {
+		  const key = keys.shift();
+		  originSchema = originSchema.properties?.[key] || originSchema.items?.properties?.[key];
+	  }
+	
+	  if (originSchema.type !== targetSchemaType || keys.length) {
+			notice(`${MarkTypeLabel[type]}所标识类型必须为${type === 'dataSource' ? '列表' : '数字'}`);
+		  return;
+	  }
 	  setMarkedKeymap({ ...(markedKeymap || {}), [type]: curKeyRef.current?.split('.') || [] })
   }, [markedKeymap, setMarkedKeymap, schema]);
 
@@ -78,12 +76,10 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
     return (
       <div
         key={key}
-        className={`${css.item} ${root ? css.rootItem : ''} ${
-	        markedAsReturn ? css.markAsReturn : ''
-        }`}
+        className={`${css.item} ${root ? css.rootItem : ''} ${markedAsReturn ? css.markAsReturn : ''}`}
       >
+	      {markedAsReturn ? <div className={css.marked} data-text={MarkTypeLabel[markType]} /> : null}
         <div className={css.keyName}>
-	        {markedAsReturn ? <div className={css.marked} data-text={MarkTypeLabel[markType]}></div> : null}
           {key}
           <span className={css.typeName}>({getTypeName(val.type)})</span>
           {showMark ? (

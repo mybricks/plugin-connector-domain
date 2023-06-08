@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import css from './index.less';
-import { arror } from '../../icon';
+import { arrow } from '../../icon';
 export default function Collapse({ children, defaultFold = true, header, headerStyle, contentStyle, ...props }: any) {
   const [fold, setFold] = useState<boolean>(defaultFold);
 
@@ -11,7 +11,7 @@ export default function Collapse({ children, defaultFold = true, header, headerS
   return (
     <div className={css.collapse} {...props}>
       <div className={`${css.header}`} style={headerStyle} onClick={onHeaderClick}>
-        <div className={`${css.icon} ${fold ? css.fold : ''}`}>{arror}</div>
+        <div className={`${css.icon} ${fold ? css.fold : ''}`}>{arrow}</div>
         {header}
       </div>
 	    {fold ? null : <div className={`${css.content}`} style={contentStyle}>{children}</div>}

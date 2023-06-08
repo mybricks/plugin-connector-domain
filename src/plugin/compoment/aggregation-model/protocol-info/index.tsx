@@ -74,17 +74,19 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 				<ParamsEdit value={formModel.params || { type: 'root', name: 'root', children: [] }} onChange={onParamsChange}/>
 			</FormItem>
 			<FormItem>
+				{/* TODO: Debug 后校验标记值是否正确 */}
 				<ParamsType onDebugClick={onDebugClick} params={formModel.params} onChange={onParamsChange}/>
 			</FormItem>
 			{edit ? (
 				<>
 					<FormItem label='返回数据'>
-						{formModel.resultSchema ? (
+						{formModel.outputSchema ? (
 							<Button style={{margin: 0, marginBottom: 6}} onClick={saveSchema}>
 								保存
 							</Button>
 						) : null}
-						<OutputSchemaMock schema={formModel.resultSchema} ctx={context} onChange={onMockSchemaChange}/>
+						{/* TODO: 编辑类型后校验标记值是否正确 */}
+						<OutputSchemaMock schema={formModel.outputSchema} ctx={context} onChange={onMockSchemaChange}/>
 					</FormItem>
 				</>
 			) : (

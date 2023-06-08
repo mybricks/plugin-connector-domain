@@ -370,3 +370,5 @@ export function safeDecode(code: string) {
     return code;
   }
 }
+
+export const getEntityBySchema = (schema) => {}
