@@ -1,8 +1,8 @@
 import React, {FC, useRef, useState} from 'react';
 import { useCallback } from 'react';
+import {notice} from '../../../components/Message';
 
 import css from './index.less';
-import {notice} from "../../../components/Message";
 
 interface ReturnSchemaProps {
 	markedKeymap: Record<string, string[]>;
@@ -11,7 +11,7 @@ interface ReturnSchemaProps {
 	setMarkedKeymap(keymap: Record<string, string[]>): void;
 }
 
-const MarkTypeLabel = {
+export const MarkTypeLabel = {
 	dataSource: '列表数据源',
 	total: '数据源总数',
 	pageNum: '分页索引',
@@ -33,7 +33,7 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
 	  }
 	
 	  if (originSchema.type !== targetSchemaType || keys.length) {
-			notice(`${MarkTypeLabel[type]}所标识类型必须为${type === 'dataSource' ? '列表' : '数字'}`);
+			notice(`【${MarkTypeLabel[type]}】所标识数据类型必须为 ${type === 'dataSource' ? '列表' : '数字'}`);
 		  return;
 	  }
 	  setMarkedKeymap({ ...(markedKeymap || {}), [type]: curKeyRef.current?.split('.') || [] })

@@ -11,6 +11,8 @@ import {uuid} from '../../../utils';
 import {getScript} from '../../../script';
 
 import styles from './index.less';
+import {notice} from "../../../components/Message";
+import {cloneDeep} from "../../../utils/lodash";
 
 interface AggregationModelProps {
 	sidebarContext: any;
@@ -54,7 +56,7 @@ const INIT_QUERY = {
 const AggregationModel: FC<AggregationModelProps> = props => {
 	const { panelVisible, style, onClose, updateService, initialModel, sidebarContext } = props;
 	const [activeTab, setActiveTab] = useState('SELECT');
-	const [model, setModel] = useState(initialModel || {
+	const [model, setModel] = useState(cloneDeep(initialModel) || {
 		id: uuid(),
 		title: '',
 		type: 'aggregation-model',
@@ -64,6 +66,20 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 	});
 	
 	const onSave = useCallback(() => {
+		if (!model.query.SELECT) {
+			notice('查询的配置信息不能为空');
+			setActiveTab('SELECT');
+			return;
+		} else if (!model.query.SELECT.path?.trim()) {
+			notice('查询的请求路径不能为空');
+			setActiveTab('SELECT');
+			return;
+		} else if (!model.query.SELECT.markedKeymap?.dataSource?.length) {
+			notice('查询的接口返回信息数据源标识不能为空');
+			setActiveTab('SELECT');
+			return;
+		}
+		
 		model.query.abilitySet?.forEach(key => {
 			model.query[key].script = getScript(model.query[key]);
 		});

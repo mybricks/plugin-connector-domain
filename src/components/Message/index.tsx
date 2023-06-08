@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import {render, unmountComponentAtNode} from 'react-dom';
-import {error} from '../../icon';
+import {error, warning} from '../../icon';
 
 import styles from './index.less';
 
@@ -9,6 +9,7 @@ type MessageProps = {
 	message: string;
 };
 let dom = null;
+let timer = null;
 type OptionType = {
 	type?: string;
 	timeout?: number;
@@ -19,12 +20,12 @@ export const notice = (message = '', option: OptionType = { type: 'error', timeo
 	
 	if (!dom) {
 		dom = document.createElement('div');
-		container.appendChild(dom);
 	}
-	
+	container.appendChild(dom);
+	clearTimeout(timer);
 	render(<Message type={option.type} message={message} />, dom);
 	
-	setTimeout(() => unmountComponentAtNode(dom), option.timeout || 2000);
+	timer = setTimeout(() => unmountComponentAtNode(dom), option.timeout || 2000);
 };
 
 const Message: FC<MessageProps> = props => {
@@ -33,6 +34,7 @@ const Message: FC<MessageProps> = props => {
   return message ? (
 	  <div className={styles.message}>
 		  {type === 'error' ? error : null}
+		  {type === 'warning' ? warning : null}
 		  <span className={styles.content}>{message}</span>
 	  </div>
   ) : null;

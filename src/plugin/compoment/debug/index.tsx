@@ -9,7 +9,7 @@ import {
 import ReturnSchema from '../returnSchema';
 import ParamsEdit from '../paramsEdit';
 import Params from '../params';
-import OutputSchemaMock from '../outputSchemaMock';
+import OutputSchemaMock from '../outputSchemaEdit';
 import FormItem from '../../../components/FormItem';
 import {cloneDeep} from '../../../utils/lodash';
 import Button from '../../../components/Button';

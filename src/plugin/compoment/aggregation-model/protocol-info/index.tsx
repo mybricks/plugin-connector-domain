@@ -1,12 +1,13 @@
-import React, {FC, useCallback, useState} from 'react';
+import React, {FC, useCallback, useRef, useState} from 'react';
 import {formatSchema, getDecodeString, jsonToSchema, params2data} from '../../../../utils';
 import FormItem from '../../../../components/FormItem';
 import ParamsEdit from '../../paramsEdit';
 import Button from '../../../../components/Button';
-import OutputSchemaMock from '../../outputSchemaMock';
-import ReturnSchema from '../../returnSchema';
+import OutputSchemaEdit from '../../outputSchemaEdit';
+import ReturnSchema, {MarkTypeLabel} from '../../returnSchema';
 import ParamsType from '../../params';
-import {getScript} from "../../../../script";
+import {getScript} from '../../../../script';
+import {notice} from '../../../../components/Message';
 
 interface ProtocolInfoProps {
 	sidebarContext: any;
@@ -19,7 +20,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 	const { formModel, validate, onChange, sidebarContext } = props;
 	const [errorInfo, setError] = useState('');
 	const [edit, setEdit] = useState(false);
-	const [context] = useState({formModel, editNowId: void 0});
+	const outputSchemaEditRef = useRef(null);
 	
 	const onDebugClick = async () => {
 		try {
@@ -31,23 +32,42 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 			    type: 'aggregation-model',
 			    mode: 'test',
 			    id: formModel.id,
-			    script: getDecodeString(
-			      getScript({
-			        ...formModel,
-			        path: formModel.path?.trim(),
-			        resultTransformDisabled: true,
-			      }, true)
-			    ),
+			    script: getDecodeString(getScript({ ...formModel, path: formModel.path?.trim(),}, true)),
 			  },
 			  params
 			);
 			
 			const outputSchema = jsonToSchema(data);
 			formatSchema(outputSchema);
-			onChange({ outputSchema });
+			
+			const markedKeymap = formModel.markedKeymap;
+			const willResetMarkedTypes = [];
+			const needCheckMarkedKeys = Object.keys(markedKeymap || {}).filter(key => !!markedKeymap[key]?.length);
+			for (let i = 0; i < needCheckMarkedKeys.length; i++) {
+				const type = needCheckMarkedKeys[i];
+				const keys = [...markedKeymap[type]];
+				const targetSchemaType = type === 'dataSource' ? 'array' : 'number';
+				let originSchema = outputSchema;
+				
+				while (keys.length && originSchema) {
+					const key = keys.shift();
+					originSchema = originSchema.properties?.[key] || originSchema.items?.properties?.[key];
+				}
+				
+				if (originSchema.type !== targetSchemaType || keys.length) {
+					willResetMarkedTypes.push(MarkTypeLabel[type]);
+					markedKeymap[type] = [];
+				}
+			}
+			
+			if (willResetMarkedTypes.length) {
+				notice(`【${willResetMarkedTypes.join('、')}】标识数据类型错误，已被重置`, { type: 'warning' });
+			}
+			
+			onChange({ outputSchema, markedKeymap });
 		} catch (error: any) {
 			console.log(error);
-			onChange({ outputSchema: undefined });
+			onChange({ outputSchema: undefined, markedKeymap: undefined });
 			setError(error?.message || error);
 		}
 	};
@@ -61,12 +81,37 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 		}
 	}, [onChange]);
 	
-	const onMockSchemaChange = useCallback((schema) => {
-		onChange({ resultSchema: schema });
-	}, []);
-	
-	const editSchema = useCallback(() => setEdit(false), []);
-	const saveSchema = useCallback(() => setEdit(false), []);
+	const editSchema = useCallback(() => setEdit(true), []);
+	const saveSchema = useCallback(() => {
+		setEdit(false);
+		const outputSchema = outputSchemaEditRef.current?.getSchema?.();
+		
+		const markedKeymap = formModel.markedKeymap;
+		const willResetMarkedTypes = [];
+		const needCheckMarkedKeys = Object.keys(markedKeymap || {}).filter(key => !!markedKeymap[key]?.length);
+		for (let i = 0; i < needCheckMarkedKeys.length; i++) {
+			const type = needCheckMarkedKeys[i];
+			const keys = [...markedKeymap[type]];
+			const targetSchemaType = type === 'dataSource' ? 'array' : 'number';
+			let originSchema = outputSchema;
+			
+			while (keys.length && originSchema) {
+				const key = keys.shift();
+				originSchema = originSchema.properties?.[key] || originSchema.items?.properties?.[key];
+			}
+			
+			if (originSchema.type !== targetSchemaType || keys.length) {
+				willResetMarkedTypes.push(MarkTypeLabel[type]);
+				markedKeymap[type] = [];
+			}
+		}
+		
+		if (willResetMarkedTypes.length) {
+			notice(`【${willResetMarkedTypes.join('、')}】标识数据类型错误，已被重置`, { type: 'warning' });
+		}
+		
+		onChange({ outputSchema, markedKeymap });
+	}, [onChange]);
 	
 	return (
 		<>
@@ -74,7 +119,6 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 				<ParamsEdit value={formModel.params || { type: 'root', name: 'root', children: [] }} onChange={onParamsChange}/>
 			</FormItem>
 			<FormItem>
-				{/* TODO: Debug 后校验标记值是否正确 */}
 				<ParamsType onDebugClick={onDebugClick} params={formModel.params} onChange={onParamsChange}/>
 			</FormItem>
 			{edit ? (
@@ -85,14 +129,13 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 								保存
 							</Button>
 						) : null}
-						{/* TODO: 编辑类型后校验标记值是否正确 */}
-						<OutputSchemaMock schema={formModel.outputSchema} ctx={context} onChange={onMockSchemaChange}/>
+						<OutputSchemaEdit schema={formModel.outputSchema} ref={outputSchemaEditRef} />
 					</FormItem>
 				</>
 			) : (
 				<>
 					<FormItem label='返回数据'>
-						{formModel.resultSchema ? (
+						{formModel.outputSchema ? (
 							<Button style={{margin: 0, marginBottom: 6}} onClick={editSchema}>
 								编辑
 							</Button>
