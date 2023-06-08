@@ -36,6 +36,11 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
 			notice(`【${MarkTypeLabel[type]}】所标识数据类型必须为 ${type === 'dataSource' ? '列表' : '数字'}`);
 		  return;
 	  }
+	
+	  if (targetSchemaType === 'array' && originSchema?.items?.type !== 'object') {
+		  notice(`【${MarkTypeLabel[type]}】所标识数据类型必须为列表，且列表内数据类型必须为对象`);
+		  return;
+	  }
 	  setMarkedKeymap({ ...(markedKeymap || {}), [type]: curKeyRef.current?.split('.') || [] })
   }, [markedKeymap, setMarkedKeymap, schema]);
 

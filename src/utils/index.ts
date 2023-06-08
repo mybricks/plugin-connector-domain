@@ -371,4 +371,75 @@ export function safeDecode(code: string) {
   }
 }
 
-export const getEntityBySchema = (schema) => {}
+const getBizTypeBySchemaType = type => {
+	switch (type) {
+		case 'string': return 'string';
+		case 'boolean': return 'boolean';
+		case 'number': return 'number';
+		case 'object': return 'relation';
+		case 'array': return 'mapping';
+		default: return 'string';
+	}
+};
+
+const getDBTypeBySchemaType = type => {
+	switch (type) {
+		case 'string': return 'varchar';
+		case 'boolean': return 'varchar';
+		case 'number': return 'bigint';
+		case 'object': return 'bigint';
+		case 'array': return '';
+		default: return '';
+	}
+};
+
+export const getEntityBySchema = (schema, markedKey = []) => {
+	console.log(JSON.stringify(markedKey));
+	let newSchema = schema;
+	while (markedKey.length && newSchema) {
+		newSchema = (newSchema.properties || newSchema.items?.properties)?.[markedKey.shift()];
+	}
+	
+	if (markedKey.length || !newSchema || newSchema.type !== 'array' || newSchema.items?.type !== 'object') {
+		return { fieldAry: [] };
+	}
+	
+	const getEntityDesc = curSchema => {
+		if (curSchema.type === 'object' || (curSchema.type === 'array' && curSchema.items?.type === 'object')) {
+			return Object.keys((curSchema.type === 'object' ? curSchema.properties : curSchema.items.properties) || {}).map(key => {
+				const item = curSchema.properties[key];
+				const field: Record<string, any> = {
+					id: uuid(),
+					name: key,
+					bizType: getBizTypeBySchemaType(item.type),
+					dbType: getDBTypeBySchemaType(item.type),
+				};
+				
+				if (item.type === 'object') {
+					field.mapping = {
+						condition: '-1',
+						type: 'primary',
+						entity: {
+							id: uuid(),
+							fieldAry: getEntityDesc(item),
+						}
+					};
+				} else if (item.type === 'array' && item.items?.type === 'object') {
+					field.mapping = {
+						condition: '-1',
+						type: 'foreigner',
+						entity: {
+							id: uuid(),
+							fieldAry: getEntityDesc(item.items),
+						}
+					};
+				}
+				return field;
+			});
+		} else {
+			return [];
+		}
+	};
+	
+	return { fieldAry: getEntityDesc(newSchema.items) };
+};

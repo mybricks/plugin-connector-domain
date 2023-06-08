@@ -3,7 +3,7 @@ import Editor from '@mybricks/code-editor';
 import Collapse from "../../../../components/Collapse";
 import RadioButton from '../../../../components/RadioBtn';
 import {fullScreen, fullScreenExit} from '../../../../icon';
-import {safeDecode, uuid} from '../../../../utils';
+import {getEntityBySchema, safeDecode, uuid} from '../../../../utils';
 import FormItem from '../../../../components/FormItem';
 import Input, {TextArea} from '../../../../components/Input';
 import {MethodOpts} from '../../../../constant';
@@ -50,12 +50,20 @@ const Select: FC<SelectProps> = props => {
 	const onChangeForProtocol = useCallback(model => {
 		let curEntity = entity || { id: uuid(), fieldAry: [] };
 		if (model.markedKeymap) {
-			// TODO 转换为实体
-			curEntity = model.markedKeymap.dataSource ? { id: curEntity.id, fieldAry: [] } : { id: curEntity.id, fieldAry: [] };
+			curEntity = model.markedKeymap.dataSource?.length
+				? {
+					id: curEntity.id,
+					...getEntityBySchema(
+						'outputSchema' in model ? model.outputSchema : formModel.outputSchema,
+						[...model.markedKeymap.dataSource]
+					)
+				}
+				: { id: curEntity.id, fieldAry: [] };
 		}
+		
 		onChangeEntity(curEntity);
 		setFormModel(pre => ({ ...pre, ...model }));
-	}, [onChangeEntity, entity])
+	}, [onChangeEntity, entity, formModel])
 	
 	useEffect(() => {
 		onChange(formModel);
