@@ -80,7 +80,7 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 			return;
 		}
 		
-		model.query.abilitySet?.forEach(key => {
+		model.query.abilitySet.filter(key => key !== 'PAGE')?.forEach(key => {
 			model.query[key].script = getScript(model.query[key]);
 		});
 		
