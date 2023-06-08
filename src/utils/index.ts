@@ -394,7 +394,6 @@ const getDBTypeBySchemaType = type => {
 };
 
 export const getEntityBySchema = (schema, markedKey = []) => {
-	console.log(JSON.stringify(markedKey));
 	let newSchema = schema;
 	while (markedKey.length && newSchema) {
 		newSchema = (newSchema.properties || newSchema.items?.properties)?.[markedKey.shift()];
