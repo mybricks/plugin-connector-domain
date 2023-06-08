@@ -116,7 +116,7 @@ function getScript(serviceItem, isTest = false) {
 		.replace('__excludeKeys__', JSON.stringify(serviceItem.excludeKeys || []));
 	
 	return encodeURIComponent(
-    isTest || modelType === 'domain'
+    isTest || serviceItem.modelType === 'domain'
 	    ? fetchString.replace('__convert_page_info__', '(() => {})')
 	      .replace('__convert_response__', '(response => response)')
 	    : fetchString
@@ -124,9 +124,18 @@ function getScript(serviceItem, isTest = false) {
 	        const pageNum = options.params.page ? options.params.page.pageNum : undefined;
 	        const pageSize = options.params.page ? options.params.page.pageSize : undefined;
 	        delete options.params.page;
+	        delete options.params.fields;
+	        options.params = { ...options.params, ...(options.params.query || {}) };
+	        delete options.params.query;
+	        
 	        ${serviceItem.pageInfo.pageNumKey ? `options[method.startsWith('GET') ? 'params' : 'data'].${serviceItem.pageInfo.pageNumKey} = pageNum;` : ''}
 	        ${serviceItem.pageInfo.pageSizeKey ? `options[method.startsWith('GET') ? 'params' : 'data'].${serviceItem.pageInfo.pageSizeKey} = pageSize;` : ''}
-	      })` : `((options) => { delete options.params.page; })`)
+	      })` : `((options) => {
+	        delete options.params.page;
+	        delete options.params.fields;
+	        options.params = { ...options.params, ...(options.params.query || {}) };
+	        delete options.params.query;
+	      })`)
 	      .replace('__convert_response__', serviceItem.markedKeymap ? `((response) => {
         const markedKeyMap = ${JSON.stringify(serviceItem.markedKeymap)};
         const newResponse = { code: 1, data: {} };
