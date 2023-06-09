@@ -48,10 +48,8 @@ export default function Sidebar({
     type: '',
     isDebug: false,
     leftWidth: 271,
-    addActions: addActions
-      ? addActions.some(({ type }: any) => type === 'defalut')
-        ? addActions
-        : [{ type: 'domain', title: '领域模型' }, { type: 'aggregation-model', title: '聚合模型' }].concat(addActions)
+    addActions: Array.isArray(addActions)
+      ? addActions
       : [{ type: 'domain', title: '领域模型' }, { type: 'aggregation-model', title: '聚合模型' }],
     domainModel: {
       add: (args: any) => domainModel.add({ ...args }),

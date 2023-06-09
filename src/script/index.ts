@@ -150,7 +150,7 @@ function getScript(serviceItem, isTest = false) {
 			        originResponse = originResponse[key];
 			      }
 			      
-			      if (keys.length || !originResponse) {
+			      if (keys.length || originResponse === undefined || originResponse === null || (markedKey === 'dataSource' && !Array.isArray(originResponse))) {
 			        return { code: -1, msg: \`标记的数据（\${markedKeyMap[markedKey].join('.')}）返回不全\` };
 			      }
 						newResponse.data[markedKey] = originResponse;
