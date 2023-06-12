@@ -67,20 +67,22 @@ function getScript(serviceItem, isTest = false) {
 	      .replace('__convert_response__', '(response => response)')
 	    : fetchString
 	      .replace('__convert_page_info__', serviceItem.pageInfo ? `((options) => {
-	        const pageNum = options.params.page ? options.params.page.pageNum : undefined;
-	        const pageSize = options.params.page ? options.params.page.pageSize : undefined;
-	        delete options.params.page;
-	        delete options.params.fields;
-	        options.params = { ...options.params, ...(options.params.query || {}) };
-	        delete options.params.query;
+	        const paramKey = '${serviceItem.method.startsWith('GET') ? 'params' : 'data'}';
+	        const pageNum = options[paramKey].page ? options[paramKey].page.pageNum : undefined;
+	        const pageSize = options[paramKey].page ? options[paramKey].page.pageSize : undefined;
+	        delete options[paramKey].page;
+	        delete options[paramKey].fields;
+	        options[paramKey] = { ...options[paramKey], ...(options[paramKey].query || {}) };
+	        delete options[paramKey].query;
 	        
-	        ${serviceItem.pageInfo.pageNumKey ? `options[method.startsWith('GET') ? 'params' : 'data'].${serviceItem.pageInfo.pageNumKey} = pageNum;` : ''}
-	        ${serviceItem.pageInfo.pageSizeKey ? `options[method.startsWith('GET') ? 'params' : 'data'].${serviceItem.pageInfo.pageSizeKey} = pageSize;` : ''}
+	        ${serviceItem.pageInfo.pageNumKey ? `options[paramKey].${serviceItem.pageInfo.pageNumKey} = pageNum;` : ''}
+	        ${serviceItem.pageInfo.pageSizeKey ? `options[paramKey].${serviceItem.pageInfo.pageSizeKey} = pageSize;` : ''}
 	      })` : `((options) => {
-	        delete options.params.page;
-	        delete options.params.fields;
-	        options.params = { ...options.params, ...(options.params.query || {}) };
-	        delete options.params.query;
+	        const paramKey = '${serviceItem.method.startsWith('GET') ? 'params' : 'data'}';
+	        delete options[paramKey].page;
+	        delete options[paramKey].fields;
+	        options[paramKey] = { ...options[paramKey], ...(options[paramKey].query || {}) };
+	        delete options[paramKey].query;
 	      })`)
 	      .replace('__convert_response__', serviceItem.markedKeymap ? `((response) => {
         const markedKeyMap = ${JSON.stringify(serviceItem.markedKeymap)};
