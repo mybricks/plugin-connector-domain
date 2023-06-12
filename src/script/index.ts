@@ -1,7 +1,5 @@
 // @ts-nocheck
 
-import { exampleParamsFunc } from '../constant';
-
 function getDecodeString(fn: string) {
   return fn
     ? decodeURIComponent(fn).replace(
