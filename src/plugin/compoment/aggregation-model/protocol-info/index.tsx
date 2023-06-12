@@ -54,7 +54,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 					originSchema = originSchema.properties?.[key] || originSchema.items?.properties?.[key];
 				}
 				
-				if (originSchema.type !== targetSchemaType || keys.length || (targetSchemaType === 'array' && originSchema?.items?.type !== 'object')) {
+				if (!originSchema || originSchema.type !== targetSchemaType || keys.length || (targetSchemaType === 'array' && originSchema?.items?.type !== 'object')) {
 					willResetMarkedTypes.push(MarkTypeLabel[type]);
 					markedKeymap[type] = [];
 				}

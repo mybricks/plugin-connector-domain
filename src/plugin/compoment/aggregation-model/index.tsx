@@ -24,9 +24,9 @@ interface AggregationModelProps {
 }
 const tabList = [
 	{ name: '查询', key: 'SELECT' },
-	{ name: '新增', key: 'INSERT' },
-	{ name: '更新', key: 'UPDATE' },
-	{ name: '删除', key: 'DELETE' }
+	// { name: '新增', key: 'INSERT' },
+	// { name: '更新', key: 'UPDATE' },
+	// { name: '删除', key: 'DELETE' }
 ];
 const INIT_QUERY = {
 	SELECT: {
