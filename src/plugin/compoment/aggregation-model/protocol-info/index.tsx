@@ -34,6 +34,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 			    id: formModel.id,
 			    script: getDecodeString(getScript({ ...formModel, path: formModel.path?.trim(),}, true)),
 			  },
+				'',
 			  params
 			);
 			
