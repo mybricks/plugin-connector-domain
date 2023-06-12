@@ -12,6 +12,7 @@ import Toolbar from './compoment/toolbar';
 import {arrowR, edit, remove} from '../icon';
 import DomainPanel from './compoment/domainPanel';
 import AggregationModel from './compoment/aggregation-model';
+import Loading from './compoment/loading';
 
 interface IProps {
   domainModel: IDomainModel;
@@ -183,68 +184,70 @@ export default function Sidebar({
 	            panelVisible={panelVisible}
             />
           </div>
-          <div className={css['sidebar-panel-list']}>
-	          {
-		          data.domainModels
-			          .filter((item) => searchValue ? item.content.title.includes(searchValue) : true)
-			          .map((item) => {
-				          const expand = sidebarContext.expandId === item.id;
-				          item.updateTime = formatDate(item.updateTime || item.createTime);
-									
-				          return (
-					          <div key={item.id}>
-						          <div key={item.id} className={css['sidebar-panel-list-item']}>
-							          <div>
-								          <div
-									          onClick={(e) => onItemClick(e, item)}
-									          className={css['sidebar-panel-list-item__left']}
-								          >
-									          <div className={`${css.icon} ${expand ? css.iconExpand : ''}`}>
-										          {arrowR}
-									          </div>
-									          <div className={css.tag}>{item.type === 'domain' ? '领域模型' : '聚合模型'}</div>
-									          <div className={css.name}>
-										          <span>{item.title}</span>
-									          </div>
-								          </div>
-								          <div className={css['sidebar-panel-list-item__right']}>
-									          <div></div>
-									          {item.type === 'domain' ? null : (
-										          <div data-mybricks-tip="编辑" className={css.action} onClick={() => onEditItem(item)}>
-											          {edit}
-										          </div>
-									          )}
-									          <div className={css.action} data-mybricks-tip="删除" onClick={() => onRemoveItem(item)}>
-										          {remove}
-									          </div>
-								          </div>
-							          </div>
-						          </div>
-						          {expand ? (
-							          <div className={css['sidebar-panel-list-item__expand']}>
-								          <div className={css['sidebar-panel-list-item__param']}>
-	                          <span className={css['sidebar-panel-list-item__name']}>标识:</span>
-									          <span className={css['sidebar-panel-list-item__content']}>{item.id}</span>
-								          </div>
-								          {item.type === 'domain' ? (
-														<>
-															<div className={css['sidebar-panel-list-item__param']}>
-																<span className={css['sidebar-panel-list-item__name']}>模型:</span>
-																<span className={css['sidebar-panel-list-item__content']}>{item.query.entity.domainFileName}</span>
-															</div>
-															<div className={css['sidebar-panel-list-item__param']}>
-																<span className={css['sidebar-panel-list-item__name']}>实体:</span>
-																<span className={css['sidebar-panel-list-item__content']}>{item.query.entity.name}</span>
-															</div>
-														</>
-								          ) : null}
-							          </div>
-						          ) : null}
-					          </div>
-				          );
-			          })
-	          }
-          </div>
+	        {data ? (
+		        <div className={css['sidebar-panel-list']}>
+			        {
+				        data.domainModels
+				        .filter((item) => searchValue ? item.content.title.includes(searchValue) : true)
+				        .map((item) => {
+					        const expand = sidebarContext.expandId === item.id;
+					        item.updateTime = formatDate(item.updateTime || item.createTime);
+					
+					        return (
+						        <div key={item.id}>
+							        <div key={item.id} className={css['sidebar-panel-list-item']}>
+								        <div>
+									        <div
+										        onClick={(e) => onItemClick(e, item)}
+										        className={css['sidebar-panel-list-item__left']}
+									        >
+										        <div className={`${css.icon} ${expand ? css.iconExpand : ''}`}>
+											        {arrowR}
+										        </div>
+										        <div className={css.tag}>{item.type === 'domain' ? '领域模型' : '聚合模型'}</div>
+										        <div className={css.name}>
+											        <span>{item.title}</span>
+										        </div>
+									        </div>
+									        <div className={css['sidebar-panel-list-item__right']}>
+										        <div></div>
+										        {item.type === 'domain' ? null : (
+											        <div data-mybricks-tip="编辑" className={css.action} onClick={() => onEditItem(item)}>
+												        {edit}
+											        </div>
+										        )}
+										        <div className={css.action} data-mybricks-tip="删除" onClick={() => onRemoveItem(item)}>
+											        {remove}
+										        </div>
+									        </div>
+								        </div>
+							        </div>
+							        {expand ? (
+								        <div className={css['sidebar-panel-list-item__expand']}>
+									        <div className={css['sidebar-panel-list-item__param']}>
+										        <span className={css['sidebar-panel-list-item__name']}>标识:</span>
+										        <span className={css['sidebar-panel-list-item__content']}>{item.id}</span>
+									        </div>
+									        {item.type === 'domain' ? (
+										        <>
+											        <div className={css['sidebar-panel-list-item__param']}>
+												        <span className={css['sidebar-panel-list-item__name']}>模型:</span>
+												        <span className={css['sidebar-panel-list-item__content']}>{item.query.entity.domainFileName}</span>
+											        </div>
+											        <div className={css['sidebar-panel-list-item__param']}>
+												        <span className={css['sidebar-panel-list-item__name']}>实体:</span>
+												        <span className={css['sidebar-panel-list-item__content']}>{item.query.entity.name}</span>
+											        </div>
+										        </>
+									        ) : null}
+								        </div>
+							        ) : null}
+						        </div>
+					        );
+				        })
+			        }
+		        </div>
+	        ) : <Loading />}
         </div>
         {renderAddActions()}
 	      {panelVisible & AGGREGATION_MODEL_VISIBLE ? (

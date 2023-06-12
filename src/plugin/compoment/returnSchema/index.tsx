@@ -11,11 +11,26 @@ interface ReturnSchemaProps {
 	setMarkedKeymap(keymap: Record<string, string[]>): void;
 }
 
+const MarkList = [
+	{ key: 'dataSource', title: '列表数据源', description: '标识数据列表数据源' },
+	{ key: 'id', title: '数据主键', description: '标识数据项主键，将用于更新、删除等操作' },
+	{ key: 'total', title: '数据源总数', description: '数据列表总条数' },
+	{ key: 'pageNum', title: '分页索引', description: '数据分页索引值，即当前页码' },
+	{ key: 'pageSize', title: '分页大小', description: '列表每页展示数据量大小，如每页10条' },
+];
 export const MarkTypeLabel = {
 	dataSource: '列表数据源',
+	id: '数据主键',
 	total: '数据源总数',
 	pageNum: '分页索引',
 	pageSize: '分页大小'
+};
+export const MarkTypes = {
+	dataSource: ['array'],
+	id: ['string', 'number'],
+	total: ['number'],
+	pageNum: ['number'],
+	pageSize: ['number']
 };
 const ReturnSchema: FC<ReturnSchemaProps> = props => {
 	const { markedKeymap, schema, error, setMarkedKeymap } = props;
@@ -24,7 +39,7 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
   const [popMenuStyle, setStyle] = useState<any>();
 
   const markAsReturn = useCallback((type: string) => {
-		const targetSchemaType = type === 'dataSource' ? 'array' : 'number';
+		const targetSchemaTypes = MarkTypes[type] || [];
 	  let keys = curKeyRef.current?.split('.') || [];
 	  let originSchema = schema;
 	  while (keys.length && originSchema) {
@@ -32,12 +47,12 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
 		  originSchema = originSchema.properties?.[key] || originSchema.items?.properties?.[key];
 	  }
 	
-	  if (originSchema.type !== targetSchemaType || keys.length) {
-			notice(`【${MarkTypeLabel[type]}】所标识数据类型必须为 ${type === 'dataSource' ? '列表' : '数字'}`);
+	  if (!targetSchemaTypes.includes(originSchema.type) || keys.length) {
+			notice(`【${MarkTypeLabel[type]}】所标识数据类型必须为 ${MarkTypes[type].map(key => getTypeName(key)).join('、')}`);
 		  return;
 	  }
 	
-	  if (targetSchemaType === 'array' && originSchema?.items?.type !== 'object') {
+	  if (targetSchemaTypes.includes('array') && originSchema?.items?.type !== 'object') {
 		  notice(`【${MarkTypeLabel[type]}】所标识数据类型必须为列表，且列表内数据类型必须为对象`);
 		  return;
 	  }
@@ -119,7 +134,8 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
     const currentPos = btnEle.getBoundingClientRect();
     curKeyRef.current = xpath;
 		let top = currentPos.y - parentPos.y + btnEle.offsetHeight;
-		const popMenuHeight = 122;
+		/** 每一项高度为 28 */
+		const popMenuHeight = 28 * MarkList.length + 10;
 		
 		if (top + popMenuHeight > parentPos.height || currentPos.top + popMenuHeight > document.body.clientHeight) {
 			top -= popMenuHeight + btnEle.offsetHeight;
@@ -152,18 +168,18 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
     >
       <div>{proItem({ val: schema, xpath: '', root: true })}</div>
       <div className={css.popMenu} style={popMenuStyle}>
-        <div className={css.menuItem} onClick={() => markAsReturn('dataSource')}>
-          列表数据源
-        </div>
-	      <div className={css.menuItem} onClick={() => markAsReturn('pageNum')}>
-		      分页索引
-	      </div>
-	      <div className={css.menuItem} onClick={() => markAsReturn('pageSize')}>
-		      分页大小
-	      </div>
-	      <div className={css.menuItem} onClick={() => markAsReturn('total')}>
-		      数据源总数
-	      </div>
+	      {MarkList.map(mark => {
+					return (
+						<div
+							className={css.menuItem}
+							key={mark.key}
+							onClick={() => markAsReturn(mark.key)}
+							data-mybricks-tip={{ content: mark.description }}
+						>
+							{mark.title}
+						</div>
+					);
+	      })}
       </div>
     </div>
   ) : (

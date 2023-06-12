@@ -9,10 +9,10 @@ import {
 import Select from './select';
 import {uuid} from '../../../utils';
 import {getScript} from '../../../script';
+import {notice} from '../../../components/Message';
+import {cloneDeep} from '../../../utils/lodash';
 
 import styles from './index.less';
-import {notice} from "../../../components/Message";
-import {cloneDeep} from "../../../utils/lodash";
 
 interface AggregationModelProps {
 	sidebarContext: any;

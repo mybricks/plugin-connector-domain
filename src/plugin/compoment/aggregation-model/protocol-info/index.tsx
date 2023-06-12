@@ -4,7 +4,7 @@ import FormItem from '../../../../components/FormItem';
 import ParamsEdit from '../../paramsEdit';
 import Button from '../../../../components/Button';
 import OutputSchemaEdit from '../../outputSchemaEdit';
-import ReturnSchema, {MarkTypeLabel} from '../../returnSchema';
+import ReturnSchema, {MarkTypeLabel, MarkTypes} from '../../returnSchema';
 import ParamsType from '../../params';
 import {getScript} from '../../../../script';
 import {notice} from '../../../../components/Message';
@@ -46,7 +46,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 			for (let i = 0; i < needCheckMarkedKeys.length; i++) {
 				const type = needCheckMarkedKeys[i];
 				const keys = [...markedKeymap[type]];
-				const targetSchemaType = type === 'dataSource' ? 'array' : 'number';
+				const targetSchemaTypes = MarkTypes[type] || [];;
 				let originSchema = outputSchema;
 				
 				while (keys.length && originSchema) {
@@ -54,7 +54,12 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 					originSchema = originSchema.properties?.[key] || originSchema.items?.properties?.[key];
 				}
 				
-				if (!originSchema || originSchema.type !== targetSchemaType || keys.length || (targetSchemaType === 'array' && originSchema?.items?.type !== 'object')) {
+				if (
+					!originSchema
+					|| !targetSchemaTypes.includes(originSchema.type)
+					|| keys.length
+					|| (targetSchemaTypes.includes('array') && originSchema?.items?.type !== 'object')
+				) {
 					willResetMarkedTypes.push(MarkTypeLabel[type]);
 					markedKeymap[type] = [];
 				}
@@ -92,7 +97,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 		for (let i = 0; i < needCheckMarkedKeys.length; i++) {
 			const type = needCheckMarkedKeys[i];
 			const keys = [...markedKeymap[type]];
-			const targetSchemaType = type === 'dataSource' ? 'array' : 'number';
+			const targetSchemaTypes = MarkTypes[type] || [];
 			let originSchema = outputSchema;
 			
 			while (keys.length && originSchema) {
@@ -100,7 +105,12 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 				originSchema = originSchema.properties?.[key] || originSchema.items?.properties?.[key];
 			}
 			
-			if (originSchema.type !== targetSchemaType || keys.length || (targetSchemaType === 'array' && originSchema?.items?.type !== 'object')) {
+			if (
+				!originSchema
+				|| !targetSchemaTypes.includes(originSchema.type)
+				|| keys.length
+				|| (targetSchemaTypes.includes('array') && originSchema?.items?.type !== 'object')
+			) {
 				willResetMarkedTypes.push(MarkTypeLabel[type]);
 				markedKeymap[type] = [];
 			}
