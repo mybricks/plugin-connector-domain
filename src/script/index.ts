@@ -13,64 +13,9 @@ function getDecodeString(fn: string) {
 
 function getScript(serviceItem, isTest = false) {
   function fetch(params, { then, onError }, config) {
-    function setData(data, keys, val) {
-      const len = keys.length;
-      function dfs(res, index, val) {
-        if (!res || index === len) {
-          return res;
-        }
-        const key = keys[index];
-        if (Array.isArray(res)) {
-          return res.map((item, i) => {
-            const curVal = val[i];
-            let obj;
-            if (curVal === void 0) {
-              obj = {};
-              val.push(obj);
-            } else {
-              obj = curVal;
-            }
-            return dfs(item, index, obj);
-          });
-        } else {
-          if (index === len - 1) {
-            val[key] = res[key];
-            return res[key];
-          }
-          res = res[key];
-          if (Array.isArray(res)) {
-            val[key] = val[key] || [];
-          } else {
-            val[key] = val[key] || {};
-          }
-        }
-        return dfs(res, index + 1, Array.isArray(val) ? val : val[key]);
-      }
-      return dfs(data, 0, val);
-    }
-    function del(data, keys) {
-      const len = keys.length;
-      function dfs(data, index) {
-        if (!data || index === len) return;
-        const key = keys[index];
-        if (index === len - 1) {
-          Reflect.deleteProperty(data, key);
-        }
-        if (Array.isArray(data)) {
-          data.forEach((item) => {
-            dfs(item, index);
-          });
-        } else {
-          dfs(data[key], index + 1);
-        }
-      }
-      dfs(data, 0);
-    }
     function serviceAgent(params, config) {
       const method = `__method__`;
       const path = `__path__`;
-      const outputKeys = __outputKeys__;
-      const excludeKeys = __excludeKeys__;
 
       try {
         const url = path;
@@ -85,6 +30,9 @@ function getScript(serviceItem, isTest = false) {
 	      __convert_page_info__(options);
 	      config
           .ajax(options)
+		      .then((response) => {
+			      return response.data;
+		      })
           .then((response) => {
             return __output__(response, Object.assign({}, options), {
 	            throwStatusCodeError: (data) => {
@@ -112,8 +60,6 @@ function getScript(serviceItem, isTest = false) {
 		.replace('__output__', getDecodeString(serviceItem.output))
 		.replace('__method__', serviceItem.method)
 		.replace('__path__', serviceItem.path?.trim())
-		.replace('__outputKeys__', JSON.stringify(serviceItem.outputKeys))
-		.replace('__excludeKeys__', JSON.stringify(serviceItem.excludeKeys || []));
 	
 	return encodeURIComponent(
     isTest || serviceItem.modelType === 'domain'
