@@ -28,13 +28,18 @@ export default function ({ ctx, setRender, setPanelVisible, blurMap, panelVisibl
   };
 
   const renderAddActionList = () => {
-	  if (!ctx.addActions || ctx.addActions.length === 1) {
+		if (!ctx.addActions) {
+			return null;
+		}
+		
+	  if (ctx.addActions.length === 1) {
 		  return (
-			  <div className={css.icon} onClick={() => onAddClick('domain')}>
+			  <div className={css.icon} onClick={() => onAddClick(ctx.addActions[0].type)}>
 				  {plus}
 			  </div>
 		  );
 	  }
+		
 	  const menu = (
 		  <div className={css.ct}>
 			  {ctx.addActions.map(({ type, title }: any) => (
