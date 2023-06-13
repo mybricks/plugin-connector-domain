@@ -7,6 +7,7 @@ import {
 	exampleResultFunc
 } from '../../../constant';
 import Select from './select';
+import Insert from './insert';
 import {uuid} from '../../../utils';
 import {getScript} from '../../../script';
 import {notice} from '../../../components/Message';
@@ -24,7 +25,7 @@ interface AggregationModelProps {
 }
 const tabList = [
 	{ name: '查询', key: 'SELECT' },
-	// { name: '新增', key: 'INSERT' },
+	{ name: '新增', key: 'INSERT' },
 	// { name: '更新', key: 'UPDATE' },
 	// { name: '删除', key: 'DELETE' }
 ];
@@ -45,7 +46,7 @@ const INIT_QUERY = {
 		input: encodeURIComponent(exampleParamsFunc),
 		output: encodeURIComponent(exampleResultFunc),
 	},
-	CREATE: {
+	INSERT: {
 		method: 'POST',
 		input: encodeURIComponent(exampleParamsFunc),
 		output: encodeURIComponent(exampleResultFunc),
@@ -151,6 +152,25 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 									
 									return { ...model, query: { ...model.query, SELECT: select, abilitySet } };
 								});
+						  }}
+					  />
+				  ) : null}
+				  {activeTab === 'INSERT' ? (
+					  <Insert
+						  sidebarContext={sidebarContext}
+						  entity={model.query.entity}
+						  formModel={model.query.INSERT}
+						  onChangeEntity={entity => setModel(model => ({ ...model, query: { ...model.query, entity } }))}
+						  onChange={(insert: any) => {
+							  setModel(model => {
+								  let abilitySet = model.query.abilitySet || [];
+								
+								  if (!abilitySet.includes('INSERT')) {
+									  abilitySet.push('INSERT');
+								  }
+								
+								  return { ...model, query: { ...model.query, INSERT: insert, abilitySet } };
+							  });
 						  }}
 					  />
 				  ) : null}

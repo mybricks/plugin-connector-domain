@@ -17,6 +17,7 @@ function getScript(serviceItem, isTest = false) {
 
       try {
         const url = path;
+	      __convert_page_info__(params);
         const newParams = method.startsWith('GET') ? { params, url, method } : { data: params, url, method };
         const options = __input__(newParams);
         options.url = (options.url || url).replace(/{(\w+)}/g, (match, key) => {
@@ -25,7 +26,6 @@ function getScript(serviceItem, isTest = false) {
           return param;
         });
         options.method = options.method || method;
-	      __convert_page_info__(options);
 	      config
           .ajax(options)
 		      .then((response) => {
@@ -64,23 +64,23 @@ function getScript(serviceItem, isTest = false) {
 	    ? fetchString.replace('__convert_page_info__', '(() => {})')
 	      .replace('__convert_response__', '(response => response)')
 	    : fetchString
-	      .replace('__convert_page_info__', serviceItem.pageInfo ? `((options) => {
-	        const paramKey = '${serviceItem.method.startsWith('GET') ? 'params' : 'data'}';
-	        const pageNum = options[paramKey].page ? options[paramKey].page.pageNum : undefined;
-	        const pageSize = options[paramKey].page ? options[paramKey].page.pageSize : undefined;
-	        delete options[paramKey].page;
-	        delete options[paramKey].fields;
-	        options[paramKey] = { ...options[paramKey], ...(options[paramKey].query || {}) };
-	        delete options[paramKey].query;
+	      .replace('__convert_page_info__', serviceItem.pageInfo ? `((params) => {
+	        if (!params) { return; }
+	        const pageNum = params.page ? params.page.pageNum : undefined;
+	        const pageSize = params.page ? params.page.pageSize : undefined;
+	        delete params.page;
+	        delete params.fields;
+	        params = { ...params, ...(params.query || {}) };
+	        delete params.query;
 	        
-	        ${serviceItem.pageInfo.pageNumKey ? `options[paramKey].${serviceItem.pageInfo.pageNumKey} = pageNum;` : ''}
-	        ${serviceItem.pageInfo.pageSizeKey ? `options[paramKey].${serviceItem.pageInfo.pageSizeKey} = pageSize;` : ''}
-	      })` : `((options) => {
-	        const paramKey = '${serviceItem.method.startsWith('GET') ? 'params' : 'data'}';
-	        delete options[paramKey].page;
-	        delete options[paramKey].fields;
-	        options[paramKey] = { ...options[paramKey], ...(options[paramKey].query || {}) };
-	        delete options[paramKey].query;
+	        ${serviceItem.pageInfo.pageNumKey ? `params.${serviceItem.pageInfo.pageNumKey} = pageNum;` : ''}
+	        ${serviceItem.pageInfo.pageSizeKey ? `params.${serviceItem.pageInfo.pageSizeKey} = pageSize;` : ''}
+	      })` : `((params) => {
+	        if (!params) { return; }
+	        delete params.page;
+	        delete params.fields;
+	        params = { ...params, ...(params.query || {}) };
+	        delete params.query;
 	      })`)
 	      .replace('__convert_response__', serviceItem.markedKeymap ? `((response) => {
         const markedKeyMap = ${JSON.stringify(serviceItem.markedKeymap)};

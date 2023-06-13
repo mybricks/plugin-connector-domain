@@ -4,20 +4,23 @@ import FormItem from '../../../../components/FormItem';
 import ParamsEdit from '../../paramsEdit';
 import Button from '../../../../components/Button';
 import OutputSchemaEdit from '../../outputSchemaEdit';
-import ReturnSchema, {MarkTypeLabel, MarkTypes} from '../../returnSchema';
+import ReturnSchema from '../../returnSchema';
 import ParamsType from '../../params';
 import {getScript} from '../../../../script';
 import {notice} from '../../../../components/Message';
+import {MarkTypeLabel, MarkTypes} from '../../../../constant';
 
 interface ProtocolInfoProps {
 	sidebarContext: any;
 	formModel: any;
+	
+	markList: Array<Record<string, string>>;
 	validate(): boolean;
 	onChange(model: any): void;
 }
 
 const ProtocolInfo: FC<ProtocolInfoProps> = props => {
-	const { formModel, validate, onChange, sidebarContext } = props;
+	const { formModel, validate, onChange, sidebarContext, markList } = props;
 	const [errorInfo, setError] = useState('');
 	const [edit, setEdit] = useState(false);
 	const outputSchemaEditRef = useRef(null);
@@ -47,7 +50,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 			for (let i = 0; i < needCheckMarkedKeys.length; i++) {
 				const type = needCheckMarkedKeys[i];
 				const keys = [...markedKeymap[type]];
-				const targetSchemaTypes = MarkTypes[type] || [];;
+				const targetSchemaTypes = MarkTypes[type] || [];
 				let originSchema = outputSchema;
 				
 				while (keys.length && originSchema) {
@@ -56,10 +59,13 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 				}
 				
 				if (
-					!originSchema
-					|| !targetSchemaTypes.includes(originSchema.type)
-					|| keys.length
-					|| (targetSchemaTypes.includes('array') && originSchema?.items?.type !== 'object')
+					!targetSchemaTypes.includes('any')
+					&& (
+						!originSchema
+						|| !targetSchemaTypes.includes(originSchema.type)
+						|| keys.length
+						|| (targetSchemaTypes.includes('array') && originSchema?.items?.type !== 'object')
+					)
 				) {
 					willResetMarkedTypes.push(MarkTypeLabel[type]);
 					markedKeymap[type] = [];
@@ -107,10 +113,13 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 			}
 			
 			if (
-				!originSchema
-				|| !targetSchemaTypes.includes(originSchema.type)
-				|| keys.length
-				|| (targetSchemaTypes.includes('array') && originSchema?.items?.type !== 'object')
+				!targetSchemaTypes.includes('any')
+				&& (
+					!originSchema
+					|| !targetSchemaTypes.includes(originSchema.type)
+					|| keys.length
+					|| (targetSchemaTypes.includes('array') && originSchema?.items?.type !== 'object')
+				)
 			) {
 				willResetMarkedTypes.push(MarkTypeLabel[type]);
 				markedKeymap[type] = [];
@@ -152,6 +161,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 							</Button>
 						) : null}
 						<ReturnSchema
+							markList={markList}
 							setMarkedKeymap={markedKeymap => onChange({ markedKeymap })}
 							markedKeymap={formModel.markedKeymap}
 							schema={formModel.outputSchema}

@@ -6,8 +6,7 @@ import {fullScreen, fullScreenExit} from '../../../../icon';
 import {getEntityBySchema, safeDecode, uuid} from '../../../../utils';
 import FormItem from '../../../../components/FormItem';
 import Input, {TextArea} from '../../../../components/Input';
-import {MethodOpts} from '../../../../constant';
-import RequestInfo from '../request-info';
+import {MethodOpts, ResponseMarkList} from '../../../../constant';
 import ProtocolInfo from '../protocol-info';
 
 import parentCss from '../../../../style-cssModules.less';
@@ -218,18 +217,9 @@ const Insert: FC<InsertProps> = props => {
 				</Collapse>
 			</div>
 			<div className={styles.ct}>
-				<Collapse header='请求入参' defaultFold={false}>
-					<RequestInfo
-						pageInfo={formModel?.pageInfo}
-						onChange={(pageInfo) => {
-							setFormModel(model => ({ ...model, pageInfo }));
-						}}
-					/>
-				</Collapse>
-			</div>
-			<div className={styles.ct}>
-				<Collapse header='接口信息' defaultFold={false}>
+				<Collapse header='接口调试' defaultFold={false}>
 					<ProtocolInfo
+						markList={ResponseMarkList}
 						sidebarContext={sidebarContext}
 						formModel={formModel}
 						validate={() => {

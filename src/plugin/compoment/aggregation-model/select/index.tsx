@@ -6,7 +6,7 @@ import {fullScreen, fullScreenExit} from '../../../../icon';
 import {getEntityBySchema, safeDecode, uuid} from '../../../../utils';
 import FormItem from '../../../../components/FormItem';
 import Input, {TextArea} from '../../../../components/Input';
-import {MethodOpts} from '../../../../constant';
+import {MarkList, MethodOpts} from '../../../../constant';
 import RequestInfo from '../request-info';
 import ProtocolInfo from '../protocol-info';
 
@@ -230,6 +230,7 @@ const Select: FC<SelectProps> = props => {
 		  <div className={styles.ct}>
 			  <Collapse header='接口信息' defaultFold={false}>
 				  <ProtocolInfo
+					  markList={MarkList}
 					  sidebarContext={sidebarContext}
 					  formModel={formModel}
 					  validate={() => {
