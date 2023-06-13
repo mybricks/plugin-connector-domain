@@ -25,9 +25,9 @@ interface AggregationModelProps {
 }
 const tabList = [
 	{ name: '查询', key: 'SELECT' },
-	{ name: '新增', key: 'INSERT' },
-	// { name: '更新', key: 'UPDATE' },
-	// { name: '删除', key: 'DELETE' }
+	{ name: '新建', key: 'INSERT' },
+	{ name: '更新', key: 'UPDATE' },
+	{ name: '删除', key: 'DELETE' }
 ];
 const INIT_QUERY = {
 	SELECT: {
@@ -37,14 +37,16 @@ const INIT_QUERY = {
 		output: encodeURIComponent(exampleResultFunc),
 	},
 	DELETE: {
-		method: 'POST',
+		method: 'DELETE',
 		input: encodeURIComponent(exampleParamsFunc),
 		output: encodeURIComponent(exampleResultFunc),
+		params: { type: 'root', name: 'root', children: [{ type: 'string', id: uuid(), name: 'id' }] },
 	},
 	UPDATE: {
-		method: 'POST',
+		method: 'PUT',
 		input: encodeURIComponent(exampleParamsFunc),
 		output: encodeURIComponent(exampleResultFunc),
+		params: { type: 'root', name: 'root', children: [{ type: 'string', id: uuid(), name: 'id' }] },
 	},
 	INSERT: {
 		method: 'POST',
@@ -89,6 +91,63 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 		onClose();
 	}, [model, initialModel]);
 	
+	const renderTabContent = useCallback(() => {
+		if (activeTab === 'SELECT') {
+			return (
+				<Select
+					sidebarContext={sidebarContext}
+					entity={model.query.entity}
+					formModel={model.query.SELECT}
+					onChangeEntity={entity => setModel(model => ({ ...model, query: { ...model.query, entity } }))}
+					onChange={(select: any) => {
+						setModel(model => {
+							let abilitySet = model.query.abilitySet || [];
+							
+							if (!abilitySet.includes('SELECT')) {
+								abilitySet.push('SELECT');
+							}
+							
+							if (select.pageInfo) {
+								if (!abilitySet.includes('PAGE')) {
+									abilitySet.push('PAGE');
+								}
+							} else {
+								abilitySet = abilitySet.filter(key => key !== 'PAGE');
+							}
+							
+							return { ...model, query: { ...model.query, SELECT: select, abilitySet } };
+						});
+					}}
+				/>
+			);
+		} else {
+			if (!['INSERT', 'UPDATE', 'DELETE'].includes(activeTab)) {
+				return null;
+			}
+			
+			return (
+				<Insert
+					key={activeTab}
+					sidebarContext={sidebarContext}
+					entity={model.query.entity}
+					formModel={model.query[activeTab]}
+					onChangeEntity={entity => setModel(model => ({ ...model, query: { ...model.query, entity } }))}
+					onChange={(insert: any) => {
+						setModel(model => {
+							let abilitySet = model.query.abilitySet || [];
+							
+							if (!abilitySet.includes(activeTab)) {
+								abilitySet.push(activeTab);
+							}
+							
+							return { ...model, query: { ...model.query, [activeTab]: insert, abilitySet } };
+						});
+					}}
+				/>
+			);
+		}
+	}, [activeTab]);
+	
 	return ReactDOM.createPortal(
 	  panelVisible & AGGREGATION_MODEL_VISIBLE ? (
 		  <div className={styles.sidebarPanelEdit} data-id="plugin-panel" style={{ ...style, left: 361 }}>
@@ -128,52 +187,7 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 				  })}
 			  </div>
 			  <div className={styles.tabContent}>
-				  {activeTab === 'SELECT' ? (
-					  <Select
-						  sidebarContext={sidebarContext}
-						  entity={model.query.entity}
-						  formModel={model.query.SELECT}
-						  onChangeEntity={entity => setModel(model => ({ ...model, query: { ...model.query, entity } }))}
-						  onChange={(select: any) => {
-								setModel(model => {
-									let abilitySet = model.query.abilitySet || [];
-									
-									if (!abilitySet.includes('SELECT')) {
-										abilitySet.push('SELECT');
-									}
-									
-									if (select.pageInfo) {
-										if (!abilitySet.includes('PAGE')) {
-											abilitySet.push('PAGE');
-										}
-									} else {
-										abilitySet = abilitySet.filter(key => key !== 'PAGE');
-									}
-									
-									return { ...model, query: { ...model.query, SELECT: select, abilitySet } };
-								});
-						  }}
-					  />
-				  ) : null}
-				  {activeTab === 'INSERT' ? (
-					  <Insert
-						  sidebarContext={sidebarContext}
-						  entity={model.query.entity}
-						  formModel={model.query.INSERT}
-						  onChangeEntity={entity => setModel(model => ({ ...model, query: { ...model.query, entity } }))}
-						  onChange={(insert: any) => {
-							  setModel(model => {
-								  let abilitySet = model.query.abilitySet || [];
-								
-								  if (!abilitySet.includes('INSERT')) {
-									  abilitySet.push('INSERT');
-								  }
-								
-								  return { ...model, query: { ...model.query, INSERT: insert, abilitySet } };
-							  });
-						  }}
-					  />
-				  ) : null}
+				  {renderTabContent()}
 			  </div>
 		  </div>
 	  ) : null,

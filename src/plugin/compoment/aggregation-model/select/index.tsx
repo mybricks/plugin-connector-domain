@@ -228,7 +228,7 @@ const Select: FC<SelectProps> = props => {
 			  </Collapse>
 		  </div>
 		  <div className={styles.ct}>
-			  <Collapse header='接口信息' defaultFold={false}>
+			  <Collapse header='接口调试' defaultFold={false}>
 				  <ProtocolInfo
 					  markList={MarkList}
 					  sidebarContext={sidebarContext}
