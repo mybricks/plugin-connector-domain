@@ -77,10 +77,6 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 			notice('查询的请求路径不能为空');
 			setActiveTab('SELECT');
 			return;
-		} else if (!model.query.SELECT.markedKeymap?.dataSource?.length) {
-			notice('查询的接口返回信息数据源标识不能为空');
-			setActiveTab('SELECT');
-			return;
 		}
 		
 		model.query.abilitySet.filter(key => key !== 'PAGE')?.forEach(key => {
