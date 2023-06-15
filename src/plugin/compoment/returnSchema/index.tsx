@@ -6,11 +6,11 @@ import {MarkTypeLabel, MarkTypes} from '../../../constant';
 import css from './index.less';
 
 interface ReturnSchemaProps {
-	markedKeymap: Record<string, string[]>;
+	markedKeymap: Record<string, { path: string[] }>;
 	schema: any;
-	markList: Array<Record<string, string>>;
+	markList: Array<Record<string, unknown>>;
 	error: string;
-	setMarkedKeymap(keymap: Record<string, string[]>): void;
+	setMarkedKeymap(keymap: Record<string, { path: string[] }>): void;
 }
 
 const ReturnSchema: FC<ReturnSchemaProps> = props => {
@@ -37,7 +37,7 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
 		  notice(`【${MarkTypeLabel[type]}】所标识数据类型必须为列表，且列表内数据类型必须为对象`);
 		  return;
 	  }
-	  setMarkedKeymap({ ...(markedKeymap || {}), [type]: curKeyRef.current?.split('.') || [] })
+	  setMarkedKeymap({ ...(markedKeymap || {}), [type]: { path: curKeyRef.current?.split('.') || [] } })
   }, [markedKeymap, setMarkedKeymap, schema]);
 
   function proAry(items, xpath) {
@@ -68,7 +68,7 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
       }
     }
 	
-		const markType = Object.keys(markedKeymap || {}).find(key => markedKeymap[key]?.join('.') === xpath);
+		const markType = Object.keys(markedKeymap || {}).find(key => markedKeymap[key]?.path?.join('.') === xpath);
 		/** key !== void 0 代表中间层，如列表里的对象，对象这个层级没有名称，但需要展示 */
 	  const markedAsReturn = !!markType && key !== void 0;
     const showMark = xpath !== void 0 && key !== void 0 && !markedAsReturn;
@@ -125,7 +125,7 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
   }, [markList]);
 
   const cancelMark = useCallback((e, markType: string) => {
-    setMarkedKeymap({ ...(markedKeymap || {}), [markType]: [] });
+    setMarkedKeymap({ ...(markedKeymap || {}), [markType]: { path: [] } });
   }, [markedKeymap]);
 
   const resetPopMenuStyle = useCallback(() => {
@@ -153,8 +153,8 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
 					return (
 						<div
 							className={css.menuItem}
-							key={mark.key}
-							onClick={() => markAsReturn(mark.key)}
+							key={mark.key as string}
+							onClick={() => markAsReturn(mark.key as string)}
 							data-mybricks-tip={{ content: mark.description }}
 						>
 							{mark.title}

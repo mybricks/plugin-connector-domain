@@ -88,8 +88,8 @@ function getScript(serviceItem, isTest = false) {
         const newResponse = { code: 1, data: {} };
         
         for(let markedKey in markedKeyMap) {
-          if (Array.isArray(markedKeyMap[markedKey]) && markedKeyMap[markedKey].length) {
-            let keys = [...markedKeyMap[markedKey]];
+          if (Array.isArray(markedKeyMap[markedKey]?.path) && markedKeyMap[markedKey].path.length) {
+            let keys = markedKeyMap[markedKey].path;
 			      let originResponse = response;
 			      
 			      while (keys.length && originResponse) {
@@ -98,7 +98,7 @@ function getScript(serviceItem, isTest = false) {
 			      }
 			      
 			      if (keys.length || originResponse === undefined || originResponse === null || (markedKey === 'dataSource' && !Array.isArray(originResponse))) {
-			        return { code: -1, msg: \`标记的数据（\${markedKeyMap[markedKey].join('.')}）返回不全\` };
+			        return { code: -1, msg: \`标记的数据（\${keys.join('.')}）返回不全\` };
 			      }
 						newResponse.data[markedKey] = originResponse;
 					}

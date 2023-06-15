@@ -29,6 +29,12 @@ const tabList = [
 	// { name: '更新', key: 'UPDATE' },
 	// { name: '删除', key: 'DELETE' }
 ];
+const tabNameMap = {
+	SELECT: '查询',
+	INSERT: '新建',
+	UPDATE: '更新',
+	DELETE: '删除',
+};
 const INIT_QUERY = {
 	SELECT: {
 		method: 'GET',
@@ -69,20 +75,24 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 	});
 	
 	const onSave = useCallback(() => {
-		if (!model.query.SELECT) {
-			notice('查询的配置信息不能为空');
-			setActiveTab('SELECT');
-			return;
-		} else if (!model.query.SELECT.path?.trim()) {
-			notice('查询的请求路径不能为空');
-			setActiveTab('SELECT');
-			return;
-		} else if (!model.query.SELECT.markedKeymap?.dataSource?.length) {
+		const queryAbilitySet = model.query.abilitySet.filter(key => key !== 'PAGE');
+		
+		for (let idx = 0; idx < queryAbilitySet.length; idx++) {
+			const ability = queryAbilitySet[idx];
+			
+			if (!model.query[ability]?.path?.trim()) {
+				notice(`${tabNameMap[ability]}的请求路径不能为空`);
+				setActiveTab(ability);
+				return;
+			}
+		}
+		
+		if (!model.query.SELECT.markedKeymap?.dataSource?.length) {
 			notice('未标识查询的接口返回信息数据源，可能会造成组件运行错误', { type: 'warning' });
 			setActiveTab('SELECT');
 		}
 		
-		model.query.abilitySet.filter(key => key !== 'PAGE')?.forEach(key => {
+		queryAbilitySet?.forEach(key => {
 			model.query[key].script = getScript(model.query[key]);
 		});
 		

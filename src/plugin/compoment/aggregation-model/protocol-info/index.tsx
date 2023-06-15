@@ -14,7 +14,7 @@ interface ProtocolInfoProps {
 	sidebarContext: any;
 	formModel: any;
 	
-	markList: Array<Record<string, string>>;
+	markList: Array<Record<string, unknown>>;
 	validate(): boolean;
 	onChange(model: any): void;
 }
@@ -46,10 +46,10 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 			
 			const markedKeymap = formModel.markedKeymap;
 			const willResetMarkedTypes = [];
-			const needCheckMarkedKeys = Object.keys(markedKeymap || {}).filter(key => !!markedKeymap[key]?.length);
+			const needCheckMarkedKeys = Object.keys(markedKeymap || {}).filter(key => !!markedKeymap[key]?.path?.length);
 			for (let i = 0; i < needCheckMarkedKeys.length; i++) {
 				const type = needCheckMarkedKeys[i];
-				const keys = [...markedKeymap[type]];
+				const keys = [...markedKeymap[type].path];
 				const targetSchemaTypes = MarkTypes[type] || [];
 				let originSchema = outputSchema;
 				
@@ -68,7 +68,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 					)
 				) {
 					willResetMarkedTypes.push(MarkTypeLabel[type]);
-					markedKeymap[type] = [];
+					markedKeymap[type] = { path: [] };
 				}
 			}
 			
@@ -100,10 +100,10 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 		
 		const markedKeymap = formModel.markedKeymap;
 		const willResetMarkedTypes = [];
-		const needCheckMarkedKeys = Object.keys(markedKeymap || {}).filter(key => !!markedKeymap[key]?.length);
+		const needCheckMarkedKeys = Object.keys(markedKeymap || {}).filter(key => !!markedKeymap[key]?.path?.length);
 		for (let i = 0; i < needCheckMarkedKeys.length; i++) {
 			const type = needCheckMarkedKeys[i];
-			const keys = [...markedKeymap[type]];
+			const keys = [...markedKeymap[type].path];
 			const targetSchemaTypes = MarkTypes[type] || [];
 			let originSchema = outputSchema;
 			
@@ -122,7 +122,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 				)
 			) {
 				willResetMarkedTypes.push(MarkTypeLabel[type]);
-				markedKeymap[type] = [];
+				markedKeymap[type] = { path: [] };
 			}
 		}
 		
