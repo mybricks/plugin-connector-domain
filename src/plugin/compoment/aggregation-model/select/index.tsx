@@ -50,7 +50,7 @@ const Select: FC<SelectProps> = props => {
 	const onChangeForProtocol = useCallback(model => {
 		let curEntity = entity || { id: uuid(), fieldAry: [] };
 		if (model.markedKeymap) {
-			curEntity = model.markedKeymap.dataSource?.path.length
+			curEntity = model.markedKeymap.dataSource?.path?.length
 				? {
 					id: curEntity.id,
 					...getEntityBySchema(

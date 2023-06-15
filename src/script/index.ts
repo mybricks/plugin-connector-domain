@@ -85,10 +85,14 @@ function getScript(serviceItem, isTest = false) {
 	      })`)
 			.replace('__convert_response__', serviceItem.markedKeymap ? `((response) => {
         const markedKeyMap = ${JSON.stringify(serviceItem.markedKeymap)};
+        
+        if (!markedKeyMap.successStatus || !Array.isArray(markedKeyMap.successStatus.path) || markedKeyMap.successStatus.value === undefined) {
+          return { code: -1, msg: '未标记请求成功标识值' };
+        }
         const newResponse = { code: 1, data: {} };
         
         for(let markedKey in markedKeyMap) {
-          if (Array.isArray(markedKeyMap[markedKey]?.path) && markedKeyMap[markedKey].path.length) {
+          if (markedKeyMap[markedKey] && Array.isArray(markedKeyMap[markedKey].path) && markedKeyMap[markedKey].path.length) {
             let keys = markedKeyMap[markedKey].path;
 			      let originResponse = response;
 			      
@@ -97,10 +101,16 @@ function getScript(serviceItem, isTest = false) {
 			        originResponse = originResponse[key];
 			      }
 			      
-			      if (keys.length || originResponse === undefined || originResponse === null || (markedKey === 'dataSource' && !Array.isArray(originResponse))) {
+			      if (keys.length || originResponse === undefined || originResponse === null || (markedKey === 'successStatus' && markedKeyMap[markedKey].value !== originResponse)) {
+			        console.log(response, originResponse, markedKeyMap[markedKey]);
+			        return { code: -1, msg: '接口请求失败' };
+			      } else if (keys.length || originResponse === undefined || originResponse === null || (markedKey === 'dataSource' && !Array.isArray(originResponse))) {
 			        return { code: -1, msg: \`标记的数据（\${keys.join('.')}）返回不全\` };
 			      }
-						newResponse.data[markedKey] = originResponse;
+			      
+			      if (markedKey !== 'successStatus') {
+							newResponse.data[markedKey] = originResponse;
+						}
 					}
         }
         

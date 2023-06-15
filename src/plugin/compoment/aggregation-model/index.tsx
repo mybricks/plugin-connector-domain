@@ -25,9 +25,9 @@ interface AggregationModelProps {
 }
 const tabList = [
 	{ name: '查询', key: 'SELECT' },
-	// { name: '新建', key: 'INSERT' },
-	// { name: '更新', key: 'UPDATE' },
-	// { name: '删除', key: 'DELETE' }
+	{ name: '新建', key: 'INSERT' },
+	{ name: '更新', key: 'UPDATE' },
+	{ name: '删除', key: 'DELETE' }
 ];
 const tabNameMap = {
 	SELECT: '查询',
@@ -75,6 +75,7 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 	});
 	
 	const onSave = useCallback(() => {
+		console.log('model', model);
 		const queryAbilitySet = model.query.abilitySet.filter(key => key !== 'PAGE');
 		
 		for (let idx = 0; idx < queryAbilitySet.length; idx++) {

@@ -132,15 +132,16 @@ export const MethodOpts = [
 
 
 export const MarkList = [
-	{ key: 'dataSource', title: '列表数据源', description: '标识数据列表数据源' },
+	{ key: 'successStatus', title: '请求成功标识', description: '标识请求是否成功', needMarkValue: true },
 	// { key: 'id', title: '数据主键', description: '标识数据项主键，将用于更新、删除等操作' },
+	{ key: 'dataSource', title: '列表数据源', description: '标识数据列表数据源' },
 	{ key: 'total', title: '数据源总数', description: '数据列表总条数' },
 	{ key: 'pageNum', title: '分页索引', description: '数据分页索引值，即当前页码' },
 	{ key: 'pageSize', title: '分页大小', description: '列表每页展示数据量大小，如每页10条' },
-	{ key: 'requestStatus', title: '请求成功标识', description: '标识请求是否成功', needMarkValue: true },
 ];
 export const ResponseMarkList = [
-	{ key: 'response', title: '数据响应值', description: '透传到领域模型 CRUD 组件中的值' }
+	{ key: 'successStatus', title: '请求成功标识', description: '标识请求是否成功', needMarkValue: true },
+	{ key: 'response', title: '数据响应值', description: '透传到领域模型 CRUD 组件中的值' },
 ];
 export const MarkTypeLabel = {
 	dataSource: '列表数据源',
@@ -148,6 +149,7 @@ export const MarkTypeLabel = {
 	total: '数据源总数',
 	pageNum: '分页索引',
 	pageSize: '分页大小',
+	successStatus: '请求成功标识',
 	response: '数据响应值'
 };
 export const MarkTypes = {
@@ -156,5 +158,6 @@ export const MarkTypes = {
 	total: ['number'],
 	pageNum: ['number'],
 	pageSize: ['number'],
-	response: ['any']
+	response: ['any'],
+	successStatus: ['number', 'string', 'boolean']
 };

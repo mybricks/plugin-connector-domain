@@ -67,7 +67,6 @@ export default function Sidebar({
 	const [cueEditModel, setCurEditModel] = useState<any>(undefined);
 	
   const updateService = useCallback((action: string, serviceItem: any) => {
-	  console.log(serviceItem);
 	  if (action === 'create') {
 		  /** 领域模型插件内数据 */
 		  data.domainModels.push(serviceItem);

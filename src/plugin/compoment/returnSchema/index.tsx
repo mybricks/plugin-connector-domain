@@ -3,14 +3,14 @@ import { useCallback } from 'react';
 import {notice} from '../../../components/Message';
 import {MarkTypeLabel, MarkTypes} from '../../../constant';
 
-import css from './index.less';
+import styles from './index.less';
 
 interface ReturnSchemaProps {
-	markedKeymap: Record<string, { path: string[] }>;
+	markedKeymap: Record<string, { path: string[]; value?: string }>;
 	schema: any;
 	markList: Array<Record<string, unknown>>;
 	error: string;
-	setMarkedKeymap(keymap: Record<string, { path: string[] }>): void;
+	setMarkedKeymap(keymap: Record<string, { path: string[]; value?: string }>): void;
 }
 
 const ReturnSchema: FC<ReturnSchemaProps> = props => {
@@ -29,7 +29,7 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
 	  }
 	
 	  if (!targetSchemaTypes.includes('any') && (!targetSchemaTypes.includes(originSchema.type) || keys.length)) {
-			notice(`【${MarkTypeLabel[type]}】所标识数据类型必须为 ${MarkTypes[type].map(key => getTypeName(key)).join('、')}`);
+			notice(`【${MarkTypeLabel[type]}】所标识数据类型必须为 ${MarkTypes[type]?.map(key => getTypeName(key)).join('、')}`);
 		  return;
 	  }
 	
@@ -37,7 +37,14 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
 		  notice(`【${MarkTypeLabel[type]}】所标识数据类型必须为列表，且列表内数据类型必须为对象`);
 		  return;
 	  }
-	  setMarkedKeymap({ ...(markedKeymap || {}), [type]: { path: curKeyRef.current?.split('.') || [] } })
+	  const markItem = markList.find(item => item.key === type);
+	  const newMap: any = { path: curKeyRef.current?.split('.') || [] };
+		
+		/** 设置标识值的默认值 */
+		if (markItem.needMarkValue && originSchema.type === 'boolean') {
+			newMap.value = true;
+		}
+	  setMarkedKeymap({ ...(markedKeymap || {}), [type]: newMap })
   }, [markedKeymap, setMarkedKeymap, schema]);
 
   function proAry(items, xpath) {
@@ -69,20 +76,25 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
     }
 	
 		const markType = Object.keys(markedKeymap || {}).find(key => markedKeymap[key]?.path?.join('.') === xpath);
-		/** key !== void 0 代表中间层，如列表里的对象，对象这个层级没有名称，但需要展示 */
+		const markItem = markList.find(item => item.key === markType);
+	  /** key !== void 0 代表中间层，如列表里的对象，对象这个层级没有名称，但需要展示 */
 	  const markedAsReturn = !!markType && key !== void 0;
     const showMark = xpath !== void 0 && key !== void 0 && !markedAsReturn;
     const showCancel = key !== void 0 && xpath !== void 0 && markedAsReturn && !root;
+		
+		const onChangeValue = value => {
+			setMarkedKeymap({ ...(markedKeymap || {}), [markType]: { path: markedKeymap[markType].path, value } })
+		};
 
     return (
       <div
         key={key}
-        className={`${css.item} ${root ? css.rootItem : ''} ${markedAsReturn ? css.markAsReturn : ''}`}
+        className={`${styles.item} ${root ? styles.rootItem : ''} ${markedAsReturn ? styles.markAsReturn : ''}`}
       >
-	      {markedAsReturn ? <div className={css.marked} data-text={MarkTypeLabel[markType]} /> : null}
-        <div className={css.keyName}>
+	      {markedAsReturn ? <div className={styles.marked} data-text={MarkTypeLabel[markType]} /> : null}
+        <div className={styles.keyName}>
           {key}
-          <span className={css.typeName}>({getTypeName(val.type)})</span>
+          <span className={styles.typeName}>({getTypeName(val.type)})</span>
           {showMark ? (
             <button
               onClick={(e) => {
@@ -93,6 +105,37 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
               标记
             </button>
           ) : null}
+	        {markItem?.needMarkValue && markedAsReturn ? (
+						<>
+							<span className={styles.markValueSelect}>当请求成功时，值为：</span>
+							{val.type === 'string' ? (
+								<input
+									value={markedKeymap[markType].value}
+									className={styles.markValueInput}
+									type="text"
+									onChange={e => onChangeValue(e.target.value)}
+								/>
+							) : null}
+							{val.type === 'number' ? (
+								<input
+									value={markedKeymap[markType].value}
+									className={styles.markValueInput}
+									type="number"
+									onChange={e => onChangeValue(Number(e.target.value))}
+								/>
+							) : null}
+							{val.type === 'boolean' ? (
+								<select
+									value={Number(markedKeymap[markType].value)}
+									className={styles.markValueInput}
+									onChange={e => onChangeValue(Boolean(e.target.value))}
+								>
+									<option value={1}>True</option>
+									<option value={0}>false</option>
+								</select>
+							) : null}
+						</>
+	        ) : null}
           {showCancel ? (
             <button
               onClick={(e) => {
@@ -134,7 +177,7 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
 
   if (error) {
     return (
-      <div className={css.errorInfo}>
+      <div className={styles.errorInfo}>
         <span>{error}</span>
         <div>{getErrorTips(error)}</div>
       </div>
@@ -143,16 +186,16 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
 	
   return schema ? (
     <div
-      className={css.returnParams}
+      className={styles.returnParams}
       ref={parentEleRef}
       onClick={resetPopMenuStyle}
     >
       <div>{proItem({ val: schema, xpath: '', root: true })}</div>
-      <div className={css.popMenu} style={popMenuStyle}>
+      <div className={styles.popMenu} style={popMenuStyle}>
 	      {markList.map(mark => {
 					return (
 						<div
-							className={css.menuItem}
+							className={styles.menuItem}
 							key={mark.key as string}
 							onClick={() => markAsReturn(mark.key as string)}
 							data-mybricks-tip={{ content: mark.description }}
@@ -164,7 +207,7 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
       </div>
     </div>
   ) : (
-    <div className={css.empty}>类型无效</div>
+    <div className={styles.empty}>类型无效</div>
   );
 }
 
