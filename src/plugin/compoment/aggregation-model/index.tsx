@@ -25,9 +25,9 @@ interface AggregationModelProps {
 }
 const tabList = [
 	{ name: '查询', key: 'SELECT' },
-	{ name: '新建', key: 'INSERT' },
-	{ name: '更新', key: 'UPDATE' },
-	{ name: '删除', key: 'DELETE' }
+	// { name: '新建', key: 'INSERT' },
+	// { name: '更新', key: 'UPDATE' },
+	// { name: '删除', key: 'DELETE' }
 ];
 const INIT_QUERY = {
 	SELECT: {
@@ -77,6 +77,9 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 			notice('查询的请求路径不能为空');
 			setActiveTab('SELECT');
 			return;
+		} else if (!model.query.SELECT.markedKeymap?.dataSource?.length) {
+			notice('未标识查询的接口返回信息数据源，可能会造成组件运行错误', { type: 'warning' });
+			setActiveTab('SELECT');
 		}
 		
 		model.query.abilitySet.filter(key => key !== 'PAGE')?.forEach(key => {
