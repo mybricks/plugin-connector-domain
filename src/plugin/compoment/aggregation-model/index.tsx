@@ -69,13 +69,12 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 		id: uuid(),
 		title: '',
 		type: 'aggregation-model',
-		query: { ...INIT_QUERY },
+		query: JSON.parse(JSON.stringify(INIT_QUERY)),
 		createTime: Date.now(),
 		updateTime: Date.now(),
 	});
 	
 	const onSave = useCallback(() => {
-		console.log('model', model);
 		const queryAbilitySet = model.query.abilitySet.filter(key => key !== 'PAGE');
 		
 		for (let idx = 0; idx < queryAbilitySet.length; idx++) {

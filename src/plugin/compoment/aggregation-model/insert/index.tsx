@@ -25,6 +25,7 @@ const Insert: FC<InsertProps> = props => {
 	const [formModel, setFormModel] = useState<Record<string, any>>(defaultFormModel);
 	const paramRef = useRef<HTMLDivElement>();
 	const resultRef = useRef<HTMLDivElement>();
+	const firstLoad = useRef(true);
 	const [errorMap, setErrorMap] = useState<Record<string, string>>({});
 	const [fullScreenParamsEditor, setFullScreenParamsEditor] = useState(false);
 	const [fullScreenResultEditor, setFullScreenResultEditor] = useState(false);
@@ -65,6 +66,10 @@ const Insert: FC<InsertProps> = props => {
 	}, [onChangeEntity, entity, formModel])
 	
 	useEffect(() => {
+		if (firstLoad.current) {
+			firstLoad.current = false;
+			return;
+		}
 		onChange(formModel);
 	}, [formModel]);
 	
