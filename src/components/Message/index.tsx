@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
 import {render, unmountComponentAtNode} from 'react-dom';
-import {error, warning} from '../../icon';
+import {error, success, warning} from '../../icon';
 
 import styles from './index.less';
 
@@ -15,13 +15,21 @@ type OptionType = {
 	timeout?: number;
 }
 
-export const notice = (message = '', option: OptionType = { type: 'error', timeout: 2000 }) => {
-	const container = document.querySelector('div[data-id=plugin-panel]');
+export const notice = (
+	message = '',
+	option: OptionType = { type: 'error', timeout: 2000 }
+) => {
+	const container = document.querySelector('div[data-id=active-plugin-panel]')?.parentNode?.parentNode;
 	
-	if (!dom) {
-		dom = document.createElement('div');
+	if (!container) {
+		return;
 	}
-	container.appendChild(dom);
+	
+	if (!dom || !(dom = document.querySelector('div[data-id=domain-plugin-panel-message]'))) {
+		dom = document.createElement('div');
+		dom.setAttribute('data-id', 'domain-plugin-panel-message');
+	}
+	document.body.appendChild(dom);
 	clearTimeout(timer);
 	render(<Message type={option.type} message={message} />, dom);
 	
@@ -35,6 +43,7 @@ const Message: FC<MessageProps> = props => {
 	  <div className={styles.message}>
 		  {type === 'error' ? error : null}
 		  {type === 'warning' ? warning : null}
+		  {type === 'success' ? success : null}
 		  <span className={styles.content}>{message}</span>
 	  </div>
   ) : null;

@@ -442,3 +442,12 @@ export const getEntityBySchema = (schema, markedKey = []) => {
 	
 	return { fieldAry: getEntityDesc(newSchema.items) };
 };
+
+/** stringify JSON string，同时 catch 错误 */
+export const safeStringify = (content: any) => {
+	try {
+		return JSON.stringify(content);
+	} catch {
+		return ''
+	}
+};

@@ -1,7 +1,7 @@
 @color: #fa6400;
 
 .sidebar-panel {
-
+  position: relative;
   width: 320px;
   background-color: #f7f7f7;
   z-index: 9;
@@ -236,15 +236,33 @@
       align-items: center;
       justify-content: space-between;
       padding-right: 4px;
+
       .action {
         display: flex;
         align-items: center;
         font-size: 12px;
         cursor: pointer;
         color: rgba(0, 0, 0, 0.85);
+        position: relative;
 
         &:hover {
           color: @color;
+        }
+
+        &.upgrade:after {
+          content: '';
+          background-color: #FF0000;
+          border: 1px solid #FFF;
+          width: 7px;
+          height: 7px;
+          border-radius: 6px;
+          position: absolute;
+          top: -7px;
+          right: -8px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
         }
       }
     }

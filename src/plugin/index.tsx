@@ -1,18 +1,14 @@
-import React, {ReactNode, useCallback, useRef, useState} from 'react';
+import React, {ReactNode, useCallback, useEffect, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
-import {
-	AGGREGATION_MODEL_VISIBLE,
-	exampleParamsFunc,
-	exampleResultFunc,
-	NO_PANEL_VISIBLE,
-} from '../constant';
+import {AGGREGATION_MODEL_VISIBLE, exampleParamsFunc, exampleResultFunc, NO_PANEL_VISIBLE,} from '../constant';
 import css from '../style-cssModules.less';
 import {formatDate} from '../utils/moment';
 import Toolbar from './compoment/toolbar';
-import {arrowR, edit, remove} from '../icon';
-import DomainPanel from './compoment/domainPanel';
+import {arrowR, edit, refresh, remove} from '../icon';
+import DomainPanel, {ActionMessage, checkDomainModel, getDomainBundle, getDomainService} from './compoment/domainPanel';
 import AggregationModel from './compoment/aggregation-model';
 import Loading from './compoment/loading';
+import {notice} from '../components/Message';
 
 interface IProps {
   domainModel: IDomainModel;
@@ -41,6 +37,7 @@ export default function Sidebar({
 	const ref = useRef<HTMLDivElement>(null);
   const blurMap = useRef<Record<string, () => void>>({});
   const [searchValue, setSearchValue] = useState('');
+  const [shouldUpdateDomainMap, setShouldUpdateDomainMap] = useState<Record<string, string>>({});
   const [panelVisible, setPanelVisible] = useState(NO_PANEL_VISIBLE);
   const [sidebarContext, setContext] = useState<any>({
 	  openFileSelector,
@@ -110,6 +107,30 @@ export default function Sidebar({
 	  setPanelVisible(AGGREGATION_MODEL_VISIBLE);
 		setCurEditModel(item);
   }, [sidebarContext]);
+
+  const onRefreshItem = useCallback((item) => {
+	  if (shouldUpdateDomainMap[item.query.entity.domainFileId + item.query.entity.id]) {
+			getDomainBundle(item.query.entity.domainFileId).then(entityList => {
+				const entity = entityList.find(entity => entity.id === item.query.entity.id && entity.isOpen);
+				
+				if (!entity) {
+					notice('对应模型中实体已删除 或 未开放领域服务，请前往模型编辑页确认~');
+				} else {
+					updateService(
+						'',
+						getDomainService({
+							...entity,
+							domainFileId: item.query.entity.domainFileId,
+							domainFileName: item.query.entity.domainFileName,
+						})
+					);
+					setShouldUpdateDomainMap({ ...shouldUpdateDomainMap, [item.query.entity.domainFileId + item.query.entity.id]: undefined });
+					
+					notice('实体刷新成功~', { type: 'success' });
+				}
+			});
+	  }
+  }, [sidebarContext, shouldUpdateDomainMap, updateService]);
 	
 	const onClose = useCallback(() => {
 		setPanelVisible(NO_PANEL_VISIBLE);
@@ -162,11 +183,32 @@ export default function Sidebar({
 	      return node;
       });
   }, [sidebarContext, panelVisible, updateService, onClose, data]);
+	
+	useEffect(() => {
+		const domainService = data.domainModels.filter(item => item.type === 'domain');
+		
+		if (domainService.length) {
+			const promises = [];
+			const shouldUpdateDomainMap: Record<string, string> = {};
+			promises.push(...domainService.map((item) => {
+				return getDomainBundle(item.query.entity.domainFileId)
+				.then(entityList => {
+					shouldUpdateDomainMap[item.query.entity.domainFileId + item.query.entity.id] =
+						checkDomainModel(entityList.find(entity => entity.id === item.query.entity.id && entity.isOpen), item.query.entity);
+				});
+			}));
+			
+			Promise.all(promises).then(() => {
+				setShouldUpdateDomainMap(shouldUpdateDomainMap);
+			});
+		}
+	}, []);
 
   return (
     <>
       <div
         ref={ref}
+        data-id="active-plugin-panel"
         className={`${css['sidebar-panel']} ${css['sidebar-panel-open']}`}
         onClick={() => Object.values(blurMap.current).forEach(fn => fn())}
       >
@@ -192,6 +234,9 @@ export default function Sidebar({
 				        .map((item) => {
 					        const expand = sidebarContext.expandId === item.id;
 					        item.updateTime = formatDate(item.updateTime || item.createTime);
+									const action = item.type === 'domain'
+										? shouldUpdateDomainMap[item.query.entity.domainFileId + item.query.entity.id]
+										: undefined;
 					
 					        return (
 						        <div key={item.id}>
@@ -211,7 +256,15 @@ export default function Sidebar({
 									        </div>
 									        <div className={css['sidebar-panel-list-item__right']}>
 										        <div></div>
-										        {item.type === 'domain' ? null : (
+										        {item.type === 'domain' ? (
+											        <div
+												        data-mybricks-tip={ActionMessage[action] || '刷新领域模型实体'}
+												        className={`${css.action} ${action ? css.upgrade : ''}`}
+												        onClick={() => onRefreshItem(item)}
+											        >
+												        {refresh}
+											        </div>
+											        ) : (
 											        <div data-mybricks-tip="编辑" className={css.action} onClick={() => onEditItem(item)}>
 												        {edit}
 											        </div>

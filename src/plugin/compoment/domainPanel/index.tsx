@@ -5,6 +5,7 @@ import {DOMAIN_PANEL_VISIBLE, exampleSQLParamsFunc, NO_PANEL_VISIBLE} from '../.
 import Button from '../../../components/Button';
 import Loading from '../loading';
 import {getScript} from '../../../script';
+import {safeStringify} from '../../../utils';
 
 import styles from './index.less';
 
@@ -26,6 +27,111 @@ interface Entity {
 	[key: string]: any;
 }
 
+const baseOptions = {
+	output: encodeURIComponent(`export default function (result, { method, url, params, data, headers }) { return result; }`),
+	method: 'POST',
+	type: 'domain',
+	path: '/api/system/domain/run',
+};
+export const getDomainService = (entity) => {
+	const input = exampleSQLParamsFunc
+		.replace('__serviceId__', entity.id)
+		.replace('__fileId__', String(entity.domainFileId));
+	
+	return {
+		id: entity.id,
+		type: 'domain',
+		title: entity.name,
+		query: {
+			SELECT: {
+				script: getScript({
+					...baseOptions,
+					modelType: 'domain',
+					input: decodeURIComponent(input.replace('__action__', 'SELECT'))
+				})
+			},
+			DELETE: {
+				script: getScript({
+					...baseOptions,
+					modelType: 'domain',
+					input: decodeURIComponent(input.replace('__action__', 'DELETE'))
+				})
+			},
+			UPDATE: {
+				script: getScript({
+					...baseOptions,
+					modelType: 'domain',
+					input: decodeURIComponent(input.replace('__action__', 'UPDATE'))
+				})
+			},
+			INSERT: {
+				script: getScript({
+					...baseOptions,
+					modelType: 'domain',
+					input: decodeURIComponent(input.replace('__action__', 'INSERT'))
+				})
+			},
+			SEARCH_BY_FIELD: {
+				script: getScript({
+					...baseOptions,
+					modelType: 'domain',
+					input: decodeURIComponent(input.replace('__action__', 'SEARCH_BY_FIELD'))
+				})
+			},
+			abilitySet: ['SELECT', 'DELETE', 'UPDATE', 'INSERT', 'SEARCH_BY_FIELD', 'PAGE'],
+			entity: entity,
+		},
+		createTime: Date.now(),
+		updateTime: Date.now(),
+	};
+};
+
+export const getDomainBundle = (fileId) => {
+	return new Promise((resolve, reject) => {
+		axios
+			.get(`/paas/api/domain/bundle?fileId=${fileId}`)
+			.then((res) => {
+				if (res.data.code === 1) {
+					resolve(res.data.data.entityAry.filter(entity => entity.isOpen).map(entity => ({ ...entity, id: entity.id })));
+				} else {
+					reject(res.data.msg || res.data.message);
+				}
+			})
+			.catch(reject);
+	});
+};
+
+/** 检验模型是否存在变更 */
+export const checkDomainModel = (newEntity, originEntity) => {
+	if (!newEntity) {
+		return 'deleted';
+	}
+	
+	if (newEntity.fieldAry.length !== originEntity.fieldAry.length) {
+		return 'changed';
+	}
+	
+	for (let idx = 0; idx < newEntity.fieldAry.length; idx++) {
+		const newField = newEntity.fieldAry[idx];
+		const oldField = originEntity.fieldAry[idx];
+		
+		if (
+			newField.id !== oldField.id ||
+			newField.name !== oldField.name ||
+			newField.bizType !== oldField.bizType ||
+			newField.dbType !== oldField.dbType ||
+			safeStringify(newField.mapping) !== safeStringify(oldField.mapping) ||
+			(newField.bizType === 'enum' && safeStringify(newField.enumValues) !== safeStringify(oldField.enumValues))
+		) {
+			return 'changed';
+		}
+	}
+};
+export const ActionMessage = {
+	changed: '实体信息存在变更，请刷新实体~',
+	deleted: '对应模型中实体已删除 或 未开放领域服务，请前往模型编辑页确认~',
+};
+
 const DomainPanel: FC<DomainPanelProps> = props => {
 	const { style, onClose, data, updateService, sidebarContext, panelVisible } = props;
 	const [domainFile, setDomainFile] = useState(null);
@@ -35,64 +141,9 @@ const DomainPanel: FC<DomainPanelProps> = props => {
 	const domainFileRef = useRef(null);
 	
 	const onSave = useCallback(() => {
-		const baseOptions = {
-			output: encodeURIComponent(`export default function (result, { method, url, params, data, headers }) { return result; }`),
-			method: 'POST',
-			type: 'domain',
-			path: '/api/system/domain/run',
-		};
 		setSelectedEntityList((entityList => {
 			entityList.forEach(item => {
-				const input = exampleSQLParamsFunc
-					.replace('__serviceId__', item.id)
-					.replace('__fileId__', String(item.domainFileId));
-				
-				updateService('create', {
-					id: item.id,
-					type: 'domain',
-					title: item.name,
-					query: {
-						SELECT: {
-							script: getScript({
-								...baseOptions,
-								modelType: 'domain',
-								input: decodeURIComponent(input.replace('__action__', 'SELECT'))
-							})
-						},
-						DELETE: {
-							script: getScript({
-								...baseOptions,
-								modelType: 'domain',
-								input: decodeURIComponent(input.replace('__action__', 'DELETE'))
-							})
-						},
-						UPDATE: {
-							script: getScript({
-								...baseOptions,
-								modelType: 'domain',
-								input: decodeURIComponent(input.replace('__action__', 'UPDATE'))
-							})
-						},
-						INSERT: {
-							script: getScript({
-								...baseOptions,
-								modelType: 'domain',
-								input: decodeURIComponent(input.replace('__action__', 'INSERT'))
-							})
-						},
-						SEARCH_BY_FIELD: {
-							script: getScript({
-								...baseOptions,
-								modelType: 'domain',
-								input: decodeURIComponent(input.replace('__action__', 'SEARCH_BY_FIELD'))
-							})
-						},
-						abilitySet: ['SELECT', 'DELETE', 'UPDATE', 'INSERT', 'SEARCH_BY_FIELD', 'PAGE'],
-						entity: item,
-					},
-					createTime: Date.now(),
-					updateTime: Date.now(),
-				})
+				updateService('create', getDomainService(item));
 			})
 			domainFileRef.current = null;
 			setDomainFile(null);
@@ -115,13 +166,7 @@ const DomainPanel: FC<DomainPanelProps> = props => {
 	
 	const getBundle = useCallback((fileId: number) => {
 		setLoading(true);
-		axios.get(`/paas/api/domain/bundle?fileId=${fileId}`)
-		.then((res) => {
-			if (res.data.code === 1) {
-				setEntityList(res.data.data.entityAry.filter(entity => entity.isOpen).map(entity => ({ ...entity, id: entity.id })));
-			}
-		})
-		.finally(() => setLoading(false));
+		getDomainBundle(fileId).then(setEntityList).finally(() => setLoading(false));
 	}, [])
 	
 	useEffect(() => {
