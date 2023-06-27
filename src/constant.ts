@@ -138,10 +138,12 @@ export const MarkList = [
 	{ key: 'total', title: '数据源总数', description: '数据列表总条数' },
 	{ key: 'pageNum', title: '分页索引', description: '数据分页索引值，即当前页码' },
 	{ key: 'pageSize', title: '分页大小', description: '列表每页展示数据量大小，如每页10条' },
+  { key: 'error', title: '错误提示信息', description: '透传到领域模型 CRUD 组件中的错误信息' },
 ];
 export const ResponseMarkList = [
 	{ key: 'successStatus', title: '请求成功标识', description: '标识请求是否成功', needMarkValue: true },
 	{ key: 'response', title: '数据响应值', description: '透传到领域模型 CRUD 组件中的值' },
+	{ key: 'error', title: '错误提示信息', description: '透传到领域模型 CRUD 组件中的错误信息' },
 ];
 export const MarkTypeLabel = {
 	dataSource: '列表数据源',
@@ -150,7 +152,8 @@ export const MarkTypeLabel = {
 	pageNum: '分页索引',
 	pageSize: '分页大小',
 	successStatus: '请求成功标识',
-	response: '数据响应值'
+	response: '数据响应值',
+  error: '错误提示信息',
 };
 export const MarkTypes = {
 	dataSource: ['array'],
@@ -159,5 +162,6 @@ export const MarkTypes = {
 	pageNum: ['number'],
 	pageSize: ['number'],
 	response: ['any'],
-	successStatus: ['number', 'string', 'boolean']
+	successStatus: ['number', 'string', 'boolean'],
+  error: ['any']
 };

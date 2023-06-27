@@ -101,14 +101,17 @@ function getScript(serviceItem, isTest = false) {
 			        originResponse = originResponse[key];
 			      }
 			      
-			      if (keys.length || originResponse === undefined || originResponse === null || (markedKey === 'successStatus' && markedKeyMap[markedKey].value !== originResponse)) {
-			        console.log(response, originResponse, markedKeyMap[markedKey]);
-			        return { code: -1, msg: '接口请求失败' };
+			      if (markedKey === 'successStatus' && markedKeyMap[markedKey].value !== originResponse) {
+			        newResponse.code = -1;
+			        newResponse.msg = newResponse.msg || '接口请求失败';
+			        continue;
 			      } else if (keys.length || originResponse === undefined || originResponse === null || (markedKey === 'dataSource' && !Array.isArray(originResponse))) {
-			        return { code: -1, msg: \`标记的数据（\${keys.join('.')}）返回不全\` };
+			        continue;
 			      }
 			      
-			      if (markedKey !== 'successStatus') {
+			      if (markedKey === 'error') {
+			      	newResponse.msg = originResponse;
+			      } else if (markedKey !== 'successStatus') {
 							newResponse.data[markedKey] = originResponse;
 						}
 					}
