@@ -87,7 +87,7 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 			}
 		}
 		
-		if (!model.query.SELECT.markedKeymap?.dataSource?.length) {
+		if (!model.query.SELECT.markedKeymap?.dataSource?.path?.length) {
 			notice('未标识查询的接口返回信息数据源，可能会造成组件运行错误', { type: 'warning' });
 			setActiveTab('SELECT');
 		}
