@@ -110,7 +110,7 @@ export default function Sidebar({
 
   const onRefreshItem = useCallback((item) => {
 	  if (shouldUpdateDomainMap[item.query.entity.domainFileId + item.query.entity.id]) {
-			getDomainBundle(item.query.entity.domainFileId).then(entityList => {
+			getDomainBundle(item.query.entity.domainFileId).then((entityList: Array<Record<string, unknown>>) => {
 				const entity = entityList.find(entity => entity.id === item.query.entity.id && entity.isOpen);
 				
 				if (!entity) {
@@ -175,7 +175,6 @@ export default function Sidebar({
 							onClose={onClose}
 							key="domain"
 							data={data}
-							style={{ top: ref.current?.getBoundingClientRect().top }}
 						/>
 					)
 				}
@@ -192,7 +191,7 @@ export default function Sidebar({
 			const shouldUpdateDomainMap: Record<string, string> = {};
 			promises.push(...domainService.map((item) => {
 				return getDomainBundle(item.query.entity.domainFileId)
-				.then(entityList => {
+				.then((entityList: Array<Record<string, unknown>>) => {
 					shouldUpdateDomainMap[item.query.entity.domainFileId + item.query.entity.id] =
 						checkDomainModel(entityList.find(entity => entity.id === item.query.entity.id && entity.isOpen), item.query.entity);
 				});

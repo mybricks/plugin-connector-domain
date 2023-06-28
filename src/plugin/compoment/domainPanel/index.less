@@ -1,107 +1,134 @@
-@color: #fa6400;
-
-.sidebarPanelEdit {
-  box-shadow: 5px 0 10px -5px #ddd;
-  overflow: hidden;
-  width: 560px;
-  position: absolute;
-  z-index: 1000;
-  bottom: 26px;
-  left: 271px;
-  background-color: #f7f7f7;
-  border-left: 1px solid #ddd;
-  border-right: 1px solid #ddd;
-}
-
-.sidebarPanelTitle {
-  font-size: 12px;
-  font-weight: bold;
-  padding: 0 10px;
-  line-height: 50px;
-  height: 50px;
-  background-color: #f7f7f7;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  user-select: text;
-}
-
-.ct {
-  padding: 3px 12px 3px 12px;
-  flex: 1;
-  overflow: auto;
-  user-select: none;
-
-  input[type=checkbox] {
-    width: 16px;
-    height: 16px;
-    appearance: none;
-    margin-right: 10px;
-    position: relative;
-    flex-shrink: 0;
-    cursor: pointer;
-  }
-
-  input[type=checkbox]:after {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 16px;
-    height: 16px;
-    content: '';
-    border-radius: 3px;
-    background-color: #e4e4e4;
-    text-align: center;
-    padding: 0 2px;
-  }
-
-  .selected {
-    color: #FA6400;
-
-    input[type=checkbox]:after {
-      border-radius: 3px;
-      content: "✓";
-      font-size: 12px;
-      font-weight: bold;
-      color: #fff;
-      background-color: #fa6400;
-      text-align: center;
-      padding: 0 2px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+.domainModal {
+  :global {
+    .ant-modal-body {
+      padding: 0;
     }
   }
 
-  .item {
-    cursor: pointer;
-    line-height: 36px;
+  .domainContainer {
+    height: 520px;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-left: 12px;
 
-    & > div {
-      flex: 1;
+    .header {
+      height: 28px;
+      flex-shrink: 0;
+      font-size: 14px;
+      line-height: 28px;
+      font-weight: bold;
+      margin: 4px 0;
     }
-  }
 
-  .item + .item {
-    border-top: 1px dashed #ccc;
-  }
+    .panelContent {
+      flex: 1;
+      overflow: auto;
 
-  .defaultSelected {
-    opacity: .5;
-    cursor: default;
+      &::-webkit-scrollbar {
+        display: none;
+      }
+    }
 
-    input[type=checkbox] {
-      cursor: default;
+    .leftPanel,
+    .rightPanel {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      padding: 6px 12px;
+    }
+
+    .leftPanel {
+      width: 280px;
+      background-color: #f8fafb;
+
+      .sqlHttp {
+        min-height: 34px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 6px;
+        border-radius: 4px;
+        color: #5c6066;
+
+        &:hover {
+          cursor: pointer;
+          background: #3d5c8014;
+        }
+
+        & > svg {
+          margin-right: 10px;
+          flex-shrink: 0;
+          fill: currentColor;
+        }
+
+        .title {
+          flex: 1;
+          text-overflow: ellipsis;
+          word-break: break-all;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+
+        .operate {
+          margin-left: 10px;
+
+          & > svg:hover {
+            color: #FA6400;
+            cursor: pointer;
+          }
+        }
+      }
+    }
+
+    .rightPanel {
+      flex: 1;
+
+      .panelContent {
+        display: block;
+        padding-top: 4px;
+      }
+
+      .sqlHttpItem {
+        width: 234px;
+        height: 34px;
+        display: inline-flex;
+        align-items: center;
+        padding: 0 6px 0 10px;
+        border-radius: 4px;
+        color: #5c6066;
+        margin-bottom: 16px;
+        vertical-align: top;
+        cursor: pointer;
+        position: relative;
+        background: #F7F7F7;
+
+        & > svg {
+          margin-right: 10px;
+          flex-shrink: 0;
+        }
+
+        &:nth-of-type(2n) {
+          margin-left: 28px;
+        }
+
+        &:hover {
+          background-color: #F3F3F3;
+        }
+
+        .title {
+          flex: 1;
+          text-overflow: ellipsis;
+          word-break: break-all;
+          white-space: nowrap;
+          overflow: hidden;
+        }
+      }
     }
   }
 }
 
 .empty {
   display: flex;
+  align-items: center;
   justify-content: center;
   font-style: italic;
   color: #AAA;

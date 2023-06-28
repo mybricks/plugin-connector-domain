@@ -19,6 +19,7 @@ module.exports = merge(commonCfg, {
   externals: [
     {
       react: 'react',
+      antd: 'antd',
       'react-dom': 'react-dom'
     },
   ],
