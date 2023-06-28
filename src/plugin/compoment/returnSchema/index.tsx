@@ -1,7 +1,8 @@
-import React, {FC, useRef, useState} from 'react';
+import React, {FC, useContext, useRef, useState} from 'react';
 import { useCallback } from 'react';
 import {notice} from '../../../components/Message';
 import {MarkTypeLabel, MarkTypes} from '../../../constant';
+import {AggregationPanelContext} from '../aggregation-model/context';
 
 import styles from './index.less';
 
@@ -15,6 +16,7 @@ interface ReturnSchemaProps {
 
 const ReturnSchema: FC<ReturnSchemaProps> = props => {
 	const { markedKeymap, schema, error, setMarkedKeymap, markList } = props;
+  const aggregationPanelContext = useContext(AggregationPanelContext);
   const parentEleRef = useRef<HTMLDivElement>(null);
   const curKeyRef = useRef('');
   const [popMenuStyle, setStyle] = useState<any>();
@@ -165,14 +167,17 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
 			top -= popMenuHeight + btnEle.offsetHeight;
 		}
     setStyle({ display: 'block', left: currentPos.x - parentPos.x, top });
+    aggregationPanelContext.addBlurAry('return-schema', () => setStyle(void 0));
   }, [markList]);
 
   const cancelMark = useCallback((e, markType: string) => {
     setMarkedKeymap({ ...(markedKeymap || {}), [markType]: { path: [] } });
   }, [markedKeymap]);
 
-  const resetPopMenuStyle = useCallback(() => {
+  const resetPopMenuStyle = useCallback(event => {
     setStyle(void 0);
+    aggregationPanelContext.addBlurAry('return-schema', () => {});
+    event.stopPropagation();
   }, []);
 
   if (error) {

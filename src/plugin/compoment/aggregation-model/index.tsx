@@ -1,4 +1,4 @@
-import React, {CSSProperties, FC, useCallback, useState} from 'react';
+import React, {CSSProperties, FC, useCallback, useMemo, useRef, useState} from 'react';
 import ReactDOM from 'react-dom';
 import Button from '../../../components/Button';
 import {
@@ -12,6 +12,7 @@ import {uuid} from '../../../utils';
 import {getScript} from '../../../script';
 import {notice} from '../../../components/Message';
 import {cloneDeep} from '../../../utils/lodash';
+import {AggregationPanelContext} from './context';
 
 import styles from './index.less';
 
@@ -65,6 +66,7 @@ const INIT_QUERY = {
 const AggregationModel: FC<AggregationModelProps> = props => {
 	const { panelVisible, style, onClose, updateService, initialModel, sidebarContext } = props;
 	const [activeTab, setActiveTab] = useState('SELECT');
+	const blurMapRef = useRef<any>({});
 	const [model, setModel] = useState(cloneDeep(initialModel) || {
 		id: uuid(),
 		title: '',
@@ -73,6 +75,13 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 		createTime: Date.now(),
 		updateTime: Date.now(),
 	});
+	const contextValue = useMemo(() => {
+		return { addBlurAry: (key, blur) =>( blurMapRef.current = { ...blurMapRef.current, [key]: blur }) };
+	}, []);
+
+	const onBlurAll = () => {
+		Object.values(blurMapRef.current).forEach((blur: any) => blur?.());
+	};
 	
 	const onSave = useCallback(() => {
 		const queryAbilitySet = model.query.abilitySet.filter(key => key !== 'PAGE');
@@ -159,45 +168,47 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 	
 	return ReactDOM.createPortal(
 	  panelVisible & AGGREGATION_MODEL_VISIBLE ? (
-		  <div className={styles.sidebarPanelEdit} data-id="plugin-panel" style={{ ...style, left: 361 }}>
-			  <div className={styles.sidebarPanelTitle}>
-				  <div>聚合模型</div>
-				  <div>
-					  <Button size="small" type="primary" onClick={onSave}>
-						  保 存
-					  </Button>
-					  <Button size="small" style={{ marginLeft: '12px' }} onClick={onClose}>
-						  关 闭
-					  </Button>
-				  </div>
-			  </div>
-			  <div className={styles.item}>
-				  <label>模型名称</label>
-				  <div className={`${styles.editor} ${styles.textEdt}`} style={{ marginRight: '12px' }}>
-					  <input
-						  type="text"
-						  placeholder="模型名称"
-						  defaultValue={model.title}
-						  onChange={(e) => setModel(model => ({ ...model, title: e.target.value }))}
-					  />
-				  </div>
-			  </div>
-			  <div className={styles.tabs}>
-				  {tabList.map(tab => {
-						return (
-							<div
-								key={tab.key}
-								className={`${styles.tab} ${activeTab === tab.key ? styles.activeTab : ''}`}
-								onClick={() => setActiveTab(tab.key)}
-							>
-								{tab.name}
-							</div>
-						);
-				  })}
-			  </div>
-			  <div className={styles.tabContent}>
-				  {renderTabContent()}
-			  </div>
+		  <div className={styles.sidebarPanelEdit} data-id="plugin-panel" style={{ ...style, left: 361 }} onClick={onBlurAll}>
+				<AggregationPanelContext.Provider value={contextValue}>
+					<div className={styles.sidebarPanelTitle}>
+						<div>聚合模型</div>
+						<div>
+							<Button size="small" type="primary" onClick={onSave}>
+								保 存
+							</Button>
+							<Button size="small" style={{ marginLeft: '12px' }} onClick={onClose}>
+								关 闭
+							</Button>
+						</div>
+					</div>
+					<div className={styles.item}>
+						<label>模型名称</label>
+						<div className={`${styles.editor} ${styles.textEdt}`} style={{ marginRight: '12px' }}>
+							<input
+								type="text"
+								placeholder="模型名称"
+								defaultValue={model.title}
+								onChange={(e) => setModel(model => ({ ...model, title: e.target.value }))}
+							/>
+						</div>
+					</div>
+					<div className={styles.tabs}>
+						{tabList.map(tab => {
+							return (
+								<div
+									key={tab.key}
+									className={`${styles.tab} ${activeTab === tab.key ? styles.activeTab : ''}`}
+									onClick={() => setActiveTab(tab.key)}
+								>
+									{tab.name}
+								</div>
+							);
+						})}
+					</div>
+					<div className={styles.tabContent}>
+						{renderTabContent()}
+					</div>
+				</AggregationPanelContext.Provider>
 		  </div>
 	  ) : null,
 	  document.body
