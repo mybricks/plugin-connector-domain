@@ -134,7 +134,7 @@ const DomainIcon = (
 	</svg>
 );
 const DomainPanel: FC<DomainPanelProps> = props => {
-	const { onClose, data, updateService, sidebarContext, panelVisible } = props;
+	const { onClose, updateService, sidebarContext, panelVisible } = props;
 	const [domainFile, setDomainFile] = useState(null);
 	const [entityList, setEntityList] = useState<Entity[]>([]);
 	const [selectedEntityList, setSelectedEntityList] = useState<Entity[]>([]);
