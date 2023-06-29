@@ -109,27 +109,25 @@ export default function Sidebar({
   }, [sidebarContext]);
 
   const onRefreshItem = useCallback((item) => {
-	  if (shouldUpdateDomainMap[item.query.entity.domainFileId + item.query.entity.id]) {
-			getDomainBundle(item.query.entity.domainFileId).then((entityList: Array<Record<string, unknown>>) => {
-				const entity = entityList.find(entity => entity.id === item.query.entity.id && entity.isOpen);
-				
-				if (!entity) {
-					notice('对应模型中实体已删除 或 未开放领域服务，请前往模型编辑页确认~');
-				} else {
-					updateService(
-						'',
-						getDomainService({
-							...entity,
-							domainFileId: item.query.entity.domainFileId,
-							domainFileName: item.query.entity.domainFileName,
-						})
-					);
-					setShouldUpdateDomainMap({ ...shouldUpdateDomainMap, [item.query.entity.domainFileId + item.query.entity.id]: undefined });
-					
-					notice('实体刷新成功~', { type: 'success' });
-				}
-			});
-	  }
+		getDomainBundle(item.query.entity.domainFileId).then((entityList: Array<Record<string, unknown>>) => {
+			const entity = entityList.find(entity => entity.id === item.query.entity.id && entity.isOpen);
+
+			if (!entity) {
+				notice('对应模型中实体已删除 或 未开放领域服务，请前往模型编辑页确认~');
+			} else {
+				updateService(
+					'',
+					getDomainService({
+						...entity,
+						domainFileId: item.query.entity.domainFileId,
+						domainFileName: item.query.entity.domainFileName,
+					})
+				);
+				setShouldUpdateDomainMap({ ...shouldUpdateDomainMap, [item.query.entity.domainFileId + item.query.entity.id]: undefined });
+
+				notice('实体刷新成功~', { type: 'success' });
+			}
+		});
   }, [sidebarContext, shouldUpdateDomainMap, updateService]);
 	
 	const onClose = useCallback(() => {
