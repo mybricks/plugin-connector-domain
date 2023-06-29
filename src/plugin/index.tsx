@@ -117,7 +117,7 @@ export default function Sidebar({
 			} else {
 				updateService(
 					'',
-					getDomainService({
+					getDomainService(item.id, {
 						...entity,
 						domainFileId: item.query.entity.domainFileId,
 						domainFileName: item.query.entity.domainFileName,

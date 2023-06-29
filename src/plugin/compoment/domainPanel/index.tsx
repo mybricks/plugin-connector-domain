@@ -30,13 +30,13 @@ const baseOptions = {
 	type: 'domain',
 	path: '/api/system/domain/run',
 };
-export const getDomainService = (entity) => {
+export const getDomainService = (id, entity) => {
 	const input = exampleSQLParamsFunc
 		.replace('__serviceId__', entity.id)
 		.replace('__fileId__', String(entity.domainFileId));
 	
 	return {
-		id: entity.id,
+		id,
 		type: 'domain',
 		title: entity.name,
 		query: {
@@ -143,7 +143,7 @@ const DomainPanel: FC<DomainPanelProps> = props => {
 	const onSave = useCallback(() => {
 		setSelectedEntityList((entityList => {
 			entityList.forEach(item => {
-				updateService('create', getDomainService(item));
+				updateService('create', getDomainService(item.id, { ...item, id: item.entityId }));
 			})
 			domainFileRef.current = null;
 			setDomainFile(null);
@@ -237,6 +237,7 @@ const DomainPanel: FC<DomainPanelProps> = props => {
 										className={styles.sqlHttpItem}
 										onClick={() => onItemClick({
 											...entity,
+											entityId: entity.id,
 											id: uuid(),
 											domainFileId: domainFile.id,
 											domainFileName: domainFile.name
