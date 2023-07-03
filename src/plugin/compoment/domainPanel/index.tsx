@@ -139,17 +139,23 @@ const DomainPanel: FC<DomainPanelProps> = props => {
 	const [entityList, setEntityList] = useState<Entity[]>([]);
 	const [selectedEntityList, setSelectedEntityList] = useState<Entity[]>([]);
 	const domainFileRef = useRef(null);
+
+	const onCancel = useCallback(() => {
+		domainFileRef.current = null;
+		setDomainFile(null);
+		onClose?.();
+	}, [onClose]);
 	
 	const onSave = useCallback(() => {
 		setSelectedEntityList((entityList => {
 			entityList.forEach(item => {
 				updateService('create', getDomainService(item.id, { ...item, id: item.entityId }));
 			})
-			domainFileRef.current = null;
-			setDomainFile(null);
 			return [];
 		}));
-	}, []);
+
+		onCancel();
+	}, [onCancel]);
 	
 	const onItemClick = useCallback((item) => {
 		setSelectedEntityList((preEntityList) => [...preEntityList, item]);
@@ -192,7 +198,7 @@ const DomainPanel: FC<DomainPanelProps> = props => {
 			visible={!!domainFile}
 			className={styles.domainModal}
 			title="模型实体选择"
-			onCancel={onClose}
+			onCancel={onCancel}
 			onOk={onSave}
 			destroyOnClose
 			width={800}
