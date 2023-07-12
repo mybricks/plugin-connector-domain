@@ -3,7 +3,7 @@ import Editor from '@mybricks/code-editor';
 import Collapse from "../../../../components/Collapse";
 import RadioButton from '../../../../components/RadioBtn';
 import {fullScreen, fullScreenExit} from '../../../../icon';
-import {getEntityBySchema, safeDecode, uuid} from '../../../../utils';
+import {getEntityBySchema, getSchemaByMarkedMap, safeDecode, uuid} from '../../../../utils';
 import FormItem from '../../../../components/FormItem';
 import Input, {TextArea} from '../../../../components/Input';
 import {MarkList, MethodOpts} from '../../../../constant';
@@ -55,7 +55,7 @@ const Select: FC<SelectProps> = props => {
 				? {
 					id: curEntity.id,
 					...getEntityBySchema(
-						'outputSchema' in model ? model.outputSchema : formModel.outputSchema,
+						'resultSchema' in model ? model.resultSchema : formModel.resultSchema,
 						[...model.markedKeymap.dataSource.path]
 					)
 				}
@@ -63,7 +63,13 @@ const Select: FC<SelectProps> = props => {
 		}
 		
 		onChangeEntity(curEntity);
-		setFormModel(pre => ({ ...pre, ...model }));
+		setFormModel(pre => {
+			return {
+				...pre,
+				...model,
+				...(model.markedKeymap ? getSchemaByMarkedMap(model.resultSchema || pre.resultSchema, model.markedKeymap) : {})
+			};
+		});
 	}, [onChangeEntity, entity, formModel])
 	
 	useEffect(() => {

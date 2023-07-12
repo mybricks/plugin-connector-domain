@@ -513,3 +513,49 @@ export const getSchemaByEntity = entity => {
 
   return outputSchema;
 };
+
+export const getSchemaByMarkedMap = (resultSchema, markedKeymap) => {
+  console.log('resultSchema, markedKeymap', resultSchema, markedKeymap);
+  if (!resultSchema || !markedKeymap) {
+    return { outputSchema: undefined, errorSchema: undefined };
+  }
+  const outputSchema = {
+    type: 'object',
+    properties: {
+      code: { type: 'number' },
+      data: { type: 'object', properties: {} },
+      msg: { type: 'string' },
+    }
+  };
+  const errorSchema = {
+    type: 'object',
+    properties: { code: { type: 'number' } }
+  };
+
+  Object.keys(markedKeymap)
+    .filter(key => !!markedKeymap[key]?.path?.length)
+    .forEach(key => {
+      let originSchema = resultSchema;
+      const keys = [...markedKeymap[key].path];
+
+      while (keys.length && originSchema) {
+        const key = keys.shift();
+        originSchema = originSchema.properties?.[key] || originSchema.items?.properties?.[key];
+      }
+
+      /** 类型找不到 */
+      if (keys.length || !originSchema) {
+        return;
+      }
+
+      if (['dataSource', 'total', 'pageNum', 'pageSize'].includes(key)) {
+        outputSchema.properties.data.properties[key] = originSchema;
+      } else if (key === 'response') {
+        outputSchema.properties.data = originSchema;
+      } else if (key === 'error') {
+        errorSchema.properties['msg'] = originSchema;
+      }
+    });
+
+  return { outputSchema, errorSchema };
+};

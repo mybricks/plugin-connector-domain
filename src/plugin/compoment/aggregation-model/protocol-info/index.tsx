@@ -23,7 +23,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 	const { formModel, validate, onChange, sidebarContext, markList } = props;
 	const [errorInfo, setError] = useState('');
 	const [edit, setEdit] = useState(false);
-	const outputSchemaEditRef = useRef(null);
+	const resultSchemaEditRef = useRef(null);
 	
 	const onDebugClick = async () => {
 		try {
@@ -41,8 +41,8 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 			  params
 			);
 			
-			const outputSchema = jsonToSchema(data);
-			formatSchema(outputSchema);
+			const resultSchema = jsonToSchema(data);
+			formatSchema(resultSchema);
 			
 			const markedKeymap = formModel.markedKeymap;
 			const willResetMarkedTypes = [];
@@ -51,7 +51,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 				const type = needCheckMarkedKeys[i];
 				const keys = [...markedKeymap[type].path];
 				const targetSchemaTypes = MarkTypes[type] || [];
-				let originSchema = outputSchema;
+				let originSchema = resultSchema;
 				
 				while (keys.length && originSchema) {
 					const key = keys.shift();
@@ -75,11 +75,11 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 			if (willResetMarkedTypes.length) {
 				notice(`【${willResetMarkedTypes.join('、')}】标识数据类型错误，已被重置`, { type: 'warning' });
 			}
-			
-			onChange({ outputSchema, markedKeymap });
+
+			onChange({ resultSchema, markedKeymap });
 		} catch (error: any) {
 			console.log(error);
-			onChange({ outputSchema: undefined, markedKeymap: undefined });
+			onChange({ resultSchema: undefined, markedKeymap: undefined });
 			setError(error?.message || error);
 		}
 	};
@@ -96,7 +96,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 	const editSchema = useCallback(() => setEdit(true), []);
 	const saveSchema = useCallback(() => {
 		setEdit(false);
-		const outputSchema = outputSchemaEditRef.current?.getSchema?.();
+		const resultSchema = resultSchemaEditRef.current?.getSchema?.();
 		
 		const markedKeymap = formModel.markedKeymap;
 		const willResetMarkedTypes = [];
@@ -105,7 +105,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 			const type = needCheckMarkedKeys[i];
 			const keys = [...markedKeymap[type].path];
 			const targetSchemaTypes = MarkTypes[type] || [];
-			let originSchema = outputSchema;
+			let originSchema = resultSchema;
 			
 			while (keys.length && originSchema) {
 				const key = keys.shift();
@@ -129,8 +129,8 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 		if (willResetMarkedTypes.length) {
 			notice(`【${willResetMarkedTypes.join('、')}】标识数据类型错误，已被重置`, { type: 'warning' });
 		}
-		
-		onChange({ outputSchema, markedKeymap });
+
+		onChange({ resultSchema, markedKeymap });
 	}, [onChange]);
 	
 	return (
@@ -144,18 +144,18 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 			{edit ? (
 				<>
 					<FormItem label='返回数据'>
-						{formModel.outputSchema ? (
+						{formModel.resultSchema ? (
 							<Button style={{margin: 0, marginBottom: 6}} onClick={saveSchema}>
 								保存
 							</Button>
 						) : null}
-						<OutputSchemaEdit schema={formModel.outputSchema} ref={outputSchemaEditRef} />
+						<OutputSchemaEdit schema={formModel.resultSchema} ref={resultSchemaEditRef} />
 					</FormItem>
 				</>
 			) : (
 				<>
 					<FormItem label='返回数据'>
-						{formModel.outputSchema ? (
+						{formModel.resultSchema ? (
 							<Button style={{margin: 0, marginBottom: 6}} onClick={editSchema}>
 								编辑
 							</Button>
@@ -164,7 +164,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 							markList={markList}
 							setMarkedKeymap={markedKeymap => onChange({ markedKeymap })}
 							markedKeymap={formModel.markedKeymap}
-							schema={formModel.outputSchema}
+							schema={formModel.resultSchema}
 							error={errorInfo}
 						/>
 					</FormItem>

@@ -1,9 +1,9 @@
 import React, {FC, useCallback, useEffect, useRef, useState} from 'react';
 import Editor from '@mybricks/code-editor';
-import Collapse from "../../../../components/Collapse";
+import Collapse from '../../../../components/Collapse';
 import RadioButton from '../../../../components/RadioBtn';
 import {fullScreen, fullScreenExit} from '../../../../icon';
-import {getEntityBySchema, safeDecode, uuid} from '../../../../utils';
+import {getSchemaByMarkedMap, safeDecode} from '../../../../utils';
 import FormItem from '../../../../components/FormItem';
 import Input, {TextArea} from '../../../../components/Input';
 import {MethodOpts, ResponseMarkList} from '../../../../constant';
@@ -48,22 +48,14 @@ const Insert: FC<InsertProps> = props => {
 	};
 	
 	const onChangeForProtocol = useCallback(model => {
-		let curEntity = entity || { id: uuid(), fieldAry: [] };
-		if (model.markedKeymap) {
-			curEntity = model.markedKeymap.dataSource?.length
-				? {
-					id: curEntity.id,
-					...getEntityBySchema(
-						'outputSchema' in model ? model.outputSchema : formModel.outputSchema,
-						[...model.markedKeymap.dataSource]
-					)
-				}
-				: { id: curEntity.id, fieldAry: [] };
-		}
-		
-		onChangeEntity(curEntity);
-		setFormModel(pre => ({ ...pre, ...model }));
-	}, [onChangeEntity, entity, formModel])
+		setFormModel(pre => {
+			return {
+				...pre,
+				...model,
+				...(model.markedKeymap ? getSchemaByMarkedMap(model.resultSchema || pre.resultSchema, model.markedKeymap) : {})
+			};
+		});
+	}, [])
 	
 	useEffect(() => {
 		if (firstLoad.current) {
