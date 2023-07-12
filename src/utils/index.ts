@@ -515,7 +515,6 @@ export const getSchemaByEntity = entity => {
 };
 
 export const getSchemaByMarkedMap = (resultSchema, markedKeymap) => {
-  console.log('resultSchema, markedKeymap', resultSchema, markedKeymap);
   if (!resultSchema || !markedKeymap) {
     return { outputSchema: undefined, errorSchema: undefined };
   }
