@@ -1,7 +1,3 @@
-export function isMoment(obj: any) {
-  return obj != null && obj._isAMomentObject != null;
-}
-
 export function formatDate(date: any, fmt='YY-mm-dd HH:MM:SS') {
   if(typeof date==='number'){
     date = new Date(date)

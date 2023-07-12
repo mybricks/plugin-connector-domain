@@ -1,18 +1,11 @@
 import { isEmpty, cloneDeep } from '../utils/lodash';
-
-export function getServiceUrl(uri: string) {
-  return `/app/pcspa/desn/${uri}`;
-}
+import {FieldBizType} from "../constant";
 
 export function getDecodeString(fn: string) {
   return decodeURIComponent(fn).replace(
     /export\s+default.*function.*\(/,
     'function _RT_('
   );
-}
-
-export function getLast(list: any[]) {
-  return list[list.length - 1];
 }
 
 export function formatSchema(schema: any) {
@@ -450,4 +443,73 @@ export const safeStringify = (content: any) => {
 	} catch {
 		return ''
 	}
+};
+
+const getSchemaTypeByFieldType = (field) => {
+  switch (field.bizType) {
+    case FieldBizType.ENUM:
+      return 'string';
+    case FieldBizType.DATETIME:
+      return field.showFormat ? 'string' : 'number';
+    case FieldBizType.STRING:
+      return 'string';
+    case FieldBizType.NUMBER:
+      return 'number';
+    case FieldBizType.JSON:
+      return 'any';
+    case FieldBizType.RELATION:
+      return 'number';
+    case FieldBizType.SYS_USER:
+      return 'number';
+    case FieldBizType.SYS_ROLE:
+      return 'number';
+    case FieldBizType.SYS_ROLE_RELATION:
+      return 'number';
+  }
+};
+
+export const getPageSchemaByEntity = entity => {
+  const outputSchema = {
+    type: 'object',
+    properties: {
+      code: { type: 'number' },
+      data: {
+        type: 'object',
+        properties: {
+          dataSource: { type: 'array', items: { type: 'object', properties: {} } },
+          total: { type: 'number' },
+          pageNum: { type: 'number' },
+          pageSize: { type: 'number' }
+        }
+      },
+      msg: { type: 'string' },
+    },
+  };
+
+  entity?.fieldAry
+    .filter(field => field.bizType !== 'mapping' && !field.isPrivate)
+    .forEach(field => {
+      outputSchema.properties.data.properties.dataSource.items.properties[field.name] = { type: getSchemaTypeByFieldType(field) };
+    });
+
+  return outputSchema;
+};
+
+export const getSchemaByEntity = entity => {
+  const outputSchema = {
+    type: 'object',
+    properties: {
+      code: { type: 'number' },
+      data: { type: 'array', items: { type: 'object', properties: {} } },
+      msg: { type: 'string' },
+    },
+  };
+
+  entity?.fieldAry
+    .filter(field => field.bizType !== 'mapping' && !field.isPrivate)
+    .forEach(field => {
+      outputSchema.properties.data.items.properties[field.name] = { type: getSchemaTypeByFieldType(field) };
+    });
+
+  return outputSchema;
 };

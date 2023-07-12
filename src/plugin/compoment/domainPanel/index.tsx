@@ -3,7 +3,7 @@ import axios from 'axios';
 import {Modal} from 'antd';
 import {DOMAIN_PANEL_VISIBLE, exampleSQLParamsFunc, NO_PANEL_VISIBLE} from '../../../constant';
 import {getScript} from '../../../script';
-import {safeStringify, uuid} from '../../../utils';
+import {getPageSchemaByEntity, getSchemaByEntity, safeStringify, uuid} from '../../../utils';
 
 import styles from './index.less';
 
@@ -30,6 +30,13 @@ const baseOptions = {
 	type: 'domain',
 	path: '/api/system/domain/run',
 };
+const errorSchema = {
+	type: 'object',
+	properties: {
+		code: { type: 'number' },
+		msg: { type: 'string' },
+	},
+};
 export const getDomainService = (id, entity) => {
 	const input = exampleSQLParamsFunc
 		.replace('__serviceId__', entity.id)
@@ -41,6 +48,8 @@ export const getDomainService = (id, entity) => {
 		title: entity.name,
 		query: {
 			SELECT: {
+				outputSchema: getPageSchemaByEntity(entity),
+				errorSchema,
 				script: getScript({
 					...baseOptions,
 					modelType: 'domain',
@@ -48,6 +57,8 @@ export const getDomainService = (id, entity) => {
 				})
 			},
 			DELETE: {
+				outputSchema: errorSchema,
+				errorSchema,
 				script: getScript({
 					...baseOptions,
 					modelType: 'domain',
@@ -55,6 +66,8 @@ export const getDomainService = (id, entity) => {
 				})
 			},
 			UPDATE: {
+				outputSchema: errorSchema,
+				errorSchema,
 				script: getScript({
 					...baseOptions,
 					modelType: 'domain',
@@ -62,6 +75,14 @@ export const getDomainService = (id, entity) => {
 				})
 			},
 			INSERT: {
+				outputSchema: {
+					type: 'object',
+					properties: {
+						code: { type: 'number' },
+						data: { type: 'number' },
+					},
+				},
+				errorSchema,
 				script: getScript({
 					...baseOptions,
 					modelType: 'domain',
@@ -69,6 +90,8 @@ export const getDomainService = (id, entity) => {
 				})
 			},
 			SEARCH_BY_FIELD: {
+				outputSchema: getSchemaByEntity(entity),
+				errorSchema,
 				script: getScript({
 					...baseOptions,
 					modelType: 'domain',

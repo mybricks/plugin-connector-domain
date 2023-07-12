@@ -165,3 +165,21 @@ export const MarkTypes = {
 	successStatus: ['number', 'string', 'boolean'],
   error: ['any']
 };
+
+/** 字段类型 */
+export enum FieldBizType {
+  STRING = 'string',
+  NUMBER = 'number',
+  DATETIME = 'datetime',
+  JSON = 'json',
+  /** 枚举 */
+  ENUM = 'enum',
+  /** 外键，关联其他表 */
+  RELATION = 'relation',
+  /** 映射其他表 */
+  MAPPING = 'mapping',
+  /** 系统表 */
+  SYS_USER = 'SYS_USER',
+  SYS_ROLE = 'SYS_ROLE',
+  SYS_ROLE_RELATION = 'SYS_ROLE_RELATION',
+}
