@@ -1,17 +1,17 @@
-import { plus } from '../../../icon'
+import { plus } from '../../../icon';
 import React from 'react';
 import { AGGREGATION_MODEL_VISIBLE, DOMAIN_PANEL_VISIBLE } from '../../../constant';
 import Dropdown from '../../../components/Dropdown';
 
 import css from './index.less';
 
-export default function ({ ctx, setRender, setPanelVisible, blurMap, panelVisible }: any) {
-  const onAddClick = async (type = 'domain') => {
+export default function ({ ctx, setRender, setPanelVisible, blurMap, panelVisible }: AnyType) {
+	const onAddClick = async (type = 'domain') => {
 	  ctx.type = type;
 	  ctx.activeId = void 0;
 	  ctx.templateVisible = false;
 	  switch (type) {
-			/** 领域模型实体 */
+		/** 领域模型实体 */
 		  case 'domain':
 			  setPanelVisible(DOMAIN_PANEL_VISIBLE);
 			  setRender(ctx);
@@ -25,9 +25,9 @@ export default function ({ ctx, setRender, setPanelVisible, blurMap, panelVisibl
 			  setPanelVisible(DOMAIN_PANEL_VISIBLE);
 			  setRender(ctx);
 	  }
-  };
+	};
 
-  const renderAddActionList = () => {
+	const renderAddActionList = () => {
 		if (!ctx.addActions) {
 			return null;
 		}
@@ -55,18 +55,18 @@ export default function ({ ctx, setRender, setPanelVisible, blurMap, panelVisibl
 			  </div>
 		  </Dropdown>
 	  );
-  };
+	};
 
-  return (
-    <div className={css.toolbar}>
-      <div className={css.search}>
-        <input
-          type="text"
-          placeholder="请输入名称搜索模型"
-          onChange={(e) => ctx.search(e.target.value)}
-        />
-      </div>
-      {renderAddActionList()}
-    </div>
-  );
+	return (
+		<div className={css.toolbar}>
+			<div className={css.search}>
+				<input
+					type="text"
+					placeholder="请输入名称搜索模型"
+					onChange={(e) => ctx.search(e.target.value)}
+				/>
+			</div>
+			{renderAddActionList()}
+		</div>
+	);
 }

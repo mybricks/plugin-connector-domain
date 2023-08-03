@@ -12,8 +12,8 @@ function getDecodeString(fn: string) {
 function getScript(serviceItem, isTest = false) {
 	function fetch(params, { then, onError }, config) {
 		function serviceAgent(params, config) {
-			const method = `__method__`;
-			const path = `__path__`;
+			const method = '__method__';
+			const path = '__path__';
 			
 			try {
 				const url = path;
@@ -27,24 +27,24 @@ function getScript(serviceItem, isTest = false) {
 				});
 				options.method = options.method || method;
 				config
-				.ajax(options)
-				.then((response) => {
-					return response.data;
-				})
-				.then((response) => {
-					return __output__(response, Object.assign({}, options), {
-						throwStatusCodeError: (data) => {
-							onError(data);
-						},
+					.ajax(options)
+					.then((response) => {
+						return response.data;
+					})
+					.then((response) => {
+						return __output__(response, Object.assign({}, options), {
+							throwStatusCodeError: (data) => {
+								onError(data);
+							},
+						});
+					})
+					.then((response) => {
+						return __convert_response__(response);
+					})
+					.then(then)
+					.catch((error) => {
+						onError((error && error.message) || error);
 					});
-				})
-				.then((response) => {
-					return __convert_response__(response);
-				})
-				.then(then)
-				.catch((error) => {
-					onError((error && error.message) || error);
-				});
 			} catch (error) {
 				return onError(error);
 			}
@@ -53,18 +53,18 @@ function getScript(serviceItem, isTest = false) {
 	}
 	
 	let fetchString = fetch
-	.toString()
-	.replace('__input__', getDecodeString(serviceItem.input))
-	.replace('__output__', getDecodeString(serviceItem.output))
-	.replace('__method__', serviceItem.method)
-	.replace('__path__', serviceItem.path?.trim())
+		.toString()
+		.replace('__input__', getDecodeString(serviceItem.input))
+		.replace('__output__', getDecodeString(serviceItem.output))
+		.replace('__method__', serviceItem.method)
+		.replace('__path__', serviceItem.path?.trim());
 	
 	return encodeURIComponent(
 		isTest || serviceItem.modelType === 'domain'
 			? fetchString.replace('__convert_page_info__', '(() => {})')
-			.replace('__convert_response__', '(response => response)')
+				.replace('__convert_response__', '(response => response)')
 			: fetchString
-			.replace('__convert_page_info__', serviceItem.pageInfo ? `((params) => {
+				.replace('__convert_page_info__', serviceItem.pageInfo ? `((params) => {
 	        if (!params) { return; }
 	        const pageNum = params.page ? params.page.pageNum : undefined;
 	        const pageSize = params.page ? params.page.pageSize : undefined;
@@ -83,7 +83,7 @@ function getScript(serviceItem, isTest = false) {
 	        Object.assign(params, params.query || {});
 	        delete params.query;
 	      })`)
-			.replace('__convert_response__', serviceItem.markedKeymap ? `((response) => {
+				.replace('__convert_response__', serviceItem.markedKeymap ? `((response) => {
         const markedKeyMap = ${JSON.stringify(serviceItem.markedKeymap)};
         
         if (!markedKeyMap.successStatus || !Array.isArray(markedKeyMap.successStatus.path) || markedKeyMap.successStatus.value === undefined) {
@@ -118,8 +118,8 @@ function getScript(serviceItem, isTest = false) {
         }
         
         return newResponse;
-      })` : `(response => response)`)
-  );
+      })` : '(response => response)')
+	);
 }
 
 export { getScript };

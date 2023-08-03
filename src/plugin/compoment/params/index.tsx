@@ -2,15 +2,15 @@
  * 使用树形选择器完成字段映射
  */
 
-import React, {FC, useCallback} from 'react';
+import React, { FC, useCallback } from 'react';
 import Button from '../../../components/Button';
 
 import css from './index.less';
 
 interface ParamsTypeProps {
 	onDebugClick(): void;
-	params: any;
-	onChange(value: any): void;
+	params: AnyType;
+	onChange(value: AnyType): void;
 }
 
 const ParamsType: FC<ParamsTypeProps> = props => {
@@ -40,7 +40,7 @@ const ParamsType: FC<ParamsTypeProps> = props => {
 		return (
 			<div className={css.ct} key={item.id || 'root'}>
 				<div className={`${css.item} ${isRoot ? css.rootItem : ''}`}>
-					<div style={{padding: '0 10px 0 2px'}}>
+					<div style={{ padding: '0 10px 0 2px' }}>
 						{isArrayParent ? `[${item.name}]` : item.name}
 						<span className={css.typeName}>({getTypeName(item.type)})</span>
 					</div>
@@ -60,7 +60,7 @@ const ParamsType: FC<ParamsTypeProps> = props => {
 	}, [params]);
 	
 	const processAry = useCallback((item, depth) => {
-		return item.children.map((child: any) => {
+		return item.children.map((child: AnyType) => {
 			return processItem(child, item, depth);
 		});
 	}, [params]);
@@ -70,31 +70,31 @@ const ParamsType: FC<ParamsTypeProps> = props => {
 			<div className={css.content}>
 				{
 					params?.children?.length
-						? processItem({type: 'root', ...params}, {type: 'root', ...params})
+						? processItem({ type: 'root', ...params }, { type: 'root', ...params })
 						: null
 				}
 			</div>
-			<Button onClick={onDebugClick} type='primary' style={{marginTop: 12}}>
+			<Button onClick={onDebugClick} type='primary' style={{ marginTop: 12 }}>
 				连接测试
 			</Button>
 		</div>
 	);
-}
+};
 
 function getTypeName(v: string) {
-  switch (v) {
-    case 'number':
-      return '数字';
-    case 'string':
-      return '字符';
-    case 'boolean':
-      return '布尔';
-    case 'object':
-    case 'root':
-      return '对象';
-    case 'array':
-      return '列表';
-  }
+	switch (v) {
+	case 'number':
+		return '数字';
+	case 'string':
+		return '字符';
+	case 'boolean':
+		return '布尔';
+	case 'object':
+	case 'root':
+		return '对象';
+	case 'array':
+		return '列表';
+	}
 }
 
 export default ParamsType;

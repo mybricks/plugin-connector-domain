@@ -1,6 +1,6 @@
 import React, { FC } from 'react';
-import {render, unmountComponentAtNode} from 'react-dom';
-import {error, success, warning} from '../../icon';
+import { render, unmountComponentAtNode } from 'react-dom';
+import { error, success, warning } from '../../icon';
 
 import styles from './index.less';
 
@@ -39,14 +39,14 @@ export const notice = (
 const Message: FC<MessageProps> = props => {
 	const { type = 'error', message } = props;
 	
-  return message ? (
+	return message ? (
 	  <div className={styles.message}>
 		  {type === 'error' ? error : null}
 		  {type === 'warning' ? warning : null}
 		  {type === 'success' ? success : null}
 		  <span className={styles.content}>{message}</span>
 	  </div>
-  ) : null;
+	) : null;
 };
 
 export default Message;

@@ -1,12 +1,12 @@
-import React, {FC, useCallback, useEffect, useRef, useState} from 'react';
+import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import Editor from '@mybricks/code-editor';
-import Collapse from "../../../../components/Collapse";
+import Collapse from '../../../../components/Collapse';
 import RadioButton from '../../../../components/RadioBtn';
-import {fullScreen, fullScreenExit} from '../../../../icon';
-import {getEntityBySchema, getSchemaByMarkedMap, safeDecode, uuid} from '../../../../utils';
+import { fullScreen, fullScreenExit } from '../../../../icon';
+import { getEntityBySchema, getSchemaByMarkedMap, safeDecode, uuid } from '../../../../utils';
 import FormItem from '../../../../components/FormItem';
-import Input, {TextArea} from '../../../../components/Input';
-import {MarkList, MethodOpts} from '../../../../constant';
+import Input, { TextArea } from '../../../../components/Input';
+import { MarkList, MethodOpts } from '../../../../constant';
 import RequestInfo from '../request-info';
 import ProtocolInfo from '../protocol-info';
 
@@ -14,16 +14,16 @@ import parentCss from '../../../../style-cssModules.less';
 import styles from '../index.less';
 
 interface SelectProps {
-	sidebarContext: any;
-	entity: any;
-	formModel: Record<string, any>;
-	onChange(model: Record<string, any>): void;
-	onChangeEntity(entity: Record<string, any>): void;
+	sidebarContext: AnyType;
+	entity: AnyType;
+	formModel: Record<string, AnyType>;
+	onChange(model: Record<string, AnyType>): void;
+	onChangeEntity(entity: Record<string, AnyType>): void;
 }
 
 const Select: FC<SelectProps> = props => {
 	const { formModel: defaultFormModel, onChange, sidebarContext, onChangeEntity, entity } = props;
-	const [formModel, setFormModel] = useState<Record<string, any>>(defaultFormModel);
+	const [formModel, setFormModel] = useState<Record<string, AnyType>>(defaultFormModel);
 	const paramRef = useRef<HTMLDivElement>();
 	const resultRef = useRef<HTMLDivElement>();
 	const firstLoad = useRef(true);
@@ -70,7 +70,7 @@ const Select: FC<SelectProps> = props => {
 				...(model.markedKeymap ? getSchemaByMarkedMap(model.resultSchema || pre.resultSchema, model.markedKeymap) : {})
 			};
 		});
-	}, [onChangeEntity, entity, formModel])
+	}, [onChangeEntity, entity, formModel]);
 	
 	useEffect(() => {
 		if (firstLoad.current) {
@@ -80,7 +80,7 @@ const Select: FC<SelectProps> = props => {
 		onChange(formModel);
 	}, [formModel]);
 	
-  return (
+	return (
 	  <>
 		  <div className={styles.ct}>
 			  <Collapse header='基本信息' defaultFold={false}>
@@ -105,17 +105,17 @@ const Select: FC<SelectProps> = props => {
 						  className={`${styles.editor} ${styles.textEdt} ${errorMap.path ? styles.error : ''}`}
 						  data-err={errorMap.path}
 					  >
-              <textarea
-                defaultValue={formModel.path}
-                placeholder="接口的请求路径"
-                onChange={(e) => {
-                  setFormModel(model => ({ ...model, path: e.target.value }));
+							<textarea
+								defaultValue={formModel.path}
+								placeholder="接口的请求路径"
+								onChange={(e) => {
+									setFormModel(model => ({ ...model, path: e.target.value }));
 
-                  if (e.target.value) {
-                    setErrorMap(error => ({ ...error, path: '' }));
-                  }
-                }}
-              />
+									if (e.target.value) {
+										setErrorMap(error => ({ ...error, path: '' }));
+									}
+								}}
+							/>
 					  </div>
 				  </div>
 				  <div></div>
@@ -257,7 +257,7 @@ const Select: FC<SelectProps> = props => {
 			  </Collapse>
 		  </div>
 	  </>
-  );
+	);
 };
 
 export default Select;

@@ -1,4 +1,4 @@
-import React, {FC, useCallback, useState} from 'react';
+import React, { FC, useCallback, useState } from 'react';
 import FormItem from '../../../../components/FormItem';
 import Switch from '../../../../components/Switch';
 import Input from '../../../../components/Input';
@@ -24,7 +24,7 @@ const RequestInfo: FC<RequestInfoProps> = props => {
 		setShowPager(value);
 	}, [pageInfo, onChange]);
 	
-  return (
+	return (
 		<>
 			<FormItem label='开启分页'>
 				<Switch defaultChecked={showPager} onChange={onChangeShowPager} />
@@ -58,7 +58,7 @@ const RequestInfo: FC<RequestInfoProps> = props => {
 				</>
 			) : null}
 		</>
-  );
+	);
 };
 
 export default RequestInfo;

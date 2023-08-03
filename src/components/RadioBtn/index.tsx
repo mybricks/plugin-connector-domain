@@ -1,33 +1,34 @@
-import css from './index.less';
 import React, { useEffect, useState } from 'react';
 
-export default function RadioBtns({ options, binding, onChange }) {
-  const [from, key] = binding;
-  const [select, setSelect] = useState(from[key]);
-  
-  useEffect(() => {
-    setSelect(from[key])
-  }, [from[key]])
+import css from './index.less';
 
-  return (
-    <div className={css.edt}>
-      {options.map((opt) => {
-        return (
-          <div
-            key={opt.value}
-            className={`${css.opt} ${
-              opt.value === select ? css.selected : ''
-            }`}
-            onClick={() => {
-              from[key] = opt.value;
-              setSelect(opt.value);
+export default function RadioBtns({ options, binding, onChange }: AnyType) {
+	const [from, key] = binding;
+	const [select, setSelect] = useState(from[key]);
+  
+	useEffect(() => {
+		setSelect(from[key]);
+	}, [from[key]]);
+
+	return (
+		<div className={css.edt}>
+			{options.map((opt) => {
+				return (
+					<div
+						key={opt.value}
+						className={`${css.opt} ${
+							opt.value === select ? css.selected : ''
+						}`}
+						onClick={() => {
+							from[key] = opt.value;
+							setSelect(opt.value);
 							onChange?.(opt.value);
-            }}
-          >
-            {opt.title}
-          </div>
-        );
-      })}
-    </div>
-  );
+						}}
+					>
+						{opt.title}
+					</div>
+				);
+			})}
+		</div>
+	);
 }

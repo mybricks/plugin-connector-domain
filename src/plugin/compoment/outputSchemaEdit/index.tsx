@@ -16,13 +16,13 @@ import { remove } from '../../../icon';
 import css from './index.less';
 
 interface ParamsEditProps {
-	schema: any;
+	schema: AnyType;
 }
 
-const ParamsEdit: ForwardRefRenderFunction<{ getSchema(): any }, ParamsEditProps> = (props, ref) => {
+const ParamsEdit: ForwardRefRenderFunction<{ getSchema(): AnyType }, ParamsEditProps> = (props, ref) => {
 	const { schema: defaultSchema } = props;
-  const schemaRef = useRef(defaultSchema || { type: 'object', properties: {} });
-  const [schema, setSchema] = useState(defaultSchema || { type: 'object', properties: {} });
+	const schemaRef = useRef(defaultSchema || { type: 'object', properties: {} });
+	const [schema, setSchema] = useState(defaultSchema || { type: 'object', properties: {} });
 	
 	useEffect(() => {
 		schemaRef.current = schema || { type: 'object', properties: {} };
@@ -35,7 +35,7 @@ const ParamsEdit: ForwardRefRenderFunction<{ getSchema(): any }, ParamsEditProps
 		};
 	}, []);
 
-  const set = useCallback((parent, itemKey, key, val) => {
+	const set = useCallback((parent, itemKey, key, val) => {
 	  const properties = parent.type === 'array' ? parent : parent.properties;
 	  const item = properties[itemKey];
 		
@@ -62,36 +62,36 @@ const ParamsEdit: ForwardRefRenderFunction<{ getSchema(): any }, ParamsEditProps
 		}
 		
 		setSchema({ ...schemaRef.current });
-  }, []);
+	}, []);
 
-  const removeItem = (itemName, parent) => {
-    if (parent.type === 'object') {
-      delete parent.properties[itemName];
+	const removeItem = (itemName, parent) => {
+		if (parent.type === 'object') {
+			delete parent.properties[itemName];
 			setSchema({ ...schemaRef.current });
-    }
-  };
+		}
+	};
 
-  const addItem = (item) => {
+	const addItem = (item) => {
 	  if (item.type === 'object') {
 		  const name = `name${Object.keys(item.properties || {}).length + 1}`;
 		  item.properties[name] = { title: name, type: 'string' };
 		  setSchema({ ...schemaRef.current });
 	  }
-  };
+	};
 
-  const processAry = useCallback((item, xPath: string[]) => {
-    return processItem(item.items, item, [...xPath, 'items']);
-  }, []);
+	const processAry = useCallback((item, xPath: string[]) => {
+		return processItem(item.items, item, [...xPath, 'items']);
+	}, []);
 	const processObject = useCallback((item, xPath: string[], showAdder) => {
-		return Object.keys((item?.properties || {})).map((key: any, index) => {
+		return Object.keys((item?.properties || {})).map((key: AnyType, index) => {
 			return processItem(item?.properties?.[key], item, [...xPath, key], showAdder && !index);
 		});
 	}, []);
 
-  const processItem = useCallback((item, parent, xPath: string[] = [], showAdder = false) => {
+	const processItem = useCallback((item, parent, xPath: string[] = [], showAdder = false) => {
 	  if (!xPath.length) {
 	    return parent.type === 'object'? processObject(parent, xPath, true) : processAry(parent, xPath);
-    }
+		}
 	
 	  if (!item) return null;
 	  let jsx = null;
@@ -103,78 +103,78 @@ const ParamsEdit: ForwardRefRenderFunction<{ getSchema(): any }, ParamsEditProps
 		} else if (item.type === 'object') {
 			jsx = processObject(item, xPath);
 		}
-    const addAble = showAdder || (!isParentArray && item.type === 'object') || (isParentArray && itemName === 'items' && (item.type === 'object' || item.type === 'array'));
-    const removeAble = !(isParentArray && itemName === 'items');
+		const addAble = showAdder || (!isParentArray && item.type === 'object') || (isParentArray && itemName === 'items' && (item.type === 'object' || item.type === 'array'));
+		const removeAble = !(isParentArray && itemName === 'items');
 		
-    return (
-      <div key={item.id} className={css.ct}>
-        <div className={css.item}>
-          <input
-            style={{ width: 331 - (xPath.length - 1) * 20 }}
-            type='text'
-            value={isParentArray && itemName !== 'items' ? `[${itemName}]` : itemName}
-            disabled={isParentArray}
-            onChange={(e) => set(parent, itemName, 'name', e.target.value)}
-          />
-          <select
-            className={css.type}
-            value={item.type}
-            onChange={(e) => set(parent, itemName, 'type', e.target.value)}
-          >
-            <option label="字符" value="string" />
-            <option label="数字" value="number" />
-            <option label="布尔" value="boolean" />
-            <option label="对象" value="object" />
-            <option label="列表" value="array" />
-          </select>
-          <div className={`${css.operate} ${css.flex}`}>
-            {removeAble ? (
-              <span className={`${css.iconRemove}`} onClick={() => removeItem(itemName, parent)}>
-                {remove}
-              </span>
-            ) : null}
-            {addAble ? (
-              <span className={css.iconAdder} onClick={() => addItem(showAdder ? parent : item)}>
+		return (
+			<div key={item.id} className={css.ct}>
+				<div className={css.item}>
+					<input
+						style={{ width: 331 - (xPath.length - 1) * 20 }}
+						type='text'
+						value={isParentArray && itemName !== 'items' ? `[${itemName}]` : itemName}
+						disabled={isParentArray}
+						onChange={(e) => set(parent, itemName, 'name', e.target.value)}
+					/>
+					<select
+						className={css.type}
+						value={item.type}
+						onChange={(e) => set(parent, itemName, 'type', e.target.value)}
+					>
+						<option label="字符" value="string" />
+						<option label="数字" value="number" />
+						<option label="布尔" value="boolean" />
+						<option label="对象" value="object" />
+						<option label="列表" value="array" />
+					</select>
+					<div className={`${css.operate} ${css.flex}`}>
+						{removeAble ? (
+							<span className={`${css.iconRemove}`} onClick={() => removeItem(itemName, parent)}>
+								{remove}
+							</span>
+						) : null}
+						{addAble ? (
+							<span className={css.iconAdder} onClick={() => addItem(showAdder ? parent : item)}>
                 +
-              </span>
-            ) : null}
-          </div>
-        </div>
-        {jsx}
-      </div>
-    );
-  }, []);
+							</span>
+						) : null}
+					</div>
+				</div>
+				{jsx}
+			</div>
+		);
+	}, []);
 	
-  return (
-    <>
-      {schema ? (
-        <div>
-          {!Object.keys(schema?.properties || schema.items.properties || {}).length ? (
-            <div className={css.adder}>
-              <span style={{ cursor: 'pointer' }} onClick={() => addItem(schema)}>
+	return (
+		<>
+			{schema ? (
+				<div>
+					{!Object.keys(schema?.properties || schema.items.properties || {}).length ? (
+						<div className={css.adder}>
+							<span style={{ cursor: 'pointer' }} onClick={() => addItem(schema)}>
                 +
-              </span>
-            </div>
-          ) : (
-            <>
-              <div className={css.header}>
-                <p className={css.fieldName}>字段名</p>
-                <p className={css.type}>类型</p>
-                <p className={css.operate}>操作</p>
-              </div>
-              <div className={css.content}>
+							</span>
+						</div>
+					) : (
+						<>
+							<div className={css.header}>
+								<p className={css.fieldName}>字段名</p>
+								<p className={css.type}>类型</p>
+								<p className={css.operate}>操作</p>
+							</div>
+							<div className={css.content}>
 	              <div className={css.list}>
-                  {processItem(schema, schema)}
+									{processItem(schema, schema)}
 	              </div>
-              </div>
-            </>
-          )}
-        </div>
-      ) : (
-        <div className={css.empty}>类型无效</div>
-      )}
-    </>
-  );
-}
+							</div>
+						</>
+					)}
+				</div>
+			) : (
+				<div className={css.empty}>类型无效</div>
+			)}
+		</>
+	);
+};
 
 export default forwardRef(ParamsEdit);
