@@ -1,69 +1,69 @@
-import React, {ReactNode, useCallback, useEffect, useRef, useState} from 'react';
+import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
-import {AGGREGATION_MODEL_VISIBLE, exampleParamsFunc, exampleResultFunc, NO_PANEL_VISIBLE,} from '../constant';
+import { AGGREGATION_MODEL_VISIBLE, exampleParamsFunc, exampleResultFunc, NO_PANEL_VISIBLE, } from '../constant';
 import css from '../style-cssModules.less';
-import {formatDate} from '../utils/moment';
+import { formatDate } from '../utils/moment';
 import Toolbar from './compoment/toolbar';
-import {arrowR, edit, refresh, remove} from '../icon';
-import DomainPanel, {ActionMessage, checkDomainModel, getDomainBundle, getDomainService} from './compoment/domainPanel';
+import { arrowR, edit, refresh, remove } from '../icon';
+import DomainPanel, { ActionMessage, checkDomainModel, getDomainBundle, getDomainService } from './compoment/domainPanel';
 import AggregationModel from './compoment/aggregation-model';
 import Loading from './compoment/loading';
-import {notice} from '../components/Message';
+import { notice } from '../components/Message';
 
 interface IProps {
   domainModel: IDomainModel;
   callServiceUrl?: string;
-  addActions?: any[];
+  addActions?: AnyType[];
   data: {
-	  domainModels: any[];
+	  domainModels: AnyType[];
     config: { paramsFn: string; resultFn?: string };
   };
 	openFileSelector?(): Promise<unknown>;
 }
 
 interface IDomainModel {
-  add: (params: any) => null;
+  add: (params: AnyType) => null;
   remove: (id: number | string) => null;
-  update: (params: any) => null;
-  test: (...args: any) => any;
+  update: (params: AnyType) => null;
+  test: (...args: AnyType) => AnyType;
 }
 
 export default function Sidebar({
-  addActions,
-  domainModel,
-  data,
+	addActions,
+	domainModel,
+	data,
 	openFileSelector = () => Promise.resolve(null),
 }: IProps) {
 	const ref = useRef<HTMLDivElement>(null);
-  const blurMap = useRef<Record<string, () => void>>({});
-  const [searchValue, setSearchValue] = useState('');
-  const [shouldUpdateDomainMap, setShouldUpdateDomainMap] = useState<Record<string, string>>({});
-  const [panelVisible, setPanelVisible] = useState(NO_PANEL_VISIBLE);
-  const [sidebarContext, setContext] = useState<any>({
+	const blurMap = useRef<Record<string, () => void>>({});
+	const [searchValue, setSearchValue] = useState('');
+	const [shouldUpdateDomainMap, setShouldUpdateDomainMap] = useState<Record<string, string>>({});
+	const [panelVisible, setPanelVisible] = useState(NO_PANEL_VISIBLE);
+	const [sidebarContext, setContext] = useState<AnyType>({
 	  openFileSelector,
-    eidtVisible: false,
-    activeId: '',
-    type: '',
-    isDebug: false,
-    leftWidth: 271,
-    addActions: Array.isArray(addActions)
-      ? addActions
-      : [{ type: 'domain', title: '领域模型' }, { type: 'aggregation-model', title: '聚合模型' }],
-    domainModel: {
-      add: (args: any) => domainModel.add({ ...args }),
-      remove: (id: string) => domainModel.remove(id),
-      update: (args: any) => {
-        domainModel.update({ ...args });
-      },
-      test: (...args: any) => domainModel.test(...args),
-    },
-    search: (v: string) => {
-      setSearchValue(v);
-    },
-  });
-	const [cueEditModel, setCurEditModel] = useState<any>(undefined);
+		eidtVisible: false,
+		activeId: '',
+		type: '',
+		isDebug: false,
+		leftWidth: 271,
+		addActions: Array.isArray(addActions)
+			? addActions
+			: [{ type: 'domain', title: '领域模型' }, { type: 'aggregation-model', title: '聚合模型' }],
+		domainModel: {
+			add: (args: AnyType) => domainModel.add({ ...args }),
+			remove: (id: string) => domainModel.remove(id),
+			update: (args: AnyType) => {
+				domainModel.update({ ...args });
+			},
+			test: (...args: AnyType) => domainModel.test(...args),
+		},
+		search: (v: string) => {
+			setSearchValue(v);
+		},
+	});
+	const [cueEditModel, setCurEditModel] = useState<AnyType>(undefined);
 	
-  const updateService = useCallback((action: string, serviceItem: any) => {
+	const updateService = useCallback((action: string, serviceItem: AnyType) => {
 	  if (action === 'create') {
 		  /** 领域模型插件内数据 */
 		  data.domainModels.push(serviceItem);
@@ -79,36 +79,36 @@ export default function Sidebar({
 	  }
 	}, [sidebarContext]);
 
-  const removeService = useCallback((item: any) => {
-    return new Promise((resolve) => {
-      const index = data.domainModels.findIndex((service) => {
-        return String(service.id) === String(item.id);
-      });
-      data.domainModels.splice(index, 1);
-      try {
-        sidebarContext.domainModel.remove(item.id);
-      } catch (error) {}
-      resolve('');
-    });
-  }, []);
+	const removeService = useCallback((item: AnyType) => {
+		return new Promise((resolve) => {
+			const index = data.domainModels.findIndex((service) => {
+				return String(service.id) === String(item.id);
+			});
+			data.domainModels.splice(index, 1);
+			try {
+				sidebarContext.domainModel.remove(item.id);
+			} catch (error) {}
+			resolve('');
+		});
+	}, []);
 
-  const setRender = useCallback((value: any) => {
-    setContext((ctx: any) => ({ ...ctx, ...value }));
-  }, []);
+	const setRender = useCallback((value: AnyType) => {
+		setContext((ctx: AnyType) => ({ ...ctx, ...value }));
+	}, []);
 
-  const onRemoveItem = useCallback(async (item) => {
-    if (confirm(`确认删除 ${item.title} 吗`)) {
-      await removeService(item);
+	const onRemoveItem = useCallback(async (item) => {
+		if (confirm(`确认删除 ${item.title} 吗`)) {
+			await removeService(item);
 			setPanelVisible(NO_PANEL_VISIBLE);
-    }
-  }, [sidebarContext]);
+		}
+	}, [sidebarContext]);
 
-  const onEditItem = useCallback((item) => {
+	const onEditItem = useCallback((item) => {
 	  setPanelVisible(AGGREGATION_MODEL_VISIBLE);
 		setCurEditModel(item);
-  }, [sidebarContext]);
+	}, [sidebarContext]);
 
-  const onRefreshItem = useCallback((item) => {
+	const onRefreshItem = useCallback((item) => {
 		getDomainBundle(item.query.entity.domainFileId).then((entityList: Array<Record<string, unknown>>) => {
 			const entity = entityList.find(entity => entity.id === item.query.entity.id && entity.isOpen);
 
@@ -128,26 +128,26 @@ export default function Sidebar({
 				notice('实体刷新成功~', { type: 'success' });
 			}
 		});
-  }, [sidebarContext, shouldUpdateDomainMap, updateService]);
+	}, [sidebarContext, shouldUpdateDomainMap, updateService]);
 	
 	const onClose = useCallback(() => {
 		setPanelVisible(NO_PANEL_VISIBLE);
 		setCurEditModel(undefined);
 	}, []);
 
-  const onItemClick = useCallback((e: any, item: any) => {
-    if (item.id === sidebarContext.expandId) {
-      sidebarContext.expandId = 0;
-      setRender(sidebarContext);
-      return;
-    }
-    sidebarContext.expandId = item.id;
-    setRender(sidebarContext);
-  }, [setRender, sidebarContext]);
+	const onItemClick = useCallback((e: AnyType, item: AnyType) => {
+		if (item.id === sidebarContext.expandId) {
+			sidebarContext.expandId = 0;
+			setRender(sidebarContext);
+			return;
+		}
+		sidebarContext.expandId = item.id;
+		setRender(sidebarContext);
+	}, [setRender, sidebarContext]);
 
-  const renderAddActions = useCallback(() => {
-    return sidebarContext.addActions.filter(action => !['aggregation-model'].includes(action.type))
-      .map(({ type, visible, render: Component }: any) => {
+	const renderAddActions = useCallback(() => {
+		return sidebarContext.addActions.filter(action => !['aggregation-model'].includes(action.type))
+			.map(({ type, visible, render: Component }: AnyType) => {
 				let node: ReactNode = Component ? ReactDOM.createPortal(
 					panelVisible & visible ? (
 						<div
@@ -174,12 +174,12 @@ export default function Sidebar({
 							key="domain"
 							data={data}
 						/>
-					)
+					);
 				}
 				
 	      return node;
-      });
-  }, [sidebarContext, panelVisible, updateService, onClose, data]);
+			});
+	}, [sidebarContext, panelVisible, updateService, onClose, data]);
 	
 	useEffect(() => {
 		const domainService = data.domainModels.filter(item => item.type === 'domain');
@@ -189,10 +189,10 @@ export default function Sidebar({
 			const shouldUpdateDomainMap: Record<string, string> = {};
 			promises.push(...domainService.map((item) => {
 				return getDomainBundle(item.query.entity.domainFileId)
-				.then((entityList: Array<Record<string, unknown>>) => {
-					shouldUpdateDomainMap[item.query.entity.domainFileId + item.query.entity.id] =
+					.then((entityList: Array<Record<string, unknown>>) => {
+						shouldUpdateDomainMap[item.query.entity.domainFileId + item.query.entity.id] =
 						checkDomainModel(entityList.find(entity => entity.id === item.query.entity.id && entity.isOpen), item.query.entity);
-				});
+					});
 			}));
 			
 			Promise.all(promises).then(() => {
@@ -201,28 +201,28 @@ export default function Sidebar({
 		}
 	}, []);
 
-  return (
-    <>
-      <div
-        ref={ref}
-        data-id="active-plugin-panel"
-        className={`${css['sidebar-panel']} ${css['sidebar-panel-open']}`}
-        onClick={() => Object.values(blurMap.current).forEach(fn => fn())}
-      >
-        <div className={`${css['sidebar-panel-view']}`}>
-          <div className={css['sidebar-panel-header']}>
-            <div className={css['sidebar-panel-header__title']}>
-              <span>模型列表</span>
-            </div>
-            <Toolbar
+	return (
+		<>
+			<div
+				ref={ref}
+				data-id="active-plugin-panel"
+				className={`${css['sidebar-panel']} ${css['sidebar-panel-open']}`}
+				onClick={() => Object.values(blurMap.current).forEach(fn => fn())}
+			>
+				<div className={`${css['sidebar-panel-view']}`}>
+					<div className={css['sidebar-panel-header']}>
+						<div className={css['sidebar-panel-header__title']}>
+							<span>模型列表</span>
+						</div>
+						<Toolbar
 	            blurMap={blurMap.current}
-              searchValue={searchValue}
-              ctx={sidebarContext}
-              setRender={setRender}
+							searchValue={searchValue}
+							ctx={sidebarContext}
+							setRender={setRender}
 	            setPanelVisible={setPanelVisible}
 	            panelVisible={panelVisible}
-            />
-          </div>
+						/>
+					</div>
 	        {data ? (
 		        <div className={css['sidebar-panel-list']}>
 			        {
@@ -231,9 +231,9 @@ export default function Sidebar({
 				        .map((item) => {
 					        const expand = sidebarContext.expandId === item.id;
 					        item.updateTime = formatDate(item.updateTime || item.createTime);
-									const action = item.type === 'domain'
-										? shouldUpdateDomainMap[item.query.entity.domainFileId + item.query.entity.id]
-										: undefined;
+										const action = item.type === 'domain'
+											? shouldUpdateDomainMap[item.query.entity.domainFileId + item.query.entity.id]
+											: undefined;
 					
 					        return (
 						        <div key={item.id}>
@@ -298,8 +298,8 @@ export default function Sidebar({
 			        }
 		        </div>
 	        ) : <Loading />}
-        </div>
-        {renderAddActions()}
+				</div>
+				{renderAddActions()}
 	      {panelVisible & AGGREGATION_MODEL_VISIBLE ? (
 		      <AggregationModel
 			      panelVisible={panelVisible}
@@ -311,7 +311,7 @@ export default function Sidebar({
 			      style={{ top: ref.current?.getBoundingClientRect().top }}
 		      />
 	      ) : null}
-      </div>
-    </>
-  );
+			</div>
+		</>
+	);
 }

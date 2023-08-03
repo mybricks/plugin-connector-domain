@@ -1,22 +1,22 @@
-import React, {FC, useCallback, useRef, useState} from 'react';
-import {formatSchema, getDecodeString, jsonToSchema, params2data} from '../../../../utils';
+import React, { FC, useCallback, useRef, useState } from 'react';
+import { formatSchema, getDecodeString, jsonToSchema, params2data } from '../../../../utils';
 import FormItem from '../../../../components/FormItem';
 import ParamsEdit from '../../paramsEdit';
 import Button from '../../../../components/Button';
 import OutputSchemaEdit from '../../outputSchemaEdit';
 import ReturnSchema from '../../returnSchema';
 import ParamsType from '../../params';
-import {getScript} from '../../../../script';
-import {notice} from '../../../../components/Message';
-import {MarkTypeLabel, MarkTypes} from '../../../../constant';
+import { getScript } from '../../../../script';
+import { notice } from '../../../../components/Message';
+import { MarkTypeLabel, MarkTypes } from '../../../../constant';
 
 interface ProtocolInfoProps {
-	sidebarContext: any;
-	formModel: any;
+	sidebarContext: AnyType;
+	formModel: AnyType;
 	
 	markList: Array<Record<string, unknown>>;
 	validate(): boolean;
-	onChange(model: any): void;
+	onChange(model: AnyType): void;
 }
 
 const ProtocolInfo: FC<ProtocolInfoProps> = props => {
@@ -35,7 +35,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 			    type: 'aggregation-model',
 			    mode: 'test',
 			    id: formModel.id,
-			    script: getDecodeString(getScript({ ...formModel, path: formModel.path?.trim(),}, true)),
+			    script: getDecodeString(getScript({ ...formModel, path: formModel.path?.trim(), }, true)),
 			  },
 				'',
 			  params
@@ -77,7 +77,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 			}
 
 			onChange({ resultSchema, markedKeymap });
-		} catch (error: any) {
+		} catch (error: AnyType) {
 			console.log(error);
 			onChange({ resultSchema: undefined, markedKeymap: undefined });
 			setError(error?.message || error);
@@ -145,7 +145,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 				<>
 					<FormItem label='返回数据'>
 						{formModel.resultSchema ? (
-							<Button style={{margin: 0, marginBottom: 6}} onClick={saveSchema}>
+							<Button style={{ margin: 0, marginBottom: 6 }} onClick={saveSchema}>
 								保存
 							</Button>
 						) : null}
@@ -156,7 +156,7 @@ const ProtocolInfo: FC<ProtocolInfoProps> = props => {
 				<>
 					<FormItem label='返回数据'>
 						{formModel.resultSchema ? (
-							<Button style={{margin: 0, marginBottom: 6}} onClick={editSchema}>
+							<Button style={{ margin: 0, marginBottom: 6 }} onClick={editSchema}>
 								编辑
 							</Button>
 						) : null}

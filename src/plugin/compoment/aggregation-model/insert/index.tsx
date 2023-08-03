@@ -1,28 +1,28 @@
-import React, {FC, useCallback, useEffect, useRef, useState} from 'react';
+import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import Editor from '@mybricks/code-editor';
 import Collapse from '../../../../components/Collapse';
 import RadioButton from '../../../../components/RadioBtn';
-import {fullScreen, fullScreenExit} from '../../../../icon';
-import {getSchemaByMarkedMap, safeDecode} from '../../../../utils';
+import { fullScreen, fullScreenExit } from '../../../../icon';
+import { getSchemaByMarkedMap, safeDecode } from '../../../../utils';
 import FormItem from '../../../../components/FormItem';
-import Input, {TextArea} from '../../../../components/Input';
-import {MethodOpts, ResponseMarkList} from '../../../../constant';
+import Input, { TextArea } from '../../../../components/Input';
+import { MethodOpts, ResponseMarkList } from '../../../../constant';
 import ProtocolInfo from '../protocol-info';
 
 import parentCss from '../../../../style-cssModules.less';
 import styles from '../index.less';
 
 interface InsertProps {
-	sidebarContext: any;
-	entity: any;
-	formModel: Record<string, any>;
-	onChange(model: Record<string, any>): void;
-	onChangeEntity(entity: Record<string, any>): void;
+	sidebarContext: AnyType;
+	entity: AnyType;
+	formModel: Record<string, AnyType>;
+	onChange(model: Record<string, AnyType>): void;
+	onChangeEntity(entity: Record<string, AnyType>): void;
 }
 
 const Insert: FC<InsertProps> = props => {
-	const { formModel: defaultFormModel, onChange, sidebarContext, onChangeEntity, entity } = props;
-	const [formModel, setFormModel] = useState<Record<string, any>>(defaultFormModel);
+	const { formModel: defaultFormModel, onChange, sidebarContext } = props;
+	const [formModel, setFormModel] = useState<Record<string, AnyType>>(defaultFormModel);
 	const paramRef = useRef<HTMLDivElement>();
 	const resultRef = useRef<HTMLDivElement>();
 	const firstLoad = useRef(true);
@@ -55,7 +55,7 @@ const Insert: FC<InsertProps> = props => {
 				...(model.markedKeymap ? getSchemaByMarkedMap(model.resultSchema || pre.resultSchema, model.markedKeymap) : {})
 			};
 		});
-	}, [])
+	}, []);
 	
 	useEffect(() => {
 		if (firstLoad.current) {
@@ -90,7 +90,7 @@ const Insert: FC<InsertProps> = props => {
 							className={`${styles.editor} ${styles.textEdt} ${errorMap.path ? styles.error : ''}`}
 							data-err={errorMap.path}
 						>
-              <textarea
+							<textarea
 	              defaultValue={formModel.path}
 	              placeholder="接口的请求路径"
 	              onChange={(e) => {
@@ -100,7 +100,7 @@ const Insert: FC<InsertProps> = props => {
 			              setErrorMap(error => ({ ...error, path: '' }));
 		              }
 	              }}
-              />
+							/>
 						</div>
 					</div>
 					<div></div>

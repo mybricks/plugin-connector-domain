@@ -1,4 +1,4 @@
-import React, {CSSProperties, FC, useCallback, useMemo, useRef, useState} from 'react';
+import React, { CSSProperties, FC, useCallback, useMemo, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
 import Button from '../../../components/Button';
 import {
@@ -8,21 +8,21 @@ import {
 } from '../../../constant';
 import Select from './select';
 import Insert from './insert';
-import {uuid} from '../../../utils';
-import {getScript} from '../../../script';
-import {notice} from '../../../components/Message';
-import {cloneDeep} from '../../../utils/lodash';
-import {AggregationPanelContext} from './context';
+import { uuid } from '../../../utils';
+import { getScript } from '../../../script';
+import { notice } from '../../../components/Message';
+import { cloneDeep } from '../../../utils/lodash';
+import { AggregationPanelContext } from './context';
 
 import styles from './index.less';
 
 interface AggregationModelProps {
-	sidebarContext: any;
+	sidebarContext: AnyType;
 	style: CSSProperties;
 	panelVisible: number;
-	initialModel?: any;
+	initialModel?: AnyType;
 	onClose(): void;
-	updateService(action: string, entity: any): void;
+	updateService(action: string, entity: AnyType): void;
 }
 const tabList = [
 	{ name: '查询', key: 'SELECT' },
@@ -66,7 +66,7 @@ const INIT_QUERY = {
 const AggregationModel: FC<AggregationModelProps> = props => {
 	const { panelVisible, style, onClose, updateService, initialModel, sidebarContext } = props;
 	const [activeTab, setActiveTab] = useState('SELECT');
-	const blurMapRef = useRef<any>({});
+	const blurMapRef = useRef<AnyType>({});
 	const [model, setModel] = useState(cloneDeep(initialModel) || {
 		id: uuid(),
 		title: '',
@@ -80,7 +80,7 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 	}, []);
 
 	const onBlurAll = () => {
-		Object.values(blurMapRef.current).forEach((blur: any) => blur?.());
+		Object.values(blurMapRef.current).forEach((blur: AnyType) => blur?.());
 	};
 	
 	const onSave = useCallback(() => {
@@ -117,7 +117,7 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 					entity={model.query.entity}
 					formModel={model.query.SELECT}
 					onChangeEntity={entity => setModel(model => ({ ...model, query: { ...model.query, entity } }))}
-					onChange={(select: any) => {
+					onChange={(select: AnyType) => {
 						setModel(model => {
 							let abilitySet = model.query.abilitySet || [];
 							
@@ -150,7 +150,7 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 					entity={model.query.entity}
 					formModel={model.query[activeTab]}
 					onChangeEntity={entity => setModel(model => ({ ...model, query: { ...model.query, entity } }))}
-					onChange={(insert: any) => {
+					onChange={(insert: AnyType) => {
 						setModel(model => {
 							let abilitySet = model.query.abilitySet || [];
 							
@@ -212,7 +212,7 @@ const AggregationModel: FC<AggregationModelProps> = props => {
 		  </div>
 	  ) : null,
 	  document.body
-  );
+	);
 };
 
 export default AggregationModel;

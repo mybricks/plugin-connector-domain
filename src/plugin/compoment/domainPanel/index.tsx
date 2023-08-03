@@ -1,18 +1,18 @@
-import React, {FC, useCallback, useEffect, useRef, useState} from 'react';
+import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
-import {Modal} from 'antd';
-import {DOMAIN_PANEL_VISIBLE, exampleSQLParamsFunc, NO_PANEL_VISIBLE} from '../../../constant';
-import {getScript} from '../../../script';
-import {getPageSchemaByEntity, getSchemaByEntity, safeStringify, uuid} from '../../../utils';
+import { Modal } from 'antd';
+import { DOMAIN_PANEL_VISIBLE, exampleSQLParamsFunc, NO_PANEL_VISIBLE } from '../../../constant';
+import { getScript } from '../../../script';
+import { getPageSchemaByEntity, getSchemaByEntity, safeStringify, uuid } from '../../../utils';
 
 import styles from './index.less';
 
 interface DomainPanelProps {
 	onClose(): void;
-	sidebarContext: any;
+	sidebarContext: AnyType;
 	panelVisible: number;
-	updateService(action: string, entity: any): void;
-	data: any;
+	updateService(action: string, entity: AnyType): void;
+	data: AnyType;
 }
 
 interface Entity {
@@ -21,11 +21,11 @@ interface Entity {
 	isSystem: boolean;
 	domainFileId: number;
 	domainFileName: string;
-	[key: string]: any;
+	[key: string]: AnyType;
 }
 
 const baseOptions = {
-	output: encodeURIComponent(`export default function (result, { method, url, params, data, headers }) { return result; }`),
+	output: encodeURIComponent('export default function (result, { method, url, params, data, headers }) { return result; }'),
 	method: 'POST',
 	type: 'domain',
 	path: '/api/system/domain/run',
@@ -173,7 +173,7 @@ const DomainPanel: FC<DomainPanelProps> = props => {
 		setSelectedEntityList((entityList => {
 			entityList.forEach(item => {
 				updateService('create', getDomainService(item.id, { ...item, id: item.entityId }));
-			})
+			});
 			return [];
 		}));
 
@@ -199,16 +199,16 @@ const DomainPanel: FC<DomainPanelProps> = props => {
 				setDomainFile(null);
 			}
 			sidebarContext.openFileSelector?.()
-			.then(file => {
-				domainFileRef.current = file;
-				setDomainFile(file);
-				setEntityList([]);
+				.then(file => {
+					domainFileRef.current = file;
+					setDomainFile(file);
+					setEntityList([]);
 				
-				file && getBundle(file.id);
-			})
-			.finally(() => {
-				onClose();
-			});
+					file && getBundle(file.id);
+				})
+				.finally(() => {
+					onClose();
+				});
 		} else if (panelVisible !== NO_PANEL_VISIBLE) {
 			domainFileRef.current = null;
 			setDomainFile(null);
