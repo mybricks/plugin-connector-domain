@@ -24,12 +24,6 @@ interface Entity {
 	[key: string]: AnyType;
 }
 
-const baseOptions = {
-	output: encodeURIComponent('export default function (result, { method, url, params, data, headers }) { return result; }'),
-	method: 'POST',
-	type: 'domain',
-	path: '/api/system/domain/run',
-};
 const errorSchema = {
 	type: 'object',
 	properties: {
@@ -37,66 +31,97 @@ const errorSchema = {
 		msg: { type: 'string' },
 	},
 };
+
+const resultSchema = {
+	type: 'object',
+	properties: {
+		code: { type: 'number' },
+		data: { type: 'number' },
+		msg: { type: 'string' },
+	},
+};
+
+const markedKeymap = {
+	successStatus: { path: ['code'], value: 1 },
+	response: { path: ['data'] },
+	error: { path: ['msg'] },
+};
+
 export const getDomainService = (id, entity) => {
 	const input = exampleSQLParamsFunc
 		.replace('__serviceId__', entity.id)
 		.replace('__fileId__', String(entity.domainFileId));
-	
+
+	const getBaseOptions = (type: string) => {
+		return {
+			method: 'POST',
+			type: 'domain',
+			path: '/api/system/domain/run',
+			input: encodeURIComponent(input.replace('__action__', type)),
+			output: encodeURIComponent('export default function (result, { method, url, params, data, headers }) { return result; }'),
+		};
+	};
+
 	return {
 		id,
 		type: 'domain',
 		title: entity.name,
 		query: {
 			SELECT: {
+				...getBaseOptions('SELECT'),
+				title: entity.name + '的查询接口',
 				outputSchema: getPageSchemaByEntity(entity),
-				errorSchema,
-				script: getScript({
-					...baseOptions,
-					modelType: 'domain',
-					input: decodeURIComponent(input.replace('__action__', 'SELECT'))
-				})
-			},
-			DELETE: {
-				outputSchema: errorSchema,
-				errorSchema,
-				script: getScript({
-					...baseOptions,
-					modelType: 'domain',
-					input: decodeURIComponent(input.replace('__action__', 'DELETE'))
-				})
-			},
-			UPDATE: {
-				outputSchema: errorSchema,
-				errorSchema,
-				script: getScript({
-					...baseOptions,
-					modelType: 'domain',
-					input: decodeURIComponent(input.replace('__action__', 'UPDATE'))
-				})
-			},
-			INSERT: {
-				outputSchema: {
-					type: 'object',
-					properties: {
-						code: { type: 'number' },
-						data: { type: 'number' },
-					},
+				resultSchema: getPageSchemaByEntity(entity),
+				markedKeymap: {
+					successStatus: { path: ['code'], value: 1 },
+					dataSource: { path: ['data', 'dataSource'] },
+					total: { path: ['data', 'total'] },
+					pageNum: { path: ['data', 'pageNum'] },
+					pageSize: { path: ['data', 'pageSize'] },
+					error: { path: ['msg'] },
+				},
+				pageInfo: {
+					pageNumKey: 'pageNum',
+					pageSizeKey: 'pageSize'
 				},
 				errorSchema,
-				script: getScript({
-					...baseOptions,
-					modelType: 'domain',
-					input: decodeURIComponent(input.replace('__action__', 'INSERT'))
-				})
+				script: getScript({ ...getBaseOptions('SELECT'), modelType: 'domain' })
+			},
+			DELETE: {
+				...getBaseOptions('DELETE'),
+				title: entity.name + '的删除接口',
+				outputSchema: resultSchema,
+				resultSchema,
+				errorSchema,
+				markedKeymap,
+				script: getScript({ ...getBaseOptions('DELETE'), modelType: 'domain' })
+			},
+			UPDATE: {
+				...getBaseOptions('UPDATE'),
+				title: entity.name + '的更新接口',
+				outputSchema: resultSchema,
+				errorSchema,
+				resultSchema,
+				markedKeymap,
+				script: getScript({ ...getBaseOptions('UPDATE'), modelType: 'domain' })
+			},
+			INSERT: {
+				...getBaseOptions('INSERT'),
+				title: entity.name + '的新建接口',
+				outputSchema: resultSchema,
+				resultSchema,
+				markedKeymap,
+				errorSchema,
+				script: getScript({ ...getBaseOptions('INSERT'), modelType: 'domain' })
 			},
 			SEARCH_BY_FIELD: {
+				...getBaseOptions('SEARCH_BY_FIELD'),
+				title: entity.name + '的关联字段检索接口',
 				outputSchema: getSchemaByEntity(entity),
+				resultSchema: getSchemaByEntity(entity),
 				errorSchema,
-				script: getScript({
-					...baseOptions,
-					modelType: 'domain',
-					input: decodeURIComponent(input.replace('__action__', 'SEARCH_BY_FIELD'))
-				})
+				markedKeymap,
+				script: getScript({ ...getBaseOptions('SEARCH_BY_FIELD'), modelType: 'domain' })
 			},
 			abilitySet: ['SELECT', 'DELETE', 'UPDATE', 'INSERT', 'SEARCH_BY_FIELD', 'PAGE'],
 			entity: entity,

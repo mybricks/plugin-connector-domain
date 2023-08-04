@@ -1,6 +1,12 @@
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { AGGREGATION_MODEL_VISIBLE, exampleParamsFunc, exampleResultFunc, NO_PANEL_VISIBLE, } from '../constant';
+import {
+	AGGREGATION_MODEL_VISIBLE,
+	DOMAIN_PANEL_VISIBLE,
+	exampleParamsFunc,
+	exampleResultFunc,
+	NO_PANEL_VISIBLE,
+} from '../constant';
 import css from '../style-cssModules.less';
 import { formatDate } from '../utils/moment';
 import Toolbar from './compoment/toolbar';
@@ -9,6 +15,7 @@ import DomainPanel, { ActionMessage, checkDomainModel, getDomainBundle, getDomai
 import AggregationModel from './compoment/aggregation-model';
 import Loading from './compoment/loading';
 import { notice } from '../components/Message';
+import DomainEditModel from './compoment/domain-edit-model';
 
 interface IProps {
   domainModel: IDomainModel;
@@ -61,10 +68,10 @@ export default function Sidebar({
 			setSearchValue(v);
 		},
 	});
-	const [cueEditModel, setCurEditModel] = useState<AnyType>(undefined);
+	const [curEditModel, setCurEditModel] = useState<AnyType>(undefined);
 	
 	const updateService = useCallback((action: string, serviceItem: AnyType) => {
-	  if (action === 'create') {
+		if (action === 'create') {
 		  /** 领域模型插件内数据 */
 		  data.domainModels.push(serviceItem);
 		  /** 设计器内领域模型数据，用以支持组件选择到对应模型 */
@@ -104,7 +111,7 @@ export default function Sidebar({
 	}, [sidebarContext]);
 
 	const onEditItem = useCallback((item) => {
-	  setPanelVisible(AGGREGATION_MODEL_VISIBLE);
+	  setPanelVisible(item.type === 'aggregation-model' ? AGGREGATION_MODEL_VISIBLE : DOMAIN_PANEL_VISIBLE);
 		setCurEditModel(item);
 	}, [sidebarContext]);
 
@@ -165,7 +172,16 @@ export default function Sidebar({
 				) : null;
 				
 				if (type === 'domain') {
-					node = (
+					node = curEditModel ? (
+						<DomainEditModel
+							sidebarContext={sidebarContext}
+							onClose={onClose}
+							initialModel={curEditModel}
+							updateService={updateService}
+							key="domain"
+							style={{ top: ref.current?.getBoundingClientRect().top }}
+						/>
+					) : (
 						<DomainPanel
 							sidebarContext={sidebarContext}
 							panelVisible={panelVisible}
@@ -179,7 +195,7 @@ export default function Sidebar({
 				
 	      return node;
 			});
-	}, [sidebarContext, panelVisible, updateService, onClose, data]);
+	}, [sidebarContext, panelVisible, updateService, onClose, data, curEditModel]);
 	
 	useEffect(() => {
 		const domainService = data.domainModels.filter(item => item.type === 'domain');
@@ -252,7 +268,6 @@ export default function Sidebar({
 										        </div>
 									        </div>
 									        <div className={css['sidebar-panel-list-item__right']}>
-										        <div></div>
 										        {item.type === 'domain' ? (
 											        <div
 												        data-mybricks-tip={ActionMessage[action] || '刷新领域模型实体'}
@@ -262,10 +277,12 @@ export default function Sidebar({
 												        {refresh}
 											        </div>
 											        ) : (
-											        <div data-mybricks-tip="编辑" className={css.action} onClick={() => onEditItem(item)}>
-												        {edit}
-											        </div>
-										        )}
+																<svg viewBox="0 0 1024 1024" width="1em" height="1em" fill="currentColor">
+																</svg>
+															)}
+															<div data-mybricks-tip="编辑" className={css.action} onClick={() => onEditItem(item)}>
+																{edit}
+															</div>
 										        <div className={css.action} data-mybricks-tip="删除" onClick={() => onRemoveItem(item)}>
 											        {remove}
 										        </div>
@@ -305,7 +322,7 @@ export default function Sidebar({
 			      panelVisible={panelVisible}
 			      sidebarContext={sidebarContext}
 			      onClose={onClose}
-			      initialModel={cueEditModel}
+			      initialModel={curEditModel}
 			      updateService={updateService}
 			      key="aggregation-model"
 			      style={{ top: ref.current?.getBoundingClientRect().top }}
