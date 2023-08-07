@@ -119,7 +119,9 @@ export default function Sidebar({
 		getDomainBundle(item.query.entity.domainFileId).then((entityList: Array<Record<string, unknown>>) => {
 			const entity = entityList.find(entity => entity.id === item.query.entity.id && entity.isOpen);
 
-			if (!entity) {
+			if (item.query.edited) {
+				notice('模型已被修改，无法自动刷新实体~');
+			} else if (!entity) {
 				notice('对应模型中实体已删除 或 未开放领域服务，请前往模型编辑页确认~');
 			} else {
 				updateService(

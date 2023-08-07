@@ -64,7 +64,7 @@ const DomainEditModel: FC<DomainEditModelProps> = props => {
 			model.query[key].script = getScript(model.query[key]);
 		});
 		
-		updateService(initialModel ? 'update' : 'create', model);
+		updateService(initialModel ? 'update' : 'create', { ...model, query: { ...model.query, edited: true } });
 		onClose();
 	}, [model, initialModel]);
 	

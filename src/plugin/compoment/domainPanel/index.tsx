@@ -56,6 +56,7 @@ export const getDomainService = (id, entity) => {
 		return {
 			method: 'POST',
 			type: 'domain',
+			serviceId: entity.id + '_' + type,
 			path: '/api/system/domain/run',
 			input: encodeURIComponent(input.replace('__action__', type)),
 			output: encodeURIComponent('export default function (result, { method, url, params, data, headers }) { return result; }'),
@@ -124,7 +125,7 @@ export const getDomainService = (id, entity) => {
 				script: getScript({ ...getBaseOptions('SEARCH_BY_FIELD'), modelType: 'domain' })
 			},
 			abilitySet: ['SELECT', 'DELETE', 'UPDATE', 'INSERT', 'SEARCH_BY_FIELD', 'PAGE'],
-			entity: entity,
+			entity,
 		},
 		createTime: Date.now(),
 		updateTime: Date.now(),
