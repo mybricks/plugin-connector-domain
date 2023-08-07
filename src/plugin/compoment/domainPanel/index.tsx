@@ -1,7 +1,7 @@
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { Modal } from 'antd';
-import { DOMAIN_PANEL_VISIBLE, exampleSQLParamsFunc, NO_PANEL_VISIBLE } from '../../../constant';
+import { DOMAIN_PANEL_VISIBLE, exampleOpenSQLParamsFunc, exampleResultFunc, NO_PANEL_VISIBLE } from '../../../constant';
 import { getScript } from '../../../script';
 import { getPageSchemaByEntity, getSchemaByEntity, safeStringify, uuid } from '../../../utils';
 
@@ -24,7 +24,7 @@ interface Entity {
 	[key: string]: AnyType;
 }
 
-const errorSchema = {
+export const errorSchema = {
 	type: 'object',
 	properties: {
 		code: { type: 'number' },
@@ -48,7 +48,7 @@ const markedKeymap = {
 };
 
 export const getDomainService = (id, entity) => {
-	const input = exampleSQLParamsFunc
+	const input = exampleOpenSQLParamsFunc
 		.replace('__serviceId__', entity.id)
 		.replace('__fileId__', String(entity.domainFileId));
 
@@ -59,7 +59,7 @@ export const getDomainService = (id, entity) => {
 			serviceId: entity.id + '_' + type,
 			path: '/api/system/domain/run',
 			input: encodeURIComponent(input.replace('__action__', type)),
-			output: encodeURIComponent('export default function (result, { method, url, params, data, headers }) { return result; }'),
+			output: encodeURIComponent(exampleResultFunc),
 		};
 	};
 

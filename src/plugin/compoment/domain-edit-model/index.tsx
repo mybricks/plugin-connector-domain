@@ -75,7 +75,20 @@ const DomainEditModel: FC<DomainEditModelProps> = props => {
 					sidebarContext={sidebarContext}
 					entity={model.query.entity}
 					formModel={model.query.SELECT}
-					onChangeEntity={entity => setModel(model => ({ ...model, query: { ...model.query, entity } }))}
+					onChangeEntity={entity => {
+						setModel(model => ({
+							...model,
+							query: {
+								...model.query,
+								entity: {
+									...entity,
+									domainFileId: model.query.entity.domainFileId,
+									domainFileName: model.query.entity.domainFileName,
+									entityId: model.query.entity.entityId,
+								}
+							}
+						}));
+					}}
 					onChange={(select: AnyType) => {
 						setModel(model => {
 							let abilitySet = model.query.abilitySet || [];

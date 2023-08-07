@@ -200,7 +200,7 @@ export default function Sidebar({
 	}, [sidebarContext, panelVisible, updateService, onClose, data, curEditModel]);
 	
 	useEffect(() => {
-		const domainService = data.domainModels.filter(item => item.type === 'domain');
+		const domainService = data.domainModels.filter(item => item.type === 'domain' && !item.query.edited);
 		
 		if (domainService.length) {
 			const promises = [];

@@ -1,14 +1,15 @@
-import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
+import React, { FC, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Editor from '@mybricks/code-editor';
 import Collapse from '../../../../components/Collapse';
 import Button from '../../../../components/Button';
 import { fullScreen, fullScreenExit } from '../../../../icon';
 import { getEntityBySchema, getSchemaByMarkedMap, safeDecode, uuid } from '../../../../utils';
-import FormItem from '../../../../components/FormItem';
-import Input, { TextArea } from '../../../../components/Input';
 import { MarkList } from '../../../../constant';
 import RequestInfo from '../../aggregation-model/request-info';
 import ProtocolInfo from '../../aggregation-model/protocol-info';
+import SQLPanel from '../../sqlPanel';
+import { errorSchema } from '../../domainPanel';
+import { getScript } from '../../../../script';
 
 import parentCss from '../../../../style-cssModules.less';
 import styles from '../index.less';
@@ -24,6 +25,7 @@ interface SelectProps {
 const Select: FC<SelectProps> = props => {
 	const { formModel: defaultFormModel, onChange, sidebarContext, onChangeEntity, entity } = props;
 	const [formModel, setFormModel] = useState<Record<string, AnyType>>(defaultFormModel);
+	const [showFileSelector, setShowFileSelector] = useState(false);
 	const paramRef = useRef<HTMLDivElement>();
 	const resultRef = useRef<HTMLDivElement>();
 	const firstLoad = useRef(true);
@@ -70,6 +72,26 @@ const Select: FC<SelectProps> = props => {
 			};
 		});
 	}, [onChangeEntity, entity, formModel]);
+
+	const selectService = useCallback(() => setShowFileSelector(true), []);
+	const onCloseFileSelector = useCallback(() => setShowFileSelector(false), []);
+	const SQLPanelService = useMemo(() => {
+		return {
+			add: item => {
+				setFormModel(pre => {
+					return {
+						...pre,
+						...item,
+						serviceId: item.id,
+						errorSchema,
+						pageInfo: undefined,
+						script: getScript({ ...item, modelType: 'domain' }),
+						markedKeymap: {},
+					};
+				});
+			},
+		};
+	}, []);
 	
 	useEffect(() => {
 		if (firstLoad.current) {
@@ -86,7 +108,7 @@ const Select: FC<SelectProps> = props => {
 				  <div className={styles.item}>
 					  <label>领域接口</label>
 						<div className={`${styles.editor} ${styles.textEdt}`}>
-							<Button size="small" type="default" className={styles.defaultButton}>
+							<Button size="small" type="default" className={styles.defaultButton} onClick={selectService}>
 								更新接口
 							</Button>
 							<div className={styles.serviceTitle}>已选择接口: {formModel.title}</div>
@@ -171,6 +193,7 @@ const Select: FC<SelectProps> = props => {
 		  <div className={styles.ct}>
 			  <Collapse header='请求入参' defaultFold={false}>
 				  <RequestInfo
+						key={JSON.stringify(formModel?.pageInfo)}
 					  pageInfo={formModel?.pageInfo}
 					  onChange={(pageInfo) => {
 						  setFormModel(model => ({ ...model, pageInfo }));
@@ -189,6 +212,14 @@ const Select: FC<SelectProps> = props => {
 				  />
 			  </Collapse>
 		  </div>
+			{showFileSelector ? (
+				<SQLPanel
+					single
+					openFileSelector={sidebarContext.openFileSelector}
+					onClose={onCloseFileSelector}
+					connectorService={SQLPanelService as AnyType}
+				/>
+			) : null}
 	  </>
 	);
 };

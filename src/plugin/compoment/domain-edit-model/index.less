@@ -153,3 +153,12 @@
     user-select: text;
   }
 }
+
+:global {
+  div[data-id=file-panel-root] {
+    .ant-modal-mask,
+    .ant-modal-wrap {
+      z-index: 1001;
+    }
+  }
+}
