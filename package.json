@@ -1,6 +1,6 @@
 {
   "name": "@mybricks/plugin-connector-domain",
-  "version": "0.0.46",
+  "version": "0.0.47",
   "author": "",
   "license": "",
   "main": "runtime/plugin.js",

@@ -33,7 +33,7 @@ export const exampleOpenSQLParamsFunc = `export default function ({ params, data
   // 设置请求query、请求体、请求头
   return { params, data: {
     params: {
-      query: data,
+      ...data,
 			action: '__action__'
     },
     ...domainInfo,
