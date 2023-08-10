@@ -61,7 +61,7 @@ const DomainEditModel: FC<DomainEditModelProps> = props => {
 		}
 		
 		queryAbilitySet?.forEach(key => {
-			model.query[key].script = getScript(model.query[key]);
+			model.query[key].script = getScript({ ...model.query[key], modelType: 'domain' });
 		});
 		
 		updateService(initialModel ? 'update' : 'create', { ...model, query: { ...model.query, edited: true } });

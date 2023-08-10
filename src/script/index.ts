@@ -14,7 +14,7 @@ function getScript(serviceItem, isTest = false) {
 		function serviceAgent(params, config) {
 			const method = '__method__';
 			const path = '__path__';
-			
+
 			try {
 				const url = path;
 				__convert_page_info__(params);
@@ -60,29 +60,36 @@ function getScript(serviceItem, isTest = false) {
 		.replace('__path__', serviceItem.path?.trim());
 	
 	return encodeURIComponent(
-		isTest || serviceItem.modelType === 'domain'
+		isTest
 			? fetchString.replace('__convert_page_info__', '(() => {})')
 				.replace('__convert_response__', '(response => response)')
 			: fetchString
-				.replace('__convert_page_info__', serviceItem.pageInfo ? `((params) => {
-	        if (!params) { return; }
-	        const pageNum = params.page ? params.page.pageNum : undefined;
-	        const pageSize = params.page ? params.page.pageSize : undefined;
-	        delete params.page;
-	        delete params.fields;
-	        Object.assign(params, params.query || {});
-	        delete params.query;
-	        delete params.orders;
-	        
-	        ${serviceItem.pageInfo.pageNumKey ? `params.${serviceItem.pageInfo.pageNumKey} = pageNum;` : ''}
-	        ${serviceItem.pageInfo.pageSizeKey ? `params.${serviceItem.pageInfo.pageSizeKey} = pageSize;` : ''}
-	      })` : `((params) => {
-	        if (!params) { return; }
-	        delete params.page;
-	        delete params.fields;
-	        Object.assign(params, params.query || {});
-	        delete params.query;
-	      })`)
+				.replace('__convert_page_info__', serviceItem.modelType === 'domain'
+					? '(() => {})'
+					: (
+						serviceItem.pageInfo
+							? `((params) => {
+									if (!params) { return; }
+									const pageNum = params.page ? params.page.pageNum : undefined;
+									const pageSize = params.page ? params.page.pageSize : undefined;
+									delete params.page;
+									delete params.fields;
+									Object.assign(params, params.query || {});
+									delete params.query;
+									delete params.orders;
+									
+									${serviceItem.pageInfo.pageNumKey ? `params.${serviceItem.pageInfo.pageNumKey} = pageNum;` : ''}
+									${serviceItem.pageInfo.pageSizeKey ? `params.${serviceItem.pageInfo.pageSizeKey} = pageSize;` : ''}
+								})`
+							: `((params) => {
+									if (!params) { return; }
+									delete params.page;
+									delete params.fields;
+									Object.assign(params, params.query || {});
+									delete params.query;
+								})`
+					)
+				)
 				.replace('__convert_response__', serviceItem.markedKeymap ? `((response) => {
         const markedKeyMap = ${JSON.stringify(serviceItem.markedKeymap)};
         
