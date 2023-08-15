@@ -45,7 +45,9 @@
           {
             loader: 'css-loader',
             options: {
-              modules: true,
+              modules: {
+                localIdentName: 'domain_plugin_[local]_[hash:base64:5]',
+              },
             },
           },
           {
