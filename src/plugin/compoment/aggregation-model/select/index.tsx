@@ -75,6 +75,12 @@ const Select: FC<SelectProps> = props => {
 	useEffect(() => {
 		if (firstLoad.current) {
 			firstLoad.current = false;
+
+			/** 兼容 resultSchema 不存在的情况 */
+			if (!formModel?.resultSchema && formModel?.outputSchema) {
+				formModel.resultSchema = formModel.outputSchema;
+				onChange(formModel);
+			}
 			return;
 		}
 		onChange(formModel);
