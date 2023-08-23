@@ -109,7 +109,7 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
 					) : null}
 	        {markItem?.needMarkValue && markedAsReturn ? (
 						<>
-							<span className={styles.markValueSelect}>当请求成功时，值为：</span>
+							<span className={styles.markValueSelect}>当值为</span>
 							{val.type === 'string' ? (
 								<input
 									value={markedKeymap[markType].value}
@@ -136,6 +136,7 @@ const ReturnSchema: FC<ReturnSchemaProps> = props => {
 									<option value={0}>false</option>
 								</select>
 							) : null}
+							<span className={styles.markValueSelect} style={{ marginLeft: 0 }}>时，即请求成功</span>
 						</>
 	        ) : null}
 					{showCancel ? (
