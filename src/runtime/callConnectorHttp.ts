@@ -43,15 +43,17 @@ export function call(
 						const opts = before({ ...options });
 						const { url } = opts;
 
-						if (domainModel.useProxy && httpRegExp.test(url)) {
-							return axios({ url: '/paas/api/proxy', method: 'post', data: opts || options }).catch(error => {
-								reject(error);
-							});
+						if (domainModel.useProxy && httpRegExp.test(url) && url.match(/^https?:\/\/([^/#&?])+/g)?.[0] !== location.origin) {
+							return axios({
+								...opts,
+								url: '/paas/api/proxy',
+								headers: { ...(opts.headers || {}), ['x-target-url']: opts.url },
+								data: opts.data
+							})
+								.catch(error => reject(error.response.data?.message || error));
 						}
 
-						return axios(opts || options).catch(error => {
-							reject(error);
-						});
+						return axios(opts || options).catch(error => reject(error.response.data?.message || error));
 					},
 				}
 			);
