@@ -6,7 +6,7 @@ import { fullScreen, fullScreenExit } from '../../../../icon';
 import { getEntityBySchema, getSchemaByMarkedMap, safeDecode, uuid } from '../../../../utils';
 import FormItem from '../../../../components/FormItem';
 import Input, { TextArea } from '../../../../components/Input';
-import { MarkList, MethodOpts } from '../../../../constant';
+import { CDN, MarkList, MethodOpts } from '../../../../constant';
 import RequestInfo from '../request-info';
 import ProtocolInfo from '../protocol-info';
 
@@ -159,6 +159,7 @@ const Select: FC<SelectProps> = props => {
 							  }
 						  };
 					  }}
+					  CDN={CDN}
 					  env={{ isNode: false, isElectronRenderer: false }}
 					  onChange={(code: string) => {
 						  setFormModel(model => ({ ...model, input: encodeURIComponent(code) }));
@@ -196,6 +197,7 @@ const Select: FC<SelectProps> = props => {
 							  }
 						  };
 					  }}
+					  CDN={CDN}
 					  env={{ isNode: false, isElectronRenderer: false }}
 					  onChange={(code: string) => {
 						  setFormModel(model => ({ ...model, output: encodeURIComponent(code) }));

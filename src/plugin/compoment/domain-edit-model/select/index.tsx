@@ -4,7 +4,7 @@ import Collapse from '../../../../components/Collapse';
 import Button from '../../../../components/Button';
 import { fullScreen, fullScreenExit } from '../../../../icon';
 import { getEntityBySchema, getSchemaByMarkedMap, safeDecode, uuid } from '../../../../utils';
-import { MarkList } from '../../../../constant';
+import { CDN, MarkList } from '../../../../constant';
 import RequestInfo from '../../aggregation-model/request-info';
 import ProtocolInfo from '../../aggregation-model/protocol-info';
 import SQLPanel from '../../sqlPanel';
@@ -136,6 +136,7 @@ const Select: FC<SelectProps> = props => {
 							  }
 						  };
 					  }}
+					  CDN={CDN}
 					  env={{ isNode: false, isElectronRenderer: false }}
 					  onChange={(code: string) => {
 						  setFormModel(model => ({ ...model, input: encodeURIComponent(code) }));
@@ -173,6 +174,7 @@ const Select: FC<SelectProps> = props => {
 							  }
 						  };
 					  }}
+					  CDN={CDN}
 					  env={{ isNode: false, isElectronRenderer: false }}
 					  onChange={(code: string) => {
 						  setFormModel(model => ({ ...model, output: encodeURIComponent(code) }));

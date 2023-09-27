@@ -6,7 +6,7 @@ import { fullScreen, fullScreenExit } from '../../../../icon';
 import { getSchemaByMarkedMap, safeDecode } from '../../../../utils';
 import FormItem from '../../../../components/FormItem';
 import Input, { TextArea } from '../../../../components/Input';
-import { MethodOpts, ResponseMarkList } from '../../../../constant';
+import { CDN, MethodOpts, ResponseMarkList } from '../../../../constant';
 import ProtocolInfo from '../protocol-info';
 
 import parentCss from '../../../../style-cssModules.less';
@@ -138,6 +138,7 @@ const Insert: FC<InsertProps> = props => {
 								}
 							};
 						}}
+						CDN={CDN}
 						env={{ isNode: false, isElectronRenderer: false }}
 						onChange={(code: string) => {
 							setFormModel(model => ({ ...model, input: encodeURIComponent(code) }));
@@ -175,6 +176,7 @@ const Insert: FC<InsertProps> = props => {
 								}
 							};
 						}}
+						CDN={CDN}
 						env={{ isNode: false, isElectronRenderer: false }}
 						onChange={(code: string) => {
 							setFormModel(model => ({ ...model, output: encodeURIComponent(code) }));

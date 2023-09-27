@@ -1,17 +1,14 @@
 import React, { FC, useCallback, useEffect, useRef, useState } from 'react';
 import Editor from '@mybricks/code-editor';
 import Collapse from '../../../../components/Collapse';
-import RadioButton from '../../../../components/RadioBtn';
 import { fullScreen, fullScreenExit } from '../../../../icon';
 import { getSchemaByMarkedMap, safeDecode } from '../../../../utils';
-import FormItem from '../../../../components/FormItem';
-import Input, { TextArea } from '../../../../components/Input';
-import { MethodOpts, ResponseMarkList } from '../../../../constant';
+import { CDN, ResponseMarkList } from '../../../../constant';
 import ProtocolInfo from '../../aggregation-model/protocol-info';
+import Button from '../../../../components/Button';
 
 import parentCss from '../../../../style-cssModules.less';
 import styles from '../index.less';
-import Button from "../../../../components/Button";
 
 interface InsertProps {
 	sidebarContext: AnyType;
@@ -101,6 +98,7 @@ const Insert: FC<InsertProps> = props => {
 								}
 							};
 						}}
+						CDN={CDN}
 						env={{ isNode: false, isElectronRenderer: false }}
 						onChange={(code: string) => {
 							setFormModel(model => ({ ...model, input: encodeURIComponent(code) }));
@@ -138,6 +136,7 @@ const Insert: FC<InsertProps> = props => {
 								}
 							};
 						}}
+						CDN={CDN}
 						env={{ isNode: false, isElectronRenderer: false }}
 						onChange={(code: string) => {
 							setFormModel(model => ({ ...model, output: encodeURIComponent(code) }));

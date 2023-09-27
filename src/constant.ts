@@ -105,3 +105,15 @@ export enum FieldBizType {
   SYS_ROLE = 'SYS_ROLE',
   SYS_ROLE_RELATION = 'SYS_ROLE_RELATION',
 }
+
+export const CDN = {
+	prettier: {
+		standalone: '/mfs/editor_assets/prettier/2.6.2/standalone.js',
+		babel: '/mfs/editor_assets/prettier/2.6.2/parser-babel.js'
+	},
+	eslint: '/mfs/editor_assets/eslint/8.15.0/eslint.js',
+	paths: {
+		vs: '/mfs/editor_assets/monaco-editor/0.33.0/min/vs',
+	},
+	monacoLoader: '/mfs/editor_assets/monaco-editor/0.33.0/min/vs/loader.min.js'
+};
