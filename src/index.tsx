@@ -7,7 +7,8 @@ import pkg from '../package.json';
 
 console.log(`%c ${pkg.name} %c@${pkg.version}`, 'color:#FFF;background:#fa6400', '', '');
 
-export { call, mock } from './runtime/callConnectorHttp';
+export { call } from './runtime/callConnectorHttp';
+export { mock } from './script/mock';
 
 export default function pluginEntry(config?: AnyType) {
 	return {
